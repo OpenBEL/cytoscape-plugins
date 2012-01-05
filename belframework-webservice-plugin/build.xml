@@ -1,0 +1,67 @@
+<project name="belframework-webservice-plugin" default="deploy">
+    <property environment="env" />
+    <property name="src.path" value="src" />
+    <property name="lib.path" value="lib" />
+    <property name="license.path" value="license" />
+    <property name="compile.path" value="bin" />
+    <property name="jar.version" value="1.0" />
+    <property name="jar.name" value="belframework_webservice_${jar.version}.jar" />
+    <property name="src.jar.name" value="belframework_webservice_source_${jar.version}.jar" />
+    <property name="deploy.path" value="/home/tony/tools/graph/cytoscape/plugins/${jar.name}" />
+
+    <path id="classpath">
+        <fileset dir="${lib.path}">
+            <include name="*.jar" />
+        </fileset>
+
+        <pathelement location="${env.BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar" />
+    </path>
+
+    <target name="clean">
+        <delete dir="${compile.path}" />
+        <delete file="${jar.name}" />
+        <mkdir dir="${compile.path}" />
+    </target>
+
+    <target name="compile" depends="clean">
+        <fail message="BELFRAMEWORK_HOME must be set in order to locate webservice client dependency." unless="${env.BELFRAMEWORK_HOME}" />
+
+        <javac includeantruntime="false" srcdir="${src.path}" destdir="${compile.path}" debug="on">
+            <classpath refid="classpath" />
+        </javac>
+    </target>
+
+    <target name="package" depends="compile">
+        <fail message="BELFRAMEWORK_HOME must be set in order to locate webservice client dependency." unless="${env.BELFRAMEWORK_HOME}" />
+
+        <jar destfile="${jar.name}" basedir="${compile.path}">
+            <fileset dir="${src.path}" includes="**/*.props" />
+
+            <zipfileset src="${env.BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar" includes="**/*.java **/*.class" />
+
+            <manifest>
+                <attribute name="Cytoscape-Plugin" value="org.openbel.belframework.webservice.ClientPlugin" />
+            </manifest>
+
+            <!-- include license -->
+            <metainf dir="${license.path}" />
+        </jar>
+    </target>
+
+    <target name="package-source">
+        <jar destfile="${src.jar.name}" basedir="${src.path}">
+            <!-- include license -->
+            <metainf dir="${license.path}" />
+        </jar>
+    </target>
+
+    <target name="deploy" depends="package">
+        <delete file="${deploy.path}" />
+        <copy file="${jar.name}" tofile="${deploy.path}" />
+    </target>
+
+    <target name="distribute">
+        <antcall target="package" />
+        <antcall target="package-source" />
+    </target>
+</project>
