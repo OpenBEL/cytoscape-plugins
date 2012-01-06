@@ -1,0 +1,93 @@
+<!--
+KAM Navigator Plugin
+
+URLs: http://openbel.org/
+Copyright (C) 2012, Selventa
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<project name="kam-navigator-plugin" default="deploy">
+    <!--
+    Contains configuration for the specific build environment.
+    -->
+    <property file="build.properties" />
+
+    <property name="src.path" value="src" />
+    <property name="lib.path" value="lib" />
+    <property name="license.path" value="license" />
+    <property name="compile.path" value="bin" />
+    <property name="jar.version" value="1.0" />
+    <property name="jar.name" value="kam_navigator_${jar.version}.jar" />
+    <property name="src.jar.name"
+              value="kam_navigator_source_${jar.version}.jar" />
+    <property name="deploy.path"
+              value="/home/tony/tools/graph/cytoscape/plugins/${jar.name}" />
+
+    <path id="classpath">
+        <fileset dir="${lib.path}">
+            <include name="*.jar" />
+        </fileset>
+
+        <pathelement location="${CYTOSCAPE_HOME}/cytoscape.jar" />
+    </path>
+
+    <target name="clean">
+        <delete dir="${compile.path}" />
+        <delete file="${jar.name}" />
+        <mkdir dir="${compile.path}" />
+    </target>
+
+    <target name="compile" depends="clean">
+        <javac includeantruntime="false"
+               srcdir="${src.path}"
+               destdir="${compile.path}"
+               debug="on">
+            <classpath refid="classpath" />
+        </javac>
+    </target>
+
+    <target name="package" depends="compile">
+        <jar destfile="${jar.name}" basedir="${compile.path}">
+            <fileset dir="${src.path}" includes="**/*.props" />
+
+            <zipfileset src="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar"
+                        includes="**/*.java **/*.class" />
+
+            <manifest>
+                <attribute name="Cytoscape-Plugin"
+                           value="org.openbel.belframework.kam.KAMNavigatorPlugin" />
+            </manifest>
+
+            <!-- include license -->
+            <metainf dir="${license.path}" />
+        </jar>
+    </target>
+
+    <target name="package-source">
+        <jar destfile="${src.jar.name}" basedir="${src.path}">
+            <!-- include license -->
+            <metainf dir="${license.path}" />
+        </jar>
+    </target>
+
+    <target name="deploy" depends="package">
+        <delete file="${deploy.path}" />
+        <copy file="${jar.name}" tofile="${deploy.path}" />
+    </target>
+
+    <target name="distribute">
+        <antcall target="package" />
+        <antcall target="package-source" />
+    </target>
+</project>
