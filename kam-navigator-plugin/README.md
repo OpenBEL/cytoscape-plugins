@@ -58,7 +58,7 @@ To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
 
 -   Configure classpath
 
-    -   Add `lib/belframework_webservice_1.0.jar` to the project classpath.
+    -   Add the `belframework_webservice_1.0.jar` to the project classpath.
     -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
     -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to the project classpath.
 
