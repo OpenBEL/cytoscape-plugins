@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 pluginName=KAMNavigator
-pluginDescription=The KAM Navigator plugin for the BELFramework.
+pluginDescription=KAM Navigator plugin for the BEL Framework.
 pluginVersion=1.0
 cytoscapeVersion=2.7,2.8
 pluginCategory=Communication/Scripting

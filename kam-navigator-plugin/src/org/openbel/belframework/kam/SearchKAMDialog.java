@@ -237,7 +237,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         resultsPanel.add(resultsPane, java.awt.BorderLayout.CENTER);
 
         JPanel filterPanel = new JPanel(new BorderLayout(5, 0));
-        filterPanel.add(new JLabel("Filter"), BorderLayout.WEST);
+        filterPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
 
         filterTxt = new JTextField();
         filterTxt.addKeyListener(new KeyListener() {
@@ -274,7 +274,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         final JPanel optionsPanel = new JPanel(new BorderLayout());
         optionsPanel.setLayout(new GridBagLayout());
 
-        final JLabel edgeLabel = new JLabel("Expand Edge Option:");
+        final JLabel edgeLabel = new JLabel("Expand Edge Options:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;

@@ -1,11 +1,15 @@
 KAM Navigator Plugin
 ==============================
 
-This cytoscape plugin allows users to navigate Knowledge Assembly Model (KAMs) created using the BELFramework.
+This Cytoscape Plugin allows users to access and query BEL Framework Knowledge Assembly Models (KAMs) using the BEL Framework Web Services API.
 
 License
 -------
 This project is licensed under the terms of the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
+
+Dependencies
+----------
+-   BELFramework Webservice Plugin V1.0
 
 Building
 --------
@@ -17,7 +21,7 @@ To build this plugin you will need
 -   BELFramework 1.2.2 or greater installed
 -   Cytoscape 2.7.x or 2.8.x installed
 
-Make sure the latest BELFramework Webservice Plugin is built and copied to the `lib/` folder.
+Make sure the latest BEL Framework Web Service Plugin is built and copied to the `lib/` folder.
 
 Once installed you will need to configure the *HOME* location of each
 
@@ -32,15 +36,15 @@ To build the project use the following commands
 
 -   `ant deploy`
 
-    Packages the plugin and copies to the plugins folder of your Cytoscape installation.
+    Packages the plugin and copies it to the plugins folder of your Cytoscape installation.
 
-    *Important* - Also make sure the BELFramework Webservice Plugin is deployed as a cytoscape plugin.
+    *Important* - Also make sure the BELFramework Web Service Plugin is deployed as a cytoscape plugin.
 
 
 Setting up Eclipse
 ------------------
 
-To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
+To set up the [Eclipse IDE](http://www.eclipse.org/) for working with this plugin
 
 -   Check out the [belframework project](https://belframework-org@github.com/belframework-org/belframework.git)
 
@@ -58,7 +62,7 @@ To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
 
 -   Configure classpath
 
-    -   Add the `belframework_webservice_1.0.jar` to the project classpath.
+    -   Add `lib/belframework_webservice_1.0.jar` to the project classpath.
     -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
     -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to the project classpath.
 
