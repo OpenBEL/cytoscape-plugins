@@ -14,16 +14,16 @@ To build this plugin you will need
 
 Once installed you will need to configure the *HOME* location of each
 
--   Change the BELFRAMEWORK_HOME property in build.properties to point to the BEL Framework installation folder.
--   Change the CYTOSCAPE_HOME property in build.properties to poi nt to the Cytoscape installation folder.
+-   Change the `BELFRAMEWORK_HOME` property in build.properties to point to the BEL Framework installation folder.
+-   Change the `CYTOSCAPE_HOME` property in build.properties to poi nt to the Cytoscape installation folder.
 
 To build the project use the following commands
 
--   ant package
+-   `ant package`
 
     Builds the plugin ready to install into Cytoscape.
 
--   ant deploy
+-   `ant deploy`
 
     Packages the plugin and copies to the plugins folder of your Cytoscape installation.
 
@@ -43,13 +43,13 @@ To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
 
 -   Enter the location of your local belframework-webservice-plugin folder.
 
-    /path/to/git/clone/belframework/belframework-webservice-plugin
+    `/path/to/git/clone/belframework/belframework-webservice-plugin`
 
 -   Hit Ok and a new project will be created.
 
 -   Configure classpath
 
-    -   Add BELFrameworkWebAPIClient-1.2.2.jar from BELFRAMEWORK_HOME/lib/webapiclient to your classpath.
+    -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to your classpath.
     -   Add cytoscape.jar from CYTOSCAPE_HOME/ to your classpath.
 
 -   (optional) To build with ANT drag the build.xml to the ANT view.
