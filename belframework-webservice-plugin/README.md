@@ -3,6 +3,10 @@ BELFramework Webservice Plugin
 
 This cytoscape plugin provides access to the webservice client stubs for the BELFramework Web API.
 
+License
+-------
+This project is licensed under the terms of the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
+
 Building
 --------
 
