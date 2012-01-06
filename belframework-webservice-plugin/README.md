@@ -50,6 +50,6 @@ To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
 -   Configure classpath
 
     -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to your classpath.
-    -   Add cytoscape.jar from CYTOSCAPE_HOME/ to your classpath.
+    -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to your classpath.
 
 -   (optional) To build with ANT drag the build.xml to the ANT view.
