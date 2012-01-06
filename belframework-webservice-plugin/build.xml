@@ -1,20 +1,19 @@
 <project name="belframework-webservice-plugin" default="deploy">
-    <property environment="env" />
+    <property file="build.properties" />
     <property name="src.path" value="src" />
-    <property name="lib.path" value="lib" />
     <property name="license.path" value="license" />
     <property name="compile.path" value="bin" />
     <property name="jar.version" value="1.0" />
-    <property name="jar.name" value="belframework_webservice_${jar.version}.jar" />
-    <property name="src.jar.name" value="belframework_webservice_source_${jar.version}.jar" />
-    <property name="deploy.path" value="/home/tony/tools/graph/cytoscape/plugins/${jar.name}" />
+    <property name="jar.name"
+              value="belframework_webservice_${jar.version}.jar" />
+    <property name="src.jar.name"
+              value="belframework_webservice_source_${jar.version}.jar" />
+    <property name="deploy.path"
+              value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
 
     <path id="classpath">
-        <fileset dir="${lib.path}">
-            <include name="*.jar" />
-        </fileset>
-
-        <pathelement location="${env.BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar" />
+        <pathelement location="${CYTOSCAPE_HOME}/cytoscape.jar" />
+        <pathelement location="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar" />
     </path>
 
     <target name="clean">
@@ -24,23 +23,34 @@
     </target>
 
     <target name="compile" depends="clean">
-        <fail message="BELFRAMEWORK_HOME must be set in order to locate webservice client dependency." unless="${env.BELFRAMEWORK_HOME}" />
+        <fail message="BELFRAMEWORK_HOME must be configured in build.properties"
+              unless="BELFRAMEWORK_HOME" />
+        <fail message="CYTOSCAPE_HOME must be configured in build.properties."
+              unless="CYTOSCAPE_HOME" />
 
-        <javac includeantruntime="false" srcdir="${src.path}" destdir="${compile.path}" debug="on">
+        <javac includeantruntime="false"
+               srcdir="${src.path}"
+               destdir="${compile.path}"
+               debug="on">
             <classpath refid="classpath" />
         </javac>
     </target>
 
     <target name="package" depends="compile">
-        <fail message="BELFRAMEWORK_HOME must be set in order to locate webservice client dependency." unless="${env.BELFRAMEWORK_HOME}" />
+        <fail message="BELFRAMEWORK_HOME must be configured in build.properties"
+              unless="BELFRAMEWORK_HOME" />
+        <fail message="CYTOSCAPE_HOME must be configured in build.properties."
+              unless="CYTOSCAPE_HOME" />
 
         <jar destfile="${jar.name}" basedir="${compile.path}">
             <fileset dir="${src.path}" includes="**/*.props" />
 
-            <zipfileset src="${env.BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar" includes="**/*.java **/*.class" />
+            <zipfileset src="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar"
+                        includes="**/*.java **/*.class" />
 
             <manifest>
-                <attribute name="Cytoscape-Plugin" value="org.openbel.belframework.webservice.ClientPlugin" />
+                <attribute name="Cytoscape-Plugin"
+                           value="org.openbel.belframework.webservice.ClientPlugin" />
             </manifest>
 
             <!-- include license -->
