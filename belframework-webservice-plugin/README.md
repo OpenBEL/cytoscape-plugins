@@ -3,18 +3,22 @@ BELFramework Webservice Plugin
 
 This cytoscape plugin provides access to the webservice client stubs for the BELFramework Web API.
 
+License
+-------
+This project is licensed under the terms of the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
+
 Building
 --------
 
 To build this plugin you will need
 
 -   [ANT](http://ant.apache.org/)
--   BEL Framework 1.2.2 or greater installed
+-   BELFramework 1.2.2 or greater installed
 -   Cytoscape 2.7.x or 2.8.x installed
 
 Once installed you will need to configure the *HOME* location of each
 
--   Change the `BELFRAMEWORK_HOME` property in build.properties to point to the BEL Framework installation folder.
+-   Change the `BELFRAMEWORK_HOME` property in build.properties to point to the BELFramework installation folder.
 -   Change the `CYTOSCAPE_HOME` property in build.properties to poi nt to the Cytoscape installation folder.
 
 To build the project use the following commands
@@ -49,7 +53,7 @@ To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
 
 -   Configure classpath
 
-    -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to your classpath.
-    -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to your classpath.
+    -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
+    -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to the project classpath.
 
 -   (optional) To build with ANT drag the build.xml to the ANT view.
