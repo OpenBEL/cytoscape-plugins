@@ -1,7 +1,7 @@
-BELFramework Webservice Plugin
+BELFramework Web Service Plugin
 ==============================
 
-This cytoscape plugin provides access to the webservice client stubs for the BELFramework Web API.
+This Cytoscape Plugin provides access to the webservice client for the BELFramework.
 
 License
 -------
@@ -29,13 +29,13 @@ To build the project use the following commands
 
 -   `ant deploy`
 
-    Packages the plugin and copies to the plugins folder of your Cytoscape installation.
+    Packages the plugin and copies it to the plugins folder of your Cytoscape installation.
 
 
 Setting up Eclipse
 ------------------
 
-To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
+To set up the [Eclipse IDE](http://www.eclipse.org/) for working with this plugin
 
 -   Check out the [belframework project](https://belframework-org@github.com/belframework-org/belframework.git)
 

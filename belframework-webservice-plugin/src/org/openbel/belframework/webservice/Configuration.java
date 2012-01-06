@@ -38,7 +38,7 @@ import cytoscape.CytoscapeInit;
  */
 public class Configuration {
     private static final String COMMENTS =
-            "Stores configuration for the BELFrameworkWebservice cytoscape plugin.";
+            "Stores configuration for the BELFramework Web Service cytoscape plugin.";
     private static final String WSDL_KEY = "WSDL_URL";
     private static final String TIMEOUT_KEY = "TIMEOUT";
     private static final String SHORT_FORM_BEL_KEY = "SHORT_FORM_BEL";

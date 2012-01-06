@@ -44,7 +44,7 @@ import cytoscape.data.webservice.WebServiceClientManager;
 public class ClientConnector extends WebServiceClientImpl<WebAPI> {
     private static final long serialVersionUID = -6685554742203767122L;
     private static final String CLIENT = "belframework";
-    private static final String DISPLAY_NAME = "BELFramework Web API";
+    private static final String DISPLAY_NAME = "BEL Framework Web Services Connection";
     private static final String REQUEST_TIMEOUT_KEY =
             "com.sun.xml.internal.ws.request.timeout";
     private static final Configuration cfg = Configuration.getInstance();
@@ -76,8 +76,8 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
         configure();
         if (!valid) {
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
-                    "Error connecting to the BELFramework.\n" +
-                            "Please check the BELFramework Configuration.",
+                    "Error connecting to the BEL Framework Web Services.\n" +
+                            "Please check the BEL Framework Web Services Configuration.",
                     "Connection Error", JOptionPane.ERROR_MESSAGE);
         }
     }

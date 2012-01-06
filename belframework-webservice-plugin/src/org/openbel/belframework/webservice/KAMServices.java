@@ -337,8 +337,8 @@ public class KAMServices {
     private void checkValid() {
         if (!wsClient.isValid() || ws == null) {
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
-                    "Error connecting to the BELFramework.\n" +
-                            "Please check the BELFramework Configuration.",
+                    "Error connecting to the BELFramework Web Services.\n" +
+                            "Please check the BELFramework Web Services Configuration.",
                     "Connection Error", JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException("Connection error.");
         }
