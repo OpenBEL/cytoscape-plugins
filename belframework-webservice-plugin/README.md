@@ -1,10 +1,10 @@
 BELFramework Webservice Plugin
-=============
+==============================
 
 This cytoscape plugin provides access to the webservice client stubs for the BELFramework Web API.
 
 Building
------------------
+--------
 
 To build this plugin you will need
 
@@ -29,6 +29,7 @@ To build the project use the following commands
 
 
 Setting up Eclipse
+------------------
 
 To set up the [Eclipse IDE](http://www.eclipse.org/) for developing this plugin
 
