@@ -7,6 +7,7 @@ application to access KAMs and create native Cytoscape networks that can be anal
 rich set of network-centric Cytoscape tools.
 
 The KAM Navigator plugin was developed with two main goals:
+
 -   To illustrate how the BEL Framework can easily interoperate with existing technologies, especially those which have a large community around them, and
 -   To illustrate how to use the BEL Framework Web Services API to create innovative and interesting knowledge-aware applications.
 
