@@ -23,6 +23,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     -->
     <property file="build.properties" />
 
+    <property name="dist.path" value="dist" />
     <property name="src.path" value="src" />
     <property name="lib.path" value="lib" />
     <property name="license.path" value="license" />
@@ -31,8 +32,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="jar.name" value="kam_navigator_${jar.version}.jar" />
     <property name="src.jar.name"
               value="kam_navigator_source_${jar.version}.jar" />
-    <property name="deploy.path"
-              value="/home/tony/tools/graph/cytoscape/plugins/${jar.name}" />
+    <property name="deploy.path" value="${dist.path}/${jar.name}" />
 
     <path id="classpath">
         <fileset dir="${lib.path}">
@@ -43,6 +43,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </path>
 
     <target name="clean">
+        <delete dir="${dist.path}" />
         <delete dir="${compile.path}" />
         <delete file="${jar.name}" />
         <mkdir dir="${compile.path}" />
@@ -83,6 +84,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
     <target name="deploy" depends="package">
         <delete file="${deploy.path}" />
+        <mkdir dir="${dist.path}" />
         <copy file="${jar.name}" tofile="${deploy.path}" />
     </target>
 
