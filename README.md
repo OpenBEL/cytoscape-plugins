@@ -12,6 +12,6 @@ The KAM Navigator plugin was developed with two main goals:
 -   To illustrate how to use the BEL Framework Web Services API to create innovative and interesting knowledge-aware applications.
 
 The KAM Navigator plugin was designed and developed by [Selventa](http://www.selventa.com) and is being released 
-into the public domain.
+for public use under the GPLv3 license..
 
 
