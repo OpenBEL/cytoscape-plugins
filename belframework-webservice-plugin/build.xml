@@ -90,7 +90,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <target name="deploy" depends="package">
         <delete file="${deploy.path}" />
         <mkdir dir="${dist.path}" />
-        <copy file="${jar.name}" tofile="${deploy.path}" />
+        <copy file="${dist.path}/${jar.name}" tofile="${deploy.path}" />
     </target>
 
     <target name="distribute">
