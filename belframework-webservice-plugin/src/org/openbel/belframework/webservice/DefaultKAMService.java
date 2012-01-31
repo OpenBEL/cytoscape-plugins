@@ -46,6 +46,7 @@ import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
 import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
 import com.selventa.belframework.ws.client.GetSupportingTermsResponse;
+import com.selventa.belframework.ws.client.KAMLoadStatus;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
@@ -59,23 +60,23 @@ import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
 
 /**
- * {@link KAMServices} provides an API wrapper around the
- * {@link WebAPI web api}.  This lightweight class reuses the same
- * webservice stub instance obtained from the
+ * {@link DefaultKAMService} implements an API wrapper around version
+ * 1.2.3 of the {@link WebAPI BEL Framework Web API}.  This lightweight class
+ * reuses the same webservice stub instance obtained from the
  * {@link WebServiceClientManager cytoscape webservice manager}.
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public class KAMServices {
+class DefaultKAMService implements KAMService {
+	protected WebAPI ws;
     private ClientConnector wsClient;
-    private WebAPI ws;
 
     /**
      * Retrieves the webservice client from the
      * {@link WebServiceClientManager cytoscape webservice manager} and holds
      * the client stub.
      */
-    public KAMServices() {
+    DefaultKAMService() {
         wsClient = (ClientConnector) WebServiceClientManager
                 .getClient("belframework");
         if (wsClient == null) {
@@ -86,12 +87,10 @@ public class KAMServices {
     }
 
     /**
-     * Retrieves the KAM catalog for the configured BELFramework.
-     *
-     * @return the {@link List} of {@link Kam kams} from the KAM catalog, which
-     * will not be {@code null} but might be empty
+     * {@inheritDoc}
      */
-    public List<Kam> getCatalog() {
+    @Override
+	public List<Kam> getCatalog() {
         checkValid();
 
         final GetCatalogRequest req = createGetCatalogRequest();
@@ -101,17 +100,10 @@ public class KAMServices {
     }
 
     /**
-     * Loads the {@link Kam kam} on the server end of the webservice and
-     * returns a {@link KamHandle kam handle} for subsequent operations.
-     *
-     * @param kam the {@link Kam kam} to load
-     * @return the {@link KamHandle kam handle} for this kam, or {@code null}
-     * if the kam does not exist in the catalog
-     * @throws IllegalArgumentException Thrown if the {@code kam} parameter is
-     * {@code null}
-     * @see KAMServices#getCatalog()
+     * {@inheritDoc}
      */
-    public KamHandle loadKam(final Kam kam) {
+    @Override
+    public KamHandle loadKam(Kam kam) {
         if (kam == null || kam.getName() == null) {
             throw new IllegalArgumentException("kam parameter is invalid");
         }
@@ -121,22 +113,30 @@ public class KAMServices {
         final LoadKamRequest req = createLoadKamRequest();
         req.setKam(kam);
 
-        final LoadKamResponse res = ws.loadKam(req);
+        LoadKamResponse res = ws.loadKam(req);
+        while (res.getLoadStatus() == KAMLoadStatus.IN_PROCESS) {
+            // sleep 100 milliseconds and then retry
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // no-op
+            }
+
+            res = ws.loadKam(req);
+        }
+
+        if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
+            return null;
+        }
+
         return res.getHandle();
     }
 
     /**
-     * Retrieves the supporting {@link BelTerm BEL terms} for a specific
-     * {@link KamNode kam node}.
-     *
-     * @param node the {@link KamNode kam node}
-     * @return the {@link List} of {@link BelTerm BEL terms} that back the
-     * {@link KamNode kam node}, which will not be {@code null} and must
-     * contain at least one entry
-     * @throws IllegalArgumentException Thrown if the {@code node} parameter is
-     * {@code null}
+     * {@inheritDoc}
      */
-    public List<BelTerm> getSupportingTerms(final KamNode node) {
+    @Override
+	public List<BelTerm> getSupportingTerms(final KamNode node) {
         if (node == null) {
             throw new IllegalArgumentException("node parameter is null");
         }
@@ -158,17 +158,10 @@ public class KAMServices {
     }
 
     /**
-     * Retrieves the supporting {@link BelStatement statements} for a specific
-     * {@link KamEdge kam edge}.
-     *
-     * @param edge the {@link KamEdge kam edge}
-     * @return the {@link List} of {@link BelStatement statements} that back
-     * the {@link KamEdge kam edge}, which will not be {@code null} and must
-     * contain at least one entry
-     * @throws IllegalArgumentException Thrown if the {@code kam} parameter is
-     * {@code null}
+     * {@inheritDoc}
      */
-    public List<BelStatement> getSupportingEvidence(final KamEdge edge) {
+    @Override
+	public List<BelStatement> getSupportingEvidence(final KamEdge edge) {
         if (edge == null) {
             throw new IllegalArgumentException("edge parameter is null");
         }
@@ -208,18 +201,10 @@ public class KAMServices {
     }
 
     /**
-     * Finds {@link KamNode kam nodes} by {@link FunctionType BEL function} for
-     * a specific loaded kam.
-     *
-     * @param handle the {@link KamHandle kam handle} that identifies a loaded
-     * {@link Kam}
-     * @param function the {@link FunctionType BEL function} to find by
-     * @return the {@link List} of {@link KamNode kam nodes}, which will not be
-     * {@code null} but may be empty
-     * @throws IllegalArgumentException Thrown if the {@code handle} or
-     * {@code function} parameter is {@code null}
+     * {@inheritDoc}
      */
-    public List<KamNode> findKamNodesByFunction(final KamHandle handle,
+    @Override
+	public List<KamNode> findKamNodesByFunction(final KamHandle handle,
             final FunctionType function) {
         if (handle == null) {
             throw new IllegalArgumentException("handle is null");
@@ -250,20 +235,10 @@ public class KAMServices {
     }
 
     /**
-     * Finds {@link KamNode kam nodes} by a regular expression pattern and
-     * optional {@link NodeFilter node filter}.
-     *
-     * @param handle the {@link KamHandle kam handle} that identifies a loaded
-     * {@link Kam kam}
-     * @param regex the regular expression {@link String} to find by
-     * @param nf the optional {@link NodeFilter node filter} to further
-     * restrict the results
-     * @return the {@link List} of {@link KamNode kam nodes}, which will not be
-     * {@code null} but may be empty
-     * @throws IllegalArgumentException Thrown if the {@code handle} or
-     * {@code regex} parameter is {@code null}
+     * {@inheritDoc}
      */
-    public List<KamNode> findKamNodesByPatterns(final KamHandle handle,
+    @Override
+	public List<KamNode> findKamNodesByPatterns(final KamHandle handle,
             final String regex, final NodeFilter nf) {
         if (handle == null) {
             throw new IllegalArgumentException("handle is null");
@@ -290,21 +265,10 @@ public class KAMServices {
     }
 
     /**
-     * Retrieves {@link KamEdge kam edges} that are adjacent to a
-     * {@link KamNode kam node} either in the outgoing, incoming, or both
-     * directions.  Optionally an {@link EdgeFilter edge filter} can be used to
-     * further restrict the results
-     *
-     * @param node the {@link KamNode kam node} to find adjacent
-     * {@link KamEdge kam edges} for
-     * @param direction the {@link EdgeDirectionType edge direction}
-     * @param ef the optional {@link EdgeFilter edge filter}
-     * @return the {@link List} of {@link KamEdge kam edges}, which will not be
-     * {@code null}, but may be empty
-     * @throws IllegalArgumentException Thrown if the {@code node} or
-     * {@code direction} parameter is {@code null}
+     * {@inheritDoc}
      */
-    public List<KamEdge> getAdjacentKamEdges(final KamNode node,
+    @Override
+	public List<KamEdge> getAdjacentKamEdges(final KamNode node,
             final EdgeDirectionType direction, final EdgeFilter ef) {
         if (node == null) {
             throw new IllegalArgumentException("node is null");
@@ -334,7 +298,7 @@ public class KAMServices {
      *
      * @throws RuntimeException Thrown to fail the existing request
      */
-    private void checkValid() {
+    protected void checkValid() {
         if (!wsClient.isValid() || ws == null) {
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
                     "Error connecting to the BELFramework Web Services.\n" +

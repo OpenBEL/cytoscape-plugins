@@ -103,7 +103,7 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
             ((BindingProvider) stub).getRequestContext().put(
                     REQUEST_TIMEOUT_KEY, cfg.getTimeout() * 1000);
             valid = true;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             valid = false;
         }
     }

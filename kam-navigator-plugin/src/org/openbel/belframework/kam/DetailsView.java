@@ -35,7 +35,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.Annotation;
 import com.selventa.belframework.ws.client.BelStatement;
@@ -57,7 +58,7 @@ import cytoscape.view.cytopanels.CytoPanelImp;
  */
 public class DetailsView {
     private static DetailsView instance;
-    private final KAMServices kamServices;
+    private final KAMService kamService;
     private final CytoPanelImp resultsPanel;
     private final JPanel nodeDetailPanel;
     private final JPanel edgeDetailPanel;
@@ -77,7 +78,7 @@ public class DetailsView {
     private DetailsView() {
         resultsPanel = (CytoPanelImp) Cytoscape.getDesktop()
                 .getCytoPanel(SwingConstants.EAST);
-        this.kamServices = new KAMServices();
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
 
         // build node details panel and add to results panel
         nodeDetailPanel = new JPanel();
@@ -164,7 +165,7 @@ public class DetailsView {
     public void showNodeDetails(final KAMNetwork kn, final CyNode node) {
         final KamNode kamNode = kn.getKAMNode(node);
 
-        final List<BelTerm> terms = kamServices.getSupportingTerms(kamNode);
+        final List<BelTerm> terms = kamService.getSupportingTerms(kamNode);
 
         // set node details and show results panel
         termTableModel.setTerms(terms);
@@ -185,7 +186,7 @@ public class DetailsView {
     public void showEdgeDetails(final KAMNetwork kn, final CyEdge edge) {
         final KamEdge kamEdge = kn.getKAMEdge(edge);
 
-        final List<BelStatement> statements = kamServices
+        final List<BelStatement> statements = kamService
                 .getSupportingEvidence(kamEdge);
 
         // set edge details and show results panel

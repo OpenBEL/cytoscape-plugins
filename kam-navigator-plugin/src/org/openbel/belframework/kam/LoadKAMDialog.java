@@ -48,7 +48,8 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamHandle;
@@ -65,7 +66,7 @@ import cytoscape.task.TaskMonitor;
 public class LoadKAMDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -6182867704453220885L;
     private static final String DIALOG_TITLE = "Load KAM from Catalog";
-    private final KAMServices kamServices;
+    private final KAMService kamService;
     private final SimpleDateFormat dateFormat;
     private JComboBox selectKAMCmb;
     private JLabel kamName;
@@ -81,7 +82,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
      */
     public LoadKAMDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
-        this.kamServices = new KAMServices();
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm aaa");
 
         initUI();
@@ -267,7 +268,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
      * @return the {@link KAMListModel kam list mode} to show to the user
      */
     private KAMListModel loadKAMModel() {
-        final List<Kam> results = kamServices.getCatalog();
+        final List<Kam> results = kamService.getCatalog();
         List<Kam> kams = new ArrayList<Kam>(results.size());
         for (final Kam result : results) {
             kams.add(result);
@@ -333,7 +334,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
          * @see KAMServices#loadKam(Kam)
          */
         private void loadKAM() {
-            final KamHandle handle = kamServices.loadKam(kam);
+            final KamHandle handle = kamService.loadKam(kam);
 
             // Create KAM Network for this selected KAM.
             final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), handle);

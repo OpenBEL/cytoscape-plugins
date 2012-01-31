@@ -37,7 +37,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
@@ -129,7 +130,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
     private static class ExpandAction extends AbstractAction {
         private static final long serialVersionUID = -8467637028387407708L;
         private final EdgeDirectionType direction;
-        private final KAMServices kamServices;
+        private final KAMService kamService;
         private final CyNode cynode;
         private final CyNetworkView view;
 
@@ -137,7 +138,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
                 final CyNode cynode, final CyNetworkView view) {
             super("Expand " + getLabel(direction));
             this.direction = direction;
-            this.kamServices = new KAMServices();
+            this.kamService = KAMServiceFactory.getInstance().getKAMService();
             this.cynode = cynode;
             this.view = view;
         }
@@ -169,7 +170,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             final KamNode kamNode = kamNetwork.getKAMNode(cynode);
 
             final Set<CyNode> nn = new HashSet<CyNode>();
-            final List<KamEdge> edges = kamServices.getAdjacentKamEdges(
+            final List<KamEdge> edges = kamService.getAdjacentKamEdges(
                     kamNode, direction, null);
             for (final KamEdge edge : edges) {
                 CyEdge cye = kamNetwork.addEdge(edge);

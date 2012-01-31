@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.openbel.belframework.kam.KAMNetwork;
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
@@ -50,13 +51,13 @@ import cytoscape.view.CyNetworkView;
  */
 class InterconnectNodesTask extends AddNodeTask {
     private static final String TITLE = "Interconnecting Nodes";
-    private final KAMServices kamServices;
+    private final KAMService kamService;
     private final List<KamNode> kamNodes;
     private final Set<String> kamNodeIds;
 
     InterconnectNodesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
         super(kamNetwork, kamNodes);
-        this.kamServices = new KAMServices();
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
         this.kamNodeIds = new HashSet<String>(kamNodes.size());
         for (final KamNode kamNode : kamNodes) {
@@ -101,7 +102,7 @@ class InterconnectNodesTask extends AddNodeTask {
         int numNodes = kamNodes.size();
         if (numNodes > 1) {
             for (final KamNode selectedNode : kamNodes) {
-                final List<KamEdge> edges = kamServices
+                final List<KamEdge> edges = kamService
                         .getAdjacentKamEdges(selectedNode, EdgeDirectionType.BOTH,
                         null);
 

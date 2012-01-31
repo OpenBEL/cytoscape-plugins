@@ -54,7 +54,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.task.KAMTasks;
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
@@ -75,7 +76,7 @@ import cytoscape.task.TaskMonitor;
 public class SearchKAMDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -8900235008972637257L;
     private static final String DIALOG_TITLE = "Add KAM Nodes";
-    private final KAMServices kamServices;
+    private final KAMService kamService;
     private JTable resultsTable;
     private JComboBox networkCmb;
     private JComboBox functionCmb;
@@ -93,7 +94,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      */
     public SearchKAMDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
-        this.kamServices = new KAMServices();
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
 
         initUI();
     }
@@ -470,7 +471,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
             final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(cyn);
 
             // find kam nodes by function
-            final List<KamNode> nodes = kamServices.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
+            final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
 
             ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
             rtm.setNodes(nodes);
@@ -504,7 +505,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
         private void setNodes(final List<KamNode> nodes) {
             for (final KamNode node : nodes) {
-                final List<BelTerm> terms = kamServices.getSupportingTerms(node);
+                final List<BelTerm> terms = kamService.getSupportingTerms(node);
                 final BelTerm firstTerm = terms.get(0);
                 termMap.put(node, firstTerm);
             }

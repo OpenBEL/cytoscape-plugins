@@ -25,7 +25,8 @@ import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.Kam;
@@ -72,7 +73,7 @@ public class KAMNetwork {
     private static final CyAttributes edgeAtt = Cytoscape.getEdgeAttributes();
     private static final String NETWORK_SUFFIX = " (KAM)";
     private final CyNetwork cyn;
-    private final KAMServices kamServices;
+    private final KAMService kamService;
     private final KamHandle kamHandle;
 
     /**
@@ -86,7 +87,7 @@ public class KAMNetwork {
     public KAMNetwork(final String kamName, final KamHandle kamHandle) {
         this.kamHandle = kamHandle;
         this.cyn = Cytoscape.createNetwork(kamName + NETWORK_SUFFIX, true);
-        this.kamServices = new KAMServices();
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.cyn.addSelectEventListener(new NetworkDetailsListener(this));
 
         loadNetworkStyle();
@@ -196,7 +197,7 @@ public class KAMNetwork {
      * {@link KamNode kam node}
      */
     public CyNode addNode(final KamNode node) {
-        final List<BelTerm> terms = kamServices.getSupportingTerms(node);
+        final List<BelTerm> terms = kamService.getSupportingTerms(node);
         final BelTerm firstTerm = terms.get(0);
 
         // create cytoscape node and attach KAM node id as hidden attribute

@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.openbel.belframework.kam.KAMNetwork;
-import org.openbel.belframework.webservice.KAMServices;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
@@ -50,7 +51,7 @@ import cytoscape.view.CyNetworkView;
  */
 class NodeEdgesTask extends AddNodeTask {
     private static final String TITLE = "Expanding Edges";
-    private final KAMServices kamServices;
+    private final KAMService kamService;
     private final List<KamNode> kamNodes;
     private final EdgeDirectionType direction;
     private final Set<String> kamNodeIds;
@@ -58,7 +59,7 @@ class NodeEdgesTask extends AddNodeTask {
     NodeEdgesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes,
             final EdgeDirectionType direction) {
         super(kamNetwork, kamNodes);
-        this.kamServices = new KAMServices();
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
         this.direction = direction;
         this.kamNodeIds = new HashSet<String>(kamNodes.size());
@@ -98,7 +99,7 @@ class NodeEdgesTask extends AddNodeTask {
         setStatus();
 
         for (final KamNode selectedNode : kamNodes) {
-            final List<KamEdge> edges = kamServices.getAdjacentKamEdges(
+            final List<KamEdge> edges = kamService.getAdjacentKamEdges(
                     selectedNode, direction, null);
 
             for (final KamEdge edge : edges) {
