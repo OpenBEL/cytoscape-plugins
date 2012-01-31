@@ -19,6 +19,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <project name="belframework-webservice-plugin" default="deploy">
     <property file="build.properties" />
+
+    <property name="dist.path" value="dist" />
     <property name="src.path" value="src" />
     <property name="license.path" value="license" />
     <property name="compile.path" value="bin" />
@@ -32,13 +34,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
     <path id="classpath">
         <pathelement location="${CYTOSCAPE_HOME}/cytoscape.jar" />
-        <pathelement location="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar" />
+        <pathelement location="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.3.jar" />
     </path>
 
     <target name="clean">
         <delete dir="${compile.path}" />
-        <delete file="${jar.name}" />
-        <mkdir dir="${compile.path}" />
+        <delete dir="${dist.path}" />
     </target>
 
     <target name="compile" depends="clean">
@@ -46,6 +47,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
               unless="BELFRAMEWORK_HOME" />
         <fail message="CYTOSCAPE_HOME must be configured in build.properties."
               unless="CYTOSCAPE_HOME" />
+
+        <mkdir dir="${compile.path}" />
 
         <javac includeantruntime="false"
                srcdir="${src.path}"
@@ -61,10 +64,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <fail message="CYTOSCAPE_HOME must be configured in build.properties."
               unless="CYTOSCAPE_HOME" />
 
-        <jar destfile="${jar.name}" basedir="${compile.path}">
+        <jar destfile="${dist.path}/${jar.name}" basedir="${compile.path}">
             <fileset dir="${src.path}" includes="**/*.props" />
 
-            <zipfileset src="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar"
+            <zipfileset src="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.3.jar"
                         includes="**/*.java **/*.class" />
 
             <manifest>
@@ -78,7 +81,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </target>
 
     <target name="package-source">
-        <jar destfile="${src.jar.name}" basedir="${src.path}">
+        <jar destfile="${dist.path}/${src.jar.name}" basedir="${src.path}">
             <!-- include license -->
             <metainf dir="${license.path}" />
         </jar>
@@ -86,6 +89,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
     <target name="deploy" depends="package">
         <delete file="${deploy.path}" />
+        <mkdir dir="${dist.path}" />
         <copy file="${jar.name}" tofile="${deploy.path}" />
     </target>
 

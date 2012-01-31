@@ -32,7 +32,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="jar.name" value="kam_navigator_${jar.version}.jar" />
     <property name="src.jar.name"
               value="kam_navigator_source_${jar.version}.jar" />
-    <property name="deploy.path" value="${dist.path}/${jar.name}" />
+    <property name="deploy.path"
+              value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
 
     <path id="classpath">
         <fileset dir="${lib.path}">
@@ -43,13 +44,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </path>
 
     <target name="clean">
-        <delete dir="${dist.path}" />
         <delete dir="${compile.path}" />
-        <delete file="${jar.name}" />
-        <mkdir dir="${compile.path}" />
+        <delete dir="${dist.path}" />
     </target>
 
     <target name="compile" depends="clean">
+        <fail message="BELFRAMEWORK_HOME must be configured in build.properties"
+              unless="BELFRAMEWORK_HOME" />
+        <fail message="CYTOSCAPE_HOME must be configured in build.properties."
+              unless="CYTOSCAPE_HOME" />
+
+        <mkdir dir="${compile.path}" />
+
         <javac includeantruntime="false"
                srcdir="${src.path}"
                destdir="${compile.path}"
@@ -59,10 +65,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </target>
 
     <target name="package" depends="compile">
-        <jar destfile="${jar.name}" basedir="${compile.path}">
+        <fail message="BELFRAMEWORK_HOME must be configured in build.properties"
+              unless="BELFRAMEWORK_HOME" />
+        <fail message="CYTOSCAPE_HOME must be configured in build.properties."
+              unless="CYTOSCAPE_HOME" />
+
+        <jar destfile="${dist.path}/${jar.name}" basedir="${compile.path}">
             <fileset dir="${src.path}" includes="**/*.props" />
 
-            <zipfileset src="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.2.jar"
+            <zipfileset src="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-1.2.3.jar"
                         includes="**/*.java **/*.class" />
 
             <manifest>
@@ -76,7 +87,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </target>
 
     <target name="package-source">
-        <jar destfile="${src.jar.name}" basedir="${src.path}">
+        <jar destfile="${dist.path}/${src.jar.name}" basedir="${src.path}">
             <!-- include license -->
             <metainf dir="${license.path}" />
         </jar>
