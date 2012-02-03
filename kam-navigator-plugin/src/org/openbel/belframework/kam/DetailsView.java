@@ -86,6 +86,9 @@ public class DetailsView {
 
         JScrollPane tblScroll = new JScrollPane();
         JTable termTbl = new JTable();
+        termTbl.setShowGrid(true);
+        termTbl.setShowHorizontalLines(true);
+        termTbl.setShowVerticalLines(true);
 
         nodeDetailPanel.setLayout(new BorderLayout());
 
@@ -103,6 +106,8 @@ public class DetailsView {
         edgeDetailPanel = new JPanel(new GridLayout(3, 1));
         edgeDetailPanel.setName("KAM Edge Info");
 
+        TextAreaCellRenderer textRenderer = new TextAreaCellRenderer();
+
         // statement panel
         JPanel stmtPanel = new JPanel();
         stmtPanel.setLayout(new BorderLayout());
@@ -110,6 +115,9 @@ public class DetailsView {
         stmtPanel.add(edgeLbl, BorderLayout.NORTH);
         JScrollPane stmtScroll = new JScrollPane();
         JTable stmtTbl = new JTable();
+        stmtTbl.setShowGrid(true);
+        stmtTbl.setShowHorizontalLines(true);
+        stmtTbl.setShowVerticalLines(true);
         stmtTableModel = new StatementTableModel();
         stmtTbl.setModel(stmtTableModel);
         stmtTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -126,9 +134,14 @@ public class DetailsView {
         annPanel.add(annLbl, BorderLayout.NORTH);
         JScrollPane annScroll = new JScrollPane();
         JTable annTbl = new JTable();
+        annTbl.setShowGrid(true);
+        annTbl.setShowHorizontalLines(true);
+        annTbl.setShowVerticalLines(true);
         annTableModel = new AnnotationTableModel();
         annTbl.setModel(annTableModel);
         annTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        annTbl.getColumnModel().getColumn(1).setCellRenderer(textRenderer);
+
         annScroll.setViewportView(annTbl);
         annPanel.add(annScroll, BorderLayout.CENTER);
         edgeDetailPanel.add(annPanel);
@@ -140,9 +153,16 @@ public class DetailsView {
         citPanel.add(citLbl, BorderLayout.NORTH);
         JScrollPane citScroll = new JScrollPane();
         JTable citTbl = new JTable();
+        citTbl.setShowGrid(true);
+        citTbl.setShowHorizontalLines(true);
+        citTbl.setShowVerticalLines(true);
         citTableModel = new CitationTableModel();
         citTbl.setModel(citTableModel);
         citTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        citTbl.getColumnModel().getColumn(0).setCellRenderer(textRenderer);
+        citTbl.getColumnModel().getColumn(1).setCellRenderer(textRenderer);
+        citTbl.getColumnModel().getColumn(2).setCellRenderer(textRenderer);
+        citTbl.getColumnModel().getColumn(3).setCellRenderer(textRenderer);
         citScroll.setViewportView(citTbl);
         citPanel.add(citScroll, BorderLayout.CENTER);
         edgeDetailPanel.add(citPanel);
