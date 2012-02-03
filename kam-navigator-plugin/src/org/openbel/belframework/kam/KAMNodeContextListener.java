@@ -22,7 +22,9 @@ package org.openbel.belframework.kam;
 import static com.selventa.belframework.ws.client.EdgeDirectionType.BOTH;
 import static com.selventa.belframework.ws.client.EdgeDirectionType.FORWARD;
 import static com.selventa.belframework.ws.client.EdgeDirectionType.REVERSE;
+import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
+import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 import giny.view.NodeView;
 
 import java.awt.event.ActionEvent;
@@ -96,9 +98,11 @@ public class KAMNodeContextListener implements PropertyChangeListener,
     public void addNodeContextMenuItems(NodeView nv, JPopupMenu menu) {
         // return if cynode does not reference kam node
         final CyNode cynode = (CyNode) nv.getNode();
-        String kamNodeId = nodeAtt.getStringAttribute(cynode.getIdentifier(),
-                KAM_NODE_ID_ATTR);
-        if (kamNodeId == null) {
+        String cyid = cynode.getIdentifier();
+        final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
+        final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
+        final String lbl = nodeAtt.getStringAttribute(cyid, KAM_NODE_LABEL_ATTR);
+        if (id == null || func == null || lbl == null) {
             return;
         }
 

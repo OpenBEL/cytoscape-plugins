@@ -20,7 +20,9 @@
 package org.openbel.belframework.kam;
 
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_EDGE_ID_ATTR;
+import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
+import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.BelTerm;
+import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
@@ -144,9 +147,18 @@ public class KAMNetwork {
     public KamNode getKAMNode(final CyNode cynode) {
         final KamNode kamNode = new KamNode();
 
-        String kamNodeId = nodeAtt.getStringAttribute(cynode.getIdentifier(),
-                KAM_NODE_ID_ATTR);
-        kamNode.setId(kamNodeId);
+        final String id = cynode.getIdentifier();
+
+        final String kamId = nodeAtt.getStringAttribute(id, KAM_NODE_ID_ATTR);
+        kamNode.setId(kamId);
+
+        final String func = nodeAtt.getStringAttribute(id, KAM_NODE_FUNCTION_ATTR);
+        final FunctionType ftype = FunctionType.valueOf(func);
+        kamNode.setFunction(ftype);
+
+        final String lbl = nodeAtt.getStringAttribute(id, KAM_NODE_LABEL_ATTR);
+        kamNode.setLabel(lbl);
+
         return kamNode;
     }
 
@@ -204,6 +216,10 @@ public class KAMNetwork {
         CyNode cynode = Cytoscape.getCyNode(firstTerm.getLabel(), true);
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_ID_ATTR,
                 node.getId());
+        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_FUNCTION_ATTR,
+                node.getFunction().name());
+        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_LABEL_ATTR,
+                firstTerm.getLabel());
 
         cyn.addNode(cynode);
         return cynode;

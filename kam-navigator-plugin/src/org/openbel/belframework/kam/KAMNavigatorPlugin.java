@@ -44,6 +44,8 @@ import cytoscape.view.CytoscapeDesktop;
 public class KAMNavigatorPlugin extends CytoscapePlugin {
     public static final String KAM_PLUGIN_SUBMENU = "KAM Navigator";
     public static final String KAM_NODE_ID_ATTR = "KAM_NODE_ID";
+    public static final String KAM_NODE_FUNCTION_ATTR = "KAM_NODE_FUNCTION";
+    public static final String KAM_NODE_LABEL_ATTR = "KAM_NODE_LABEL";
     public static final String KAM_EDGE_ID_ATTR = "KAM_EDGE_ID";
 
     /**
@@ -53,6 +55,10 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // add KAM_NODE_ID as a system node attribute
         Cytoscape.getNodeAttributes().setUserEditable(KAM_NODE_ID_ATTR, false);
         Cytoscape.getNodeAttributes().setUserVisible(KAM_NODE_ID_ATTR, false);
+
+        // add KAM_NODE_FUNCTION as a system node attribute
+        Cytoscape.getNodeAttributes().setUserEditable(KAM_NODE_FUNCTION_ATTR, false);
+        Cytoscape.getNodeAttributes().setUserVisible(KAM_NODE_FUNCTION_ATTR, true);
 
         // add KAM_EDGE_ID as a system edge attribute
         Cytoscape.getEdgeAttributes().setUserEditable(KAM_EDGE_ID_ATTR, false);
