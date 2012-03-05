@@ -31,7 +31,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
               value="belframework_webservice_source_${jar.version}.jar" />
     <property name="deploy.path"
               value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
-	<property name="bel.version" value="1.2.3" />
+    <property name="bel.version" value="1.2.3" />
 
     <path id="classpath">
         <pathelement location="${CYTOSCAPE_HOME}/cytoscape.jar" />
