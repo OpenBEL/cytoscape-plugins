@@ -68,8 +68,8 @@ import cytoscape.data.webservice.WebServiceClientManager;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
-	protected WebAPI ws;
-	private static final int SLEEP_TIME_MS = 100; 
+    protected WebAPI ws;
+    private static final int SLEEP_TIME_MS = 1000; 
     private ClientConnector wsClient;
 
     /**
