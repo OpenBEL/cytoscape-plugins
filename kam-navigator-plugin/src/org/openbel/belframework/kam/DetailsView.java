@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -441,7 +442,18 @@ public class DetailsView {
                 case 2:
                     return cit.getPublicationDate() == null ? null : cit.getPublicationDate().toString();
                 case 3:
-                    return  cit.getAuthors();
+                    if (cit.getAuthors() == null) {
+                        return null;
+                    }
+                    
+                    StringBuilder sb = new StringBuilder();
+                    for (Iterator<String> it = cit.getAuthors().iterator(); it.hasNext();) {
+                        sb.append(it.next());
+                        if (it.hasNext()) {
+                            sb.append(", ");
+                        }
+                    }
+                    return sb.toString();
             }
 
             return null;
