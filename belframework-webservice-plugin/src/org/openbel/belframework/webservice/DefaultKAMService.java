@@ -68,7 +68,8 @@ import cytoscape.data.webservice.WebServiceClientManager;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
-	protected WebAPI ws;
+    protected WebAPI ws;
+    private static final int SLEEP_TIME_MS = 1000;
     private ClientConnector wsClient;
 
     /**
@@ -115,9 +116,9 @@ class DefaultKAMService implements KAMService {
 
         LoadKamResponse res = ws.loadKam(req);
         while (res.getLoadStatus() == KAMLoadStatus.IN_PROCESS) {
-            // sleep 100 milliseconds and then retry
+            // sleep and then retry
             try {
-                Thread.sleep(100);
+                Thread.sleep(SLEEP_TIME_MS);
             } catch (InterruptedException e) {
                 // no-op
             }
