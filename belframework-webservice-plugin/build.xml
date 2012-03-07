@@ -54,7 +54,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <javac includeantruntime="false"
                srcdir="${src.path}"
                destdir="${compile.path}"
-               debug="on">
+               debug="off">
             <classpath refid="classpath" />
         </javac>
     </target>
