@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -355,8 +356,15 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
             if (res.getLoadStatus() == KAMLoadStatus.COMPLETE) {
                 handle = res.getHandle();
             } else if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
-                // FIXME give the user some kind of indication that something
-                // went wrong
+                // dispose of kam select dialog
+                // otherwise user can't click on error dialogue
+                // TODO fix this, should just close progress bar but leave
+                // select dialog open for additional selections
+                LoadKAMDialog.this.dispose();
+                
+                JOptionPane.showMessageDialog(getContentPane(),
+                        "Error loading \"" + kam.getName() + "\" KAM.\n",
+                        "Kam Load Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             // else still in progress and was canceled
@@ -370,7 +378,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
                 session.getKAMNetworks().add(kamNetwork);
             }
 
-            // dispose of dialog.
+            // dispose of kam select dialog
             LoadKAMDialog.this.dispose();
         }
     }
