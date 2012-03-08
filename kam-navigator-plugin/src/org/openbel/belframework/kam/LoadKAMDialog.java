@@ -367,9 +367,6 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
                 KAMSession session = KAMSession.getInstance();
                 session.getKAMNetworks().add(kamNetwork);
             }
-
-            // dispose of dialog.
-            LoadKAMDialog.this.dispose();
         }
     }
 
