@@ -485,9 +485,19 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
                     
                     ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-                    rtm.setNodes(nodes);
                     
-                    filterTxt.setEnabled(nodes.size() > 0);
+                    // build out term map
+                    final Map<KamNode, BelTerm> termMap = new HashMap<KamNode, BelTerm>();
+                    for (final KamNode node : nodes) {
+                        final List<BelTerm> terms = kamService.getSupportingTerms(node);
+                        final BelTerm firstTerm = terms.get(0);
+                        termMap.put(node, firstTerm);
+                    }
+                    
+                    if (!halt) { // don't update ui if search is halted
+                        rtm.setData(nodes, termMap);
+                        filterTxt.setEnabled(nodes.size() > 0);
+                    }
                     finished = true;
                 }
             });
@@ -525,12 +535,10 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
             this.termMap = new HashMap<KamNode, BelTerm>();
         }
 
-        private void setNodes(final List<KamNode> nodes) {
-            for (final KamNode node : nodes) {
-                final List<BelTerm> terms = kamService.getSupportingTerms(node);
-                final BelTerm firstTerm = terms.get(0);
-                termMap.put(node, firstTerm);
-            }
+        private void setData(final List<KamNode> nodes, 
+                final Map<KamNode, BelTerm> termMap) {
+            this.termMap.clear();
+            this.termMap.putAll(termMap);
 
             this.nodes.clear();
             this.nodes.addAll(nodes);
