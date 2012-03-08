@@ -51,8 +51,10 @@ import javax.swing.WindowConstants;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
+import com.selventa.belframework.ws.client.KAMLoadStatus;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamHandle;
+import com.selventa.belframework.ws.client.LoadKamResponse;
 
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
@@ -285,6 +287,8 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
     private class LoadKAMTask implements Task {
         private final Kam kam;
         private TaskMonitor m;
+        private boolean halt = false;
+        private final int SLEEP_TIME_MS = 1000;
 
         private LoadKAMTask(final Kam kam) {
             this.kam = kam;
@@ -312,7 +316,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
          */
         @Override
         public void halt() {
-            // no-op
+            halt = true;
         }
 
         /**
@@ -334,14 +338,35 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
          * @see KAMServices#loadKam(Kam)
          */
         private void loadKAM() {
-            final KamHandle handle = kamService.loadKam(kam);
+            
+            LoadKamResponse res = kamService.loadKam(kam);
+            while (!halt && res.getLoadStatus() == KAMLoadStatus.IN_PROCESS) {
+                // sleep and then retry
+                try {
+                    Thread.sleep(SLEEP_TIME_MS);
+                } catch (InterruptedException e) {
+                    halt = true;
+                }
 
-            // Create KAM Network for this selected KAM.
-            final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), handle);
+                res = kamService.loadKam(kam);
+            }
+            KamHandle handle = null;
+            if (res.getLoadStatus() == KAMLoadStatus.COMPLETE) {
+                handle = res.getHandle();
+            } else if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
+                // FIXME deal with error
+                m.setStatus("Failed to load \"" + kam.getName() + "\" KAM.");
+            }
+            // else still in progress and was canceled
 
-            // Store session data for KAM and CyNetwork.
-            KAMSession session = KAMSession.getInstance();
-            session.getKAMNetworks().add(kamNetwork);
+            if (handle != null) {
+                // Create KAM Network for this selected KAM.
+                final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), handle);
+    
+                // Store session data for KAM and CyNetwork.
+                KAMSession session = KAMSession.getInstance();
+                session.getKAMNetworks().add(kamNetwork);
+            }
 
             // dispose of dialog.
             LoadKAMDialog.this.dispose();

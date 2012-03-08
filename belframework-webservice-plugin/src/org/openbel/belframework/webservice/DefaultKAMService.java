@@ -46,7 +46,6 @@ import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
 import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
 import com.selventa.belframework.ws.client.GetSupportingTermsResponse;
-import com.selventa.belframework.ws.client.KAMLoadStatus;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
@@ -69,7 +68,6 @@ import cytoscape.data.webservice.WebServiceClientManager;
  */
 class DefaultKAMService implements KAMService {
     protected WebAPI ws;
-    private static final int SLEEP_TIME_MS = 1000;
     private ClientConnector wsClient;
 
     /**
@@ -104,7 +102,7 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-    public KamHandle loadKam(Kam kam) {
+    public LoadKamResponse loadKam(Kam kam) {
         if (kam == null || kam.getName() == null) {
             throw new IllegalArgumentException("kam parameter is invalid");
         }
@@ -113,24 +111,7 @@ class DefaultKAMService implements KAMService {
 
         final LoadKamRequest req = createLoadKamRequest();
         req.setKam(kam);
-
-        LoadKamResponse res = ws.loadKam(req);
-        while (res.getLoadStatus() == KAMLoadStatus.IN_PROCESS) {
-            // sleep and then retry
-            try {
-                Thread.sleep(SLEEP_TIME_MS);
-            } catch (InterruptedException e) {
-                // no-op
-            }
-
-            res = ws.loadKam(req);
-        }
-
-        if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
-            return null;
-        }
-
-        return res.getHandle();
+        return ws.loadKam(req);
     }
 
     /**

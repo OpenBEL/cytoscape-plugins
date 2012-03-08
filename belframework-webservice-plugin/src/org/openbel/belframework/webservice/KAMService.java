@@ -11,6 +11,7 @@ import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
+import com.selventa.belframework.ws.client.LoadKamResponse;
 import com.selventa.belframework.ws.client.NodeFilter;
 import com.selventa.belframework.ws.client.WebAPI;
 
@@ -31,17 +32,16 @@ public interface KAMService {
 	public abstract List<Kam> getCatalog();
 
 	/**
-	 * Loads the {@link Kam kam} on the server end of the webservice and
-	 * returns a {@link KamHandle kam handle} for subsequent operations.
+	 * Fires a loads request for a {@link Kam kam} on the server end of the 
+	 * webservice and returns a {@link LoadKamResponse response}.
 	 *
 	 * @param kam the {@link Kam kam} to load
-	 * @return the {@link KamHandle kam handle} for this kam, or {@code null}
-	 * if the kam does not exist in the catalog or it fails to load
+	 * @return the {@link LoadKamResponse response} for kam load request
 	 * @throws IllegalArgumentException Thrown if the {@code kam} parameter is
 	 * {@code null}
 	 * @see DefaultKAMService#getCatalog()
 	 */
-	public abstract KamHandle loadKam(final Kam kam);
+	public abstract LoadKamResponse loadKam(final Kam kam);
 
 	/**
 	 * Retrieves the supporting {@link BelTerm BEL terms} for a specific
