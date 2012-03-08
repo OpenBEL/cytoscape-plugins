@@ -437,6 +437,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         private TaskMonitor m;
         // marked as volatile in case halt is called by multiple threads
         private volatile boolean halt = false;
+        // keeps track of if threaded task is finished
+        private volatile boolean finished = false;
 
         private SearchKAMNodesTask(final CyNetwork cyn, final FunctionType function) {
             this.cyn = cyn;
@@ -486,10 +488,11 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     rtm.setNodes(nodes);
         
                     filterTxt.setEnabled(nodes.size() > 0);
+                    finished = true;
                 }
             });
             
-            while (!e.isShutdown()) {
+            while (!finished && !e.isShutdown()) {
                 try {
                     if (halt) {
                         // this should not block
