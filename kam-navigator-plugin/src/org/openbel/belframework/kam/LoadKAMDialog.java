@@ -287,8 +287,9 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
     private class LoadKAMTask implements Task {
         private final Kam kam;
         private TaskMonitor m;
-        private boolean halt = false;
         private final int SLEEP_TIME_MS = 1000;
+        // marked as volatile in case halt is called by multiple threads
+        private volatile boolean halt = false;
 
         private LoadKAMTask(final Kam kam) {
             this.kam = kam;
