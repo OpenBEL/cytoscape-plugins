@@ -281,7 +281,18 @@ class DefaultKAMService implements KAMService {
      * @throws RuntimeException Thrown to fail the existing request
      */
     protected void checkValid() {
-        if (!wsClient.isValid() || ws == null) {
+        if (ws == null || !wsClient.isValid()) {
+            // attempt to reconfigure to see if WSDL is now up
+            wsClient.reconfigure();
+        }
+        
+        if (ws == null && wsClient.isValid()) {
+            // reload client stub if client is now valid
+            ws = wsClient.getClientStub();
+        }
+        
+        // if all else fails
+        if (ws == null || !wsClient.isValid()) {
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
                     "Error connecting to the BELFramework Web Services.\n" +
                             "Please check the BELFramework Web Services Configuration.",
