@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -433,6 +435,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         private final CyNetwork cyn;
         private final FunctionType function;
         private TaskMonitor m;
+        // marked as volatile in case halt is called by multiple threads
+        private volatile boolean halt = false;
 
         private SearchKAMNodesTask(final CyNetwork cyn, final FunctionType function) {
             this.cyn = cyn;
@@ -452,7 +456,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
         @Override
         public void halt() {
-            // no-op
+            halt = true;
         }
 
         @Override
@@ -465,18 +469,39 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         }
 
         private void searchKAMNodes() {
-            final FunctionType selfunc = (FunctionType) functionCmb.getSelectedItem();
-
-            // get KAM Network for selected CyNetwork
-            final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(cyn);
-
-            // find kam nodes by function
-            final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
-
-            ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-            rtm.setNodes(nodes);
-
-            filterTxt.setEnabled(nodes.size() > 0);
+            ExecutorService e = Executors.newSingleThreadExecutor();
+            e.execute(new Runnable() {
+                
+                @Override
+                public void run() {
+                    final FunctionType selfunc = (FunctionType) functionCmb.getSelectedItem();
+        
+                    // get KAM Network for selected CyNetwork
+                    final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(cyn);
+        
+                    // find kam nodes by function
+                    final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
+        
+                    ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
+                    rtm.setNodes(nodes);
+        
+                    filterTxt.setEnabled(nodes.size() > 0);
+                }
+            });
+            
+            while (!e.isShutdown()) {
+                try {
+                    if (halt) {
+                        // this should not block
+                        // but be aware that if the thread in the executor is
+                        // blocked it will continue to live on
+                        e.shutdownNow();
+                    }
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    halt = true;
+                }
+            }
         }
     }
 
