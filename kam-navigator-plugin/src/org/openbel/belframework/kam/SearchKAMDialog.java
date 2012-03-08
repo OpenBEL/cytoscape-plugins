@@ -484,16 +484,19 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     // find kam nodes by function
                     final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
                     
-                    ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-                    
-                    // build out term map
+                    // XXX I don't like checking for halt multiple times
+                    // must be a better solution
                     final Map<KamNode, BelTerm> termMap = new HashMap<KamNode, BelTerm>();
-                    for (final KamNode node : nodes) {
-                        final List<BelTerm> terms = kamService.getSupportingTerms(node);
-                        final BelTerm firstTerm = terms.get(0);
-                        termMap.put(node, firstTerm);
+                    if (!halt) {
+                        // build out term map
+                        for (final KamNode node : nodes) {
+                            final List<BelTerm> terms = kamService.getSupportingTerms(node);
+                            final BelTerm firstTerm = terms.get(0);
+                            termMap.put(node, firstTerm);
+                        }
                     }
                     
+                    ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
                     if (!halt) { // don't update ui if search is halted
                         rtm.setData(nodes, termMap);
                         filterTxt.setEnabled(nodes.size() > 0);
