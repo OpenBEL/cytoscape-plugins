@@ -354,8 +354,9 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
             if (res.getLoadStatus() == KAMLoadStatus.COMPLETE) {
                 handle = res.getHandle();
             } else if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
-                // FIXME deal with error
-                m.setStatus("Failed to load \"" + kam.getName() + "\" KAM.");
+                // FIXME give the user some kind of indication that something
+                // went wrong
+                return;
             }
             // else still in progress and was canceled
 
