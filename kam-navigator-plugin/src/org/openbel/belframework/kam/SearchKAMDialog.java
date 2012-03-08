@@ -484,11 +484,9 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     // find kam nodes by function
                     final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
                     
-                    // XXX I don't like checking for halt multiple times
-                    // must be a better solution
+                    // build out term map
                     final Map<KamNode, BelTerm> termMap = new HashMap<KamNode, BelTerm>();
                     if (!halt) {
-                        // build out term map
                         for (final KamNode node : nodes) {
                             final List<BelTerm> terms = kamService.getSupportingTerms(node);
                             final BelTerm firstTerm = terms.get(0);
