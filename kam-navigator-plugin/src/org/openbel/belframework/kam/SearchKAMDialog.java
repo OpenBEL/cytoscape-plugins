@@ -371,7 +371,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
 
-                final SearchKAMNodes task = new SearchKAMNodes(networkOption.cyn, selfunc);
+                final SearchKAMNodesTask task = new SearchKAMNodesTask(networkOption.cyn, selfunc);
                 Utility.executeTask(task);
             } else if (e.getSource() == addBtn) {
                 ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
@@ -429,12 +429,12 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      * com.selventa.belframework.ws.client.KamHandle, FunctionType)
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
-    private class SearchKAMNodes implements Task {
+    private class SearchKAMNodesTask implements Task {
         private final CyNetwork cyn;
         private final FunctionType function;
         private TaskMonitor m;
 
-        private SearchKAMNodes(final CyNetwork cyn, final FunctionType function) {
+        private SearchKAMNodesTask(final CyNetwork cyn, final FunctionType function) {
             this.cyn = cyn;
             this.function = function;
         }
