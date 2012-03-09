@@ -503,25 +503,29 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     // XXX most of the time searching for nodes is spent here,
                     // might be worth reviewing
                     final Map<KamNode, BelTerm> termMap = new HashMap<KamNode, BelTerm>();
-                    if (!halt) {
-                        for (final KamNode node : nodes) {
-                            // FIXME, stop loop on halt
-                            final List<BelTerm> terms = kamService.getSupportingTerms(node);
-                            final BelTerm firstTerm = terms.get(0);
-                            termMap.put(node, firstTerm);
+                    for (final KamNode node : nodes) {
+                        if (halt) {
+                            break;
                         }
+                        
+                        final List<BelTerm> terms = kamService.getSupportingTerms(node);
+                        final BelTerm firstTerm = terms.get(0);
+                        termMap.put(node, firstTerm);
                     }
                     
                     ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-                    if (!halt) { // don't update ui if search is halted
-                        rtm.setData(nodes, termMap);
-                        int nodeCount = nodes.size();
-                        filterTxt.setEnabled(nodeCount > 0);
-                        if (nodeCount == 1) {
-                            resultsCount.setText(nodes.size() + " node found.");
-                        } else {
-                            resultsCount.setText(nodes.size() + " nodes found.");
-                        }
+                    if (halt) {
+                        // don't update ui if search is halted
+                        return;
+                    }
+                    
+                    rtm.setData(nodes, termMap);
+                    int nodeCount = nodes.size();
+                    filterTxt.setEnabled(nodeCount > 0);
+                    if (nodeCount == 1) {
+                        resultsCount.setText(nodes.size() + " node found.");
+                    } else {
+                        resultsCount.setText(nodes.size() + " nodes found.");
                     }
                     finished = true;
                 }
