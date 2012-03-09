@@ -134,7 +134,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         addBtn.setEnabled(false);
 
         // Dialog settings
-        final Dimension dialogDim = new Dimension(400, 300);
+        final Dimension dialogDim = new Dimension(400, 600);
         setMinimumSize(dialogDim);
         setSize(dialogDim);
         setPreferredSize(dialogDim);
