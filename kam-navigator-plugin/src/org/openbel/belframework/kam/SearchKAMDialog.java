@@ -88,6 +88,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
     private TableRowSorter<ResultsTableModel> rowSorter;
     private JTextField filterTxt;
     private JComboBox edgeCmb;
+    private JLabel resultsCount;
 
     /**
      * Construct the {@link JDialog dialog} and initialize the UI.
@@ -155,6 +156,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         functionCmb = new JComboBox();
         networkCmb = new JComboBox();
         resultsTable = new JTable();
+        resultsCount = new JLabel();
 
         searchPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -242,7 +244,12 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         resultsTable.setRowSorter(rowSorter);
         resultsPane.setViewportView(resultsTable);
         resultsPanel.add(resultsPane, java.awt.BorderLayout.CENTER);
-
+        
+        resultsCount.setText(""); // empty until search
+        JPanel countPanel = new JPanel(new BorderLayout(5, 0));
+        countPanel.add(resultsCount, BorderLayout.WEST);
+        resultsPanel.add(countPanel, BorderLayout.SOUTH);
+        
         JPanel filterPanel = new JPanel(new BorderLayout(5, 0));
         filterPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
 
@@ -267,7 +274,11 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         filterTxt.setEnabled(false);
         filterPanel.add(filterTxt, BorderLayout.CENTER);
 
-        resultsPanel.add(filterPanel, BorderLayout.SOUTH);
+        JPanel bottomPanel = new JPanel(new BorderLayout(0, 0));
+        bottomPanel.add(countPanel, BorderLayout.WEST);
+        bottomPanel.add(filterPanel, BorderLayout.SOUTH);
+        
+        resultsPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -489,9 +500,12 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
                     
                     // build out term map
+                    // XXX most of the time searching for nodes is spent here,
+                    // might be worth reviewing
                     final Map<KamNode, BelTerm> termMap = new HashMap<KamNode, BelTerm>();
                     if (!halt) {
                         for (final KamNode node : nodes) {
+                            // FIXME, stop loop on halt
                             final List<BelTerm> terms = kamService.getSupportingTerms(node);
                             final BelTerm firstTerm = terms.get(0);
                             termMap.put(node, firstTerm);
@@ -501,7 +515,13 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
                     if (!halt) { // don't update ui if search is halted
                         rtm.setData(nodes, termMap);
-                        filterTxt.setEnabled(nodes.size() > 0);
+                        int nodeCount = nodes.size();
+                        filterTxt.setEnabled(nodeCount > 0);
+                        if (nodeCount == 1) {
+                            resultsCount.setText(nodes.size() + " node found.");
+                        } else {
+                            resultsCount.setText(nodes.size() + " nodes found.");
+                        }
                     }
                     finished = true;
                 }
@@ -515,6 +535,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                         // blocked it will continue to live on
                         e.shutdownNow();
                     }
+                    // sleep thread to enable interrupt
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     halt = true;
