@@ -105,9 +105,21 @@ class AddNodeTask implements Task {
 
         // Add the KAM nodes and keep track
         cynodes = new HashSet<CyNode>();
+        // use current percentage to keep track of values less then 1
+        double currentPercentage = 0.0;
+        double nodePercent = (1.0 / kamNodes.size()) * 100;
         for (final KamNode node : kamNodes) {
             CyNode cyn = kamNetwork.addNode(node);
             cynodes.add(cyn);
+            currentPercentage += nodePercent;
+            if (currentPercentage >= 1.0) {
+                // only add to the percent complete if can be rounded to 1 or greater
+                int round = (int) Math.round(currentPercentage);
+                percentage += round;
+                m.setPercentCompleted(percentage);
+                // set to remainder to even out percentages
+                currentPercentage = currentPercentage - round;
+            }
         }
     }
 
