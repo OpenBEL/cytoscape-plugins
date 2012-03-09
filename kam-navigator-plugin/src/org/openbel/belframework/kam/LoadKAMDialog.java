@@ -97,6 +97,11 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
         getContentPane().add(createSelectKAMPanel(), BorderLayout.CENTER);
         getContentPane().add(createButtonPanel(), BorderLayout.SOUTH);
 
+        // init state
+        if (selectKAMCmb.getModel().getSize() > 0) {
+            selectKAMCmb.setSelectedIndex(0);
+        }
+        
         // Dialog settings
         final Dimension dialogDim = new Dimension(400, 300);
         setMinimumSize(dialogDim);

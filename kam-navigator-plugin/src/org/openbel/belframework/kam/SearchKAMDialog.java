@@ -125,7 +125,9 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         getContentPane().add(createButtonPanel(), BorderLayout.SOUTH);
 
         // init state
-        functionCmb.setSelectedIndex(-1);
+        if (functionCmb.getModel().getSize() > 0) {
+            functionCmb.setSelectedIndex(0);
+        }
         searchBtn.setEnabled(false);
         addBtn.setEnabled(false);
 
