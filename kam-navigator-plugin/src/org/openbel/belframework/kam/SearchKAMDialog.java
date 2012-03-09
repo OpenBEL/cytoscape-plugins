@@ -127,8 +127,10 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         // init state
         if (functionCmb.getModel().getSize() > 0) {
             functionCmb.setSelectedIndex(0);
+            searchBtn.setEnabled(true);
+        } else {
+            searchBtn.setEnabled(false);
         }
-        searchBtn.setEnabled(false);
         addBtn.setEnabled(false);
 
         // Dialog settings
