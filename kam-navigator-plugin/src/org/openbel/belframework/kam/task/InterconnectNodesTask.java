@@ -75,14 +75,6 @@ class InterconnectNodesTask extends AddNodeTask {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public void halt() {
-        // no-op
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * Adds {@link KamNode kam nodes}, interconnects them adding
      * {@link KamEdge kam edges}, adds them all to the
@@ -102,6 +94,11 @@ class InterconnectNodesTask extends AddNodeTask {
         int numNodes = kamNodes.size();
         if (numNodes > 1) {
             for (final KamNode selectedNode : kamNodes) {
+                if (halt) {
+                    // stop if halted
+                    break;
+                }
+                
                 final List<KamEdge> edges = kamService
                         .getAdjacentKamEdges(selectedNode, EdgeDirectionType.BOTH,
                         null);
@@ -117,6 +114,10 @@ class InterconnectNodesTask extends AddNodeTask {
                     }
                 }
             }
+        }
+        
+        if (halt) {
+            return;
         }
 
         final CyNetwork cyn = kamNetwork.getCyNetwork();
