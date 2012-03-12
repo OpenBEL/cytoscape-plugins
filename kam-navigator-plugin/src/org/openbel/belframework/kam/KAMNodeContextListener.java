@@ -99,23 +99,26 @@ public class KAMNodeContextListener implements PropertyChangeListener,
      */
     @Override
     public void addNodeContextMenuItems(NodeView nv, JPopupMenu menu) {
-        // return if cynode does not reference kam node
-        final CyNode cynode = (CyNode) nv.getNode();
-        String cyid = cynode.getIdentifier();
-        final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
-        final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
-        final String lbl = nodeAtt.getStringAttribute(cyid, KAM_NODE_LABEL_ATTR);
-        if (id == null || func == null || lbl == null) {
-            return;
+        // documentation doesn't specify that selected nodes are CyNodes 
+        //  but they should be 
+        @SuppressWarnings("unchecked")
+        Set<CyNode> selected = Cytoscape.getCurrentNetwork().getSelectedNodes();
+        for (CyNode cynode : selected) {
+            // I don't understand the point of this check, but Tony had it in 
+            // before so I assume it's there for a reason --JFM
+            String cyid = cynode.getIdentifier();
+            final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
+            final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
+            final String lbl = nodeAtt.getStringAttribute(cyid, KAM_NODE_LABEL_ATTR);
+            if (id == null || func == null || lbl == null) {
+                // return if cynode does not reference kam node
+                return;
+            }
         }
 
         if (menu == null) {
             menu = new JPopupMenu();
         }
-        
-        // documentation doesn't specify that selected nodes are CyNodes 
-        //  but they should be 
-        Set<CyNode> selected = Cytoscape.getCurrentNetwork().getSelectedNodes();
         
         // construct node menu and add to context popup
         final JMenu kamNodeItem = new JMenu("KAM Node");
