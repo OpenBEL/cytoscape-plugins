@@ -270,9 +270,6 @@ public class KAMNodeContextListener implements PropertyChangeListener,
                 nn.add((CyNode) cye.getTarget());
             }
 
-            // do not track the node to expand; we don't want it to re-layout
-            // nn.remove(cynode);
-
             network.unselectAllNodes();
             network.setSelectedNodeState(nn, true);
 
