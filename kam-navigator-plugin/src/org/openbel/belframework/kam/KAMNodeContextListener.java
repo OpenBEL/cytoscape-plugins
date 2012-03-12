@@ -195,7 +195,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         private final KAMService kamService;
         private final Set<CyNode> cynodes;
 
-        public InterconnectAction(Set<CyNode> cynodes, CyNetworkView view) {
+        private InterconnectAction(Set<CyNode> cynodes, CyNetworkView view) {
             super("Interconnect", view);
             this.kamService = KAMServiceFactory.getInstance().getKAMService();
             this.cynodes = cynodes;
