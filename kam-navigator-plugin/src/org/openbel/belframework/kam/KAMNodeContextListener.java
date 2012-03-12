@@ -75,6 +75,7 @@ import ding.view.NodeContextMenuListener;
 public class KAMNodeContextListener implements PropertyChangeListener,
         NodeContextMenuListener {
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
+    private static final String INTERCONNECT_LABEL = "Interconnect";
 
     /**
      * {@inheritDoc}
@@ -137,6 +138,12 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             final JMenuItem interconnect = new JMenuItem(new InterconnectAction(
                     selected, (CyNetworkView) nv.getGraphView()));
             kamNodeItem.add(interconnect);
+        } else {
+            // create placeholder disabled item for interconnect to keep menu 
+            // size consistent
+            final JMenuItem placeholder = new JMenuItem(INTERCONNECT_LABEL);
+            placeholder.setEnabled(false);
+            kamNodeItem.add(placeholder);
         }
         
         menu.add(kamNodeItem);
@@ -209,7 +216,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
 
         private InterconnectAction(final Set<CyNode> cynodes, 
                 final CyNetworkView view) {
-            super("Interconnect", view);
+            super(INTERCONNECT_LABEL, view);
             this.kamService = KAMServiceFactory.getInstance().getKAMService();
             this.cynodes = cynodes;
             
