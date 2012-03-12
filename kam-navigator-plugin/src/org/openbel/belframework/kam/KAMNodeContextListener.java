@@ -113,22 +113,22 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             menu = new JPopupMenu();
         }
         
-        // construct node menu and add to context popup
-        // TODO do we want expand actions to be performed on all selected nodes?
-        final JMenu kamNodeItem = new JMenu("KAM Node");
-        final JMenuItem downstream = new JMenuItem(new ExpandAction(FORWARD,
-                cynode, (CyNetworkView) nv.getGraphView()));
-        kamNodeItem.add(downstream);
-        final JMenuItem upstream = new JMenuItem(new ExpandAction(REVERSE,
-                cynode, (CyNetworkView) nv.getGraphView()));
-        kamNodeItem.add(upstream);
-        final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, cynode,
-                (CyNetworkView) nv.getGraphView()));
-        kamNodeItem.add(both);
-        
         // documentation doesn't specify that selected nodes are CyNodes 
         //  but they should be 
         Set<CyNode> selected = Cytoscape.getCurrentNetwork().getSelectedNodes();
+        
+        // construct node menu and add to context popup
+        final JMenu kamNodeItem = new JMenu("KAM Node");
+        final JMenuItem downstream = new JMenuItem(new ExpandAction(FORWARD,
+                selected, (CyNetworkView) nv.getGraphView()));
+        kamNodeItem.add(downstream);
+        final JMenuItem upstream = new JMenuItem(new ExpandAction(REVERSE,
+                selected, (CyNetworkView) nv.getGraphView()));
+        kamNodeItem.add(upstream);
+        final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, selected,
+                (CyNetworkView) nv.getGraphView()));
+        kamNodeItem.add(both);
+        
         if (selected.size() > 1) {
             // interconnect added only if more then one nodes are selected
             final JMenuItem interconnect = new JMenuItem(new InterconnectAction(
@@ -150,14 +150,14 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         private static final long serialVersionUID = -8467637028387407708L;
         private final EdgeDirectionType direction;
         private final KAMService kamService;
-        private final CyNode cynode;
+        private final Set<CyNode> cynodes;
 
         private ExpandAction(final EdgeDirectionType direction,
-                final CyNode cynode, final CyNetworkView view) {
+                final Set<CyNode> cynodes, final CyNetworkView view) {
             super("Expand " + getLabel(direction), view);
             this.direction = direction;
             this.kamService = KAMServiceFactory.getInstance().getKAMService();
-            this.cynode = cynode;
+            this.cynodes = cynodes;
         }
 
         private static String getLabel(final EdgeDirectionType direction) {
@@ -178,8 +178,17 @@ public class KAMNodeContextListener implements PropertyChangeListener,
          */
         @Override
         Collection<KamEdge> getEdgesToAdd(KAMNetwork kamNetwork) {
-            final KamNode kamNode = kamNetwork.getKAMNode(cynode);
-            return kamService.getAdjacentKamEdges(kamNode, direction, null);
+            final Collection<KamNode> kamNodes = new HashSet<KamNode>();
+            for (final CyNode cynode : cynodes) {
+                kamNodes.add(kamNetwork.getKAMNode(cynode));
+            }
+
+            List<KamEdge> edges = new ArrayList<KamEdge>();
+            for (KamNode kamNode : kamNodes) {
+                edges.addAll(kamService.getAdjacentKamEdges(kamNode, direction,
+                        null));
+            }
+            return edges;
         }
     }
 
@@ -195,7 +204,8 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         private final KAMService kamService;
         private final Set<CyNode> cynodes;
 
-        private InterconnectAction(Set<CyNode> cynodes, CyNetworkView view) {
+        private InterconnectAction(final Set<CyNode> cynodes, 
+                final CyNetworkView view) {
             super("Interconnect", view);
             this.kamService = KAMServiceFactory.getInstance().getKAMService();
             this.cynodes = cynodes;
