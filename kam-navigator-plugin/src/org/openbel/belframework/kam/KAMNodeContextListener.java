@@ -30,6 +30,7 @@ import giny.view.NodeView;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.openbel.belframework.webservice.KAMServiceFactory;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
+import com.selventa.belframework.ws.client.SimplePath;
 
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;
@@ -109,8 +111,9 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         if (menu == null) {
             menu = new JPopupMenu();
         }
-
+        
         // construct node menu and add to context popup
+        // TODO do we want expand actions to be performed on all selected nodes?
         final JMenu kamNodeItem = new JMenu("KAM Node");
         final JMenuItem downstream = new JMenuItem(new ExpandAction(FORWARD,
                 cynode, (CyNetworkView) nv.getGraphView()));
@@ -121,6 +124,17 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, cynode,
                 (CyNetworkView) nv.getGraphView()));
         kamNodeItem.add(both);
+        
+        // documentation doesn't specify that selected nodes are CyNodes 
+        //  but they should be 
+        Set<CyNode> selected = Cytoscape.getCurrentNetwork().getSelectedNodes();
+        if (selected.size() > 1) {
+            // interconnect added only if more then one nodes are selected
+            final JMenuItem interconnect = new JMenuItem(new InterconnectAction(
+                    selected, (CyNetworkView) nv.getGraphView()));
+            kamNodeItem.add(interconnect);
+        }
+        
         menu.add(kamNodeItem);
     }
 
@@ -181,6 +195,69 @@ public class KAMNodeContextListener implements PropertyChangeListener,
 
                 nn.add((CyNode) cye.getSource());
                 nn.add((CyNode) cye.getTarget());
+            }
+
+            // do not track the node to expand; we don't want it to re-layout
+            //nn.remove(cynode);
+
+            network.unselectAllNodes();
+            network.setSelectedNodeState(nn, true);
+
+            CyLayoutAlgorithm dcl = CyLayouts.getLayout("degree-circle");
+            dcl.setSelectedOnly(true);
+            dcl.doLayout(view);
+
+            view.redrawGraph(true, true);
+        }
+    }
+
+    /**
+     * A menu {@link AbstractAction action} that drives the interconnect of the
+     * selected {@link KamNode kam nodes}.
+     *
+     * @see #actionPerformed(ActionEvent)
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static class InterconnectAction extends AbstractAction {
+        private static final long serialVersionUID = 8540857606052921412L;
+        private final KAMService kamService;
+        private final Set<CyNode> cynodes;
+        private final CyNetworkView view;
+
+        public InterconnectAction(Set<CyNode> cynodes, CyNetworkView view) {
+            super("Interconnect");
+            this.kamService = KAMServiceFactory.getInstance().getKAMService();
+            this.cynodes = cynodes;
+            this.view = view;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // FIXME If a cytoscape session is restored the KAMNetwork
+            // will not exist. We will have to reconnect to the KAM.
+
+            final CyNetwork network = view.getNetwork();
+            final KAMNetwork kamNetwork = KAMSession.getInstance()
+                    .getKAMNetwork(network);
+            final Collection<KamNode> kamNodes = new HashSet<KamNode>();
+            for (final CyNode cynode : cynodes) {
+                kamNodes.add(kamNetwork.getKAMNode(cynode));
+            }
+
+            // null max depth to let service choose it's default (currently 4)
+            final List<SimplePath> paths = kamService.interconnect(kamNodes,
+                    null);
+            final Set<CyNode> nn = new HashSet<CyNode>();
+            for (final SimplePath path : paths) {
+                for (final KamEdge edge : path.getEdges()) {
+                    CyEdge cye = kamNetwork.addEdge(edge);
+
+                    nn.add((CyNode) cye.getSource());
+                    nn.add((CyNode) cye.getTarget());
+                }
             }
 
             // do not track the node to expand; we don't want it to re-layout

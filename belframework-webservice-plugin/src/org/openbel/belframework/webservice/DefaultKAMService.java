@@ -24,8 +24,10 @@ import static com.selventa.belframework.ws.client.ObjectFactory.createGetAdjacen
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetCatalogRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingEvidenceRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingTermsRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createInterconnectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createLoadKamRequest;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -46,6 +48,8 @@ import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
 import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
 import com.selventa.belframework.ws.client.GetSupportingTermsResponse;
+import com.selventa.belframework.ws.client.InterconnectRequest;
+import com.selventa.belframework.ws.client.InterconnectResponse;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
@@ -53,6 +57,7 @@ import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.LoadKamRequest;
 import com.selventa.belframework.ws.client.LoadKamResponse;
 import com.selventa.belframework.ws.client.NodeFilter;
+import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
 
 import cytoscape.Cytoscape;
@@ -273,6 +278,30 @@ class DefaultKAMService implements KAMService {
 
         final GetAdjacentKamEdgesResponse res = ws.getAdjacentKamEdges(req);
         return res.getKamEdges();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SimplePath> interconnect(final Collection<KamNode> sources,
+            final Integer maxDepth) {
+        if (sources == null) {
+            throw new IllegalArgumentException("sources is null");
+        }
+        if (sources.isEmpty()) {
+            throw new IllegalArgumentException("sources is empty");
+        }
+        // maxDepth is nullable, so no null check
+
+        checkValid();
+
+        final InterconnectRequest req = createInterconnectRequest();
+        req.getSources().addAll(sources);
+        req.setMaxDepth(maxDepth);
+
+        final InterconnectResponse res = ws.interconnect(req);
+        return res.getPaths();
     }
 
     /**

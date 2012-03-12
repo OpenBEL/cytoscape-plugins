@@ -1,5 +1,6 @@
 package org.openbel.belframework.webservice;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.selventa.belframework.ws.client.BelStatement;
@@ -13,6 +14,7 @@ import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.LoadKamResponse;
 import com.selventa.belframework.ws.client.NodeFilter;
+import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
 
 /**
@@ -119,4 +121,18 @@ public interface KAMService {
 	public abstract List<KamEdge> getAdjacentKamEdges(final KamNode node,
 			final EdgeDirectionType direction, final EdgeFilter ef);
 
+    /**
+     * Retrieves {@link SimplePath SimplePaths} between the given source nodes.
+     * 
+     * @param sources
+     *            {@link KamNode KamNodes} 2 or more nodes to search between,
+     *            should not be {@code null} or less then 2.
+     * @param maxDepth
+     *            search depth, if {@code null} backend defaults are used
+     * @return the {@list List} of {@link SimplePath SimplePaths}, can be empty
+     *         but never {@code null}.
+     */
+    public abstract List<SimplePath> interconnect(
+            final Collection<KamNode> sources, final Integer maxDepth);
+	
 }
