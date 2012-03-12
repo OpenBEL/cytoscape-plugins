@@ -212,6 +212,10 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             super("Interconnect", view);
             this.kamService = KAMServiceFactory.getInstance().getKAMService();
             this.cynodes = cynodes;
+            
+            if (cynodes == null || cynodes.size() < 2) {
+                throw new IllegalArgumentException("Can't interconnect less then two nodes");
+            }
         }
 
         /**
