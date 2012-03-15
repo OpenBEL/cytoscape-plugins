@@ -25,6 +25,7 @@ import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.Utility;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
+import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
 
 import cytoscape.task.Task;
@@ -48,6 +49,19 @@ public class KAMTasks {
         final AddNodeTask task = new AddNodeTask(kamNetwork, kamNodes);
         Utility.executeTask(task);
     }
+    
+    /**
+     * Call the {@link AddEdgeTask add edge task}.
+     *
+     * @see AddEdgeTask#run()
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param kamNodes the {@link KamEdge kam edges} to add
+     */
+    public static void addEdges(final KAMNetwork kamNetwork, final List<KamEdge> kamEdges) {
+        final AddEdgeTask task = new AddEdgeTask(kamNetwork, kamEdges);
+        Utility.executeTask(task);
+    }
+    
 
     /**
      * Call the {@link NodeEdgesTask node edges task}.

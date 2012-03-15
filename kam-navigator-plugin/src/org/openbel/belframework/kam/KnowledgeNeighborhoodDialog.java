@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -134,8 +135,26 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             this.dispose();
         } else if (e.getSource().equals(addButton)) {
             EdgeTableModel model = (EdgeTableModel) resultsTable.getModel();
-            Collection<KamEdge> edges = model.getEdges();
-            // TODO: add edges
+            List<KamEdge> edges = model.getEdges();
+
+            List<KamEdge> selectedEdges = new ArrayList<KamEdge>();
+
+            // determine selected rows from the filtered view
+            int[] viewIndices = resultsTable.getSelectedRows();
+            for (int viewIndex : viewIndices) {
+                int modelIndex = resultsTable.convertRowIndexToModel(viewIndex);
+
+                KamEdge selectedEdge = edges.get(modelIndex);
+                if (selectedEdge != null) {
+                    selectedEdges.add(selectedEdge);
+                }
+            }
+
+            // FIXME change how we get the network
+            KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
+                    Cytoscape.getCurrentNetwork());
+
+            KAMTasks.addEdges(kamNetwork, selectedEdges);
         }
     }
 
