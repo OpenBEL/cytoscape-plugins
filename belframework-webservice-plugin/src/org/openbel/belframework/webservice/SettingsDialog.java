@@ -74,7 +74,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
         setSize(dialogDim);
         setPreferredSize(dialogDim);
         setLocationRelativeTo(null);
-        setModal(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
     }

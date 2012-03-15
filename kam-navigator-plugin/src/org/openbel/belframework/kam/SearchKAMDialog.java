@@ -96,7 +96,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      * @see #initUI()
      */
     public SearchKAMDialog() {
-        super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
+        super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
 
         initUI();
@@ -140,7 +140,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         setSize(dialogDim);
         setPreferredSize(dialogDim);
         setLocationRelativeTo(null);
-        setModal(false);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
     }

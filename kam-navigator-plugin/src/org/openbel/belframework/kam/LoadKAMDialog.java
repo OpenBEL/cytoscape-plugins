@@ -84,7 +84,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
      * @see #initUI()
      */
     public LoadKAMDialog() {
-        super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
+        super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm aaa");
 
@@ -108,7 +108,6 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
         setSize(dialogDim);
         setPreferredSize(dialogDim);
         setLocationRelativeTo(null);
-        setModal(false);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
     }
