@@ -28,7 +28,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="lib.path" value="lib" />
     <property name="license.path" value="license" />
     <property name="compile.path" value="bin" />
-    <property name="jar.version" value="1.1" />
+    <property name="jar.version" value="1.2" />
     <property name="jar.name" value="kam_navigator_${jar.version}.jar" />
     <property name="src.jar.name"
               value="kam_navigator_source_${jar.version}.jar" />
