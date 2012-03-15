@@ -29,7 +29,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -396,9 +395,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 // hold the selected KAM nodes we're interested in
                 final List<KamNode> selectedNodes = new ArrayList<KamNode>();
 
-                // track selected KAM node ids to efficiently filter edges
-                final Set<String> selectedNodeIds = new HashSet<String>();
-
                 // determine selected rows from the filtered view
                 int[] viewIndices = resultsTable.getSelectedRows();
                 for (int viewIndex : viewIndices) {
@@ -406,7 +402,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
                     KamNode selectedNode = nodes.get(modelIndex);
                     selectedNodes.add(selectedNode);
-                    selectedNodeIds.add(selectedNode.getId());
                 }
 
                 final NetworkOption networkOption = (NetworkOption) networkCmb
