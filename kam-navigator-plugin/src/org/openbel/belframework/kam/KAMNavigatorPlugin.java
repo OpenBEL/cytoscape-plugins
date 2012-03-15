@@ -89,8 +89,14 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // add "Select KAM" action to submenu
         kiMenu.add(new SelectKAMDialogAction());
 
-        // add "Search KAM" action to submenu
+        // add "Add Kam Nodes" action to submenu
         kiMenu.add(new SearchKAMDialogAction());
+        
+        // add "Knowledge Neighborhood" action to submenu
+        kiMenu.add(new KnowledgeNeighborhoodDialogAction());
+        
+        // add separtor before bel configuration entry
+        kiMenu.addSeparator();
 
         // hook up propery change listeners
         final KAMNodeContextListener nctx = new KAMNodeContextListener();
@@ -142,6 +148,28 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         public void actionPerformed(ActionEvent event) {
             SearchKAMDialog kcdialog = new SearchKAMDialog();
             kcdialog.setVisible(true);
+        }
+    }
+    
+    /**
+     * The {@link CytoscapeAction action} to trigger the Knowledge Neighborhood dialog.
+     *
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    public class KnowledgeNeighborhoodDialogAction extends CytoscapeAction {
+        private static final long serialVersionUID = 2243171495622023060L;
+
+        public KnowledgeNeighborhoodDialogAction() {
+            super("Knowledge Neighborhood");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            KnowledgeNeighborhoodDialog dialog = new KnowledgeNeighborhoodDialog();
+            dialog.setVisible(true);
         }
     }
 }
