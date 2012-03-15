@@ -145,6 +145,7 @@ public class KAMNetwork {
      * {@link CyNode cytoscape node}
      */
     public KamNode getKAMNode(final CyNode cynode) {
+        // TODO do we want a check here to see if the cynode is kam backed?
         final KamNode kamNode = new KamNode();
 
         final String id = cynode.getIdentifier();

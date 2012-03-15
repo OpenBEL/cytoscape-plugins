@@ -102,11 +102,11 @@ public class KAMNodeContextListener implements PropertyChangeListener,
     public void addNodeContextMenuItems(NodeView nv, JPopupMenu menu) {
         // documentation doesn't specify that selected nodes are CyNodes 
         //  but they should be 
+        // FIXME what if the current network is not the kam network?
         @SuppressWarnings("unchecked")
         Set<CyNode> selected = Cytoscape.getCurrentNetwork().getSelectedNodes();
         for (CyNode cynode : selected) {
-            // I don't understand the point of this check, but Tony had it in 
-            // before so I assume it's there for a reason --JFM
+            // check to see if node is KAM backed
             String cyid = cynode.getIdentifier();
             final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
             final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
