@@ -174,6 +174,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     }
 
     private void loadNeighborhood() {
+        // TODO put this a thread so it doesn't slow down other UI actions
+        
         // TODO change the way we load selected
         @SuppressWarnings("unchecked")
         final Set<CyNode> selected = Cytoscape.getCurrentNetwork()
@@ -253,11 +255,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     edge.getRelationship().toString(),
                     edge.getTarget().getLabel() });
             edges.add(edge);
+            fireTableDataChanged();
         }
 
         public void clear() {
             dataVector.clear();
             edges.clear();
+            fireTableDataChanged();
         }
 
         public List<KamEdge> getEdges() {
