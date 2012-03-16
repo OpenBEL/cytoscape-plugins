@@ -255,10 +255,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         final EdgeTableModel model = (EdgeTableModel) this.resultsTable
                 .getModel();
         model.clear();
-
-        for (KamEdge edge : edges) {
-            model.addEdge(edge);
-        }
+        model.addEdges(edges);
         resultsLabel.setText("Found " + model.getRowCount() + " items");
     }
     
@@ -299,11 +296,12 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             return canEdit[columnIndex];
         }
 
-        public void addEdge(KamEdge edge) {
-            super.addRow(new String[] { edge.getSource().getLabel(),
-                    edge.getRelationship().toString(),
-                    edge.getTarget().getLabel() });
-            edges.add(edge);
+        public void addEdges(Collection<KamEdge> edges) {
+            for (KamEdge edge : edges) {
+                if (edge != null) {
+                    addEdge(edge);
+                }
+            }
             fireTableDataChanged();
         }
 
@@ -315,6 +313,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         public List<KamEdge> getEdges() {
             return edges;
+        }
+        
+        private void addEdge(KamEdge edge) {
+            super.addRow(new String[] { edge.getSource().getLabel(),
+                    edge.getRelationship().toString(),
+                    edge.getTarget().getLabel() });
+            edges.add(edge);
         }
     }
 
