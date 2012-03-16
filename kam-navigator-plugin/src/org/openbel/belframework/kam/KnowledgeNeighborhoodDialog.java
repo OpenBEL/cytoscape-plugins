@@ -141,7 +141,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private void initUI() {
         initComponents();
         
-        // additional stuff (kept seperate for future UI work)
+        // additional stuff (kept separate for future UI work)
         resultsLabel.setText("");
         selectionLabel.setText("");
         cancelButton.addActionListener(this);
@@ -301,7 +301,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     }
 
     // taken from netbeans
-    // this method was taken auto generated code, apologies if it sucks
+    // this method was taken from auto generated code, apologies if it sucks
     private void initComponents() {
 
         expandButtonGroup = new ButtonGroup();
@@ -334,7 +334,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
 
-        resultsLabel.setText("Found n Items");
+        resultsLabel.setText("Found n items");
 
         selectionLabel.setText("n items selected");
 
