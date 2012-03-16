@@ -31,6 +31,7 @@ import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.BelTerm;
+import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
@@ -78,6 +79,7 @@ public class KAMNetwork {
     private final CyNetwork cyn;
     private final KAMService kamService;
     private final KamHandle kamHandle;
+    private final DialectHandle dialectHandle;
 
     /**
      * Create the {@link KAMNetwork} with the {@link String kam name} and
@@ -87,8 +89,10 @@ public class KAMNetwork {
      * @param kamHandle the {@link String kam handle} that identifies the
      * loaded {@link Kam kam} in the Web API
      */
-    public KAMNetwork(final String kamName, final KamHandle kamHandle) {
+    public KAMNetwork(final String kamName, final KamHandle kamHandle, 
+            final DialectHandle dialectHandle) {
         this.kamHandle = kamHandle;
+        this.dialectHandle = dialectHandle;
         this.cyn = Cytoscape.createNetwork(kamName + NETWORK_SUFFIX, true);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.cyn.addSelectEventListener(new NetworkDetailsListener(this));
@@ -114,6 +118,17 @@ public class KAMNetwork {
      */
     public KamHandle getKAMHandle() {
         return kamHandle;
+    }
+    
+    /**
+     * Retrieve the {@link DialectHandle} associated with the loaded {@link Kam}
+     * which identifies the dialect on the Web API. If no handle is present,
+     * returns <code>null</code>
+     * 
+     * @return the {@link DialectHandle}, can be null
+     */
+    public DialectHandle getDialectHandle() {
+        return dialectHandle;
     }
 
     /**

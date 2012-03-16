@@ -100,8 +100,8 @@ class InterconnectNodesTask extends AddNodeTask {
                 }
                 
                 final List<KamEdge> edges = kamService
-                        .getAdjacentKamEdges(selectedNode, EdgeDirectionType.BOTH,
-                        null);
+                        .getAdjacentKamEdges(kamNetwork.getDialectHandle(), 
+                                selectedNode, EdgeDirectionType.BOTH, null);
 
                 for (final KamEdge edge : edges) {
                     final KamNode esrc = (KamNode) edge.getSource();

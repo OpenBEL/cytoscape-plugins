@@ -97,7 +97,8 @@ class NodeEdgesTask extends AddNodeTask {
             }
             
             final List<KamEdge> edges = kamService.getAdjacentKamEdges(
-                    selectedNode, direction, null);
+                    kamNetwork.getDialectHandle(), selectedNode, direction,
+                    null);
 
             for (final KamEdge edge : edges) {
                 kamNetwork.addEdge(edge);

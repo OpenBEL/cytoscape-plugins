@@ -195,7 +195,8 @@ public class KAMNodeContextListener implements PropertyChangeListener,
 
             List<KamEdge> edges = new ArrayList<KamEdge>();
             for (KamNode kamNode : kamNodes) {
-                edges.addAll(kamService.getAdjacentKamEdges(kamNode, direction,
+                edges.addAll(kamService.getAdjacentKamEdges(
+                        kamNetwork.getDialectHandle(), kamNode, direction, 
                         null));
             }
             return edges;
@@ -236,8 +237,8 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             }
 
             // null max depth to let service choose it's default (currently 4)
-            final List<SimplePath> paths = kamService.interconnect(kamNodes,
-                    null);
+            final List<SimplePath> paths = kamService.interconnect(
+                    kamNetwork.getDialectHandle(), kamNodes, null);
             final List<KamEdge> edges = new ArrayList<KamEdge>();
             for (final SimplePath path : paths) {
                 edges.addAll(path.getEdges());

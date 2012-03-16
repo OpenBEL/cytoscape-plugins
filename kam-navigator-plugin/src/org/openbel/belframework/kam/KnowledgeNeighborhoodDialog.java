@@ -198,7 +198,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         List<KamEdge> edges = new ArrayList<KamEdge>();
         for (KamNode kamNode : kamNodes) {
-            edges.addAll(kamService.getAdjacentKamEdges(kamNode,
+            edges.addAll(kamService.getAdjacentKamEdges(
+                    kamNetwork.getDialectHandle(), kamNode, 
                     EdgeDirectionType.BOTH, null));
         }
 

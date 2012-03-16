@@ -52,6 +52,7 @@ import javax.swing.WindowConstants;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
+import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.KAMLoadStatus;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamHandle;
@@ -356,9 +357,9 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
 
                 res = kamService.loadKam(kam);
             }
-            KamHandle handle = null;
+            KamHandle kamHandle = null;
             if (res.getLoadStatus() == KAMLoadStatus.COMPLETE) {
-                handle = res.getHandle();
+                kamHandle = res.getHandle();
             } else if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
                 // dispose of kam select dialog
                 // otherwise user can't click on error dialogue
@@ -373,9 +374,13 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
             }
             // else still in progress and was canceled
 
-            if (handle != null) {
+            if (kamHandle != null) {
+                // load default dialect handle
+                DialectHandle dialectHandle = kamService.getDialect();
+                
                 // Create KAM Network for this selected KAM.
-                final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), handle);
+                final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), 
+                        kamHandle, dialectHandle);
     
                 // Store session data for KAM and CyNetwork.
                 KAMSession session = KAMSession.getInstance();

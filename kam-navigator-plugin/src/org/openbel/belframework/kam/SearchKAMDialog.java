@@ -491,7 +491,9 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(cyn);
         
                     // find kam nodes by function
-                    final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
+                    final List<KamNode> nodes = kamService.findKamNodesByFunction(
+                            kamNetwork.getKAMHandle(), 
+                            kamNetwork.getDialectHandle(), selfunc);
                     
                     // build out term map
                     // XXX most of the time searching for nodes is spent here,

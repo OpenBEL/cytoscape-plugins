@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.selventa.belframework.ws.client.BelStatement;
 import com.selventa.belframework.ws.client.BelTerm;
+import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.EdgeFilter;
 import com.selventa.belframework.ws.client.FunctionType;
@@ -33,6 +34,11 @@ public interface KAMService {
 	 */
 	public abstract List<Kam> getCatalog();
 
+	/**
+	 * TODO: still WIP, document after this stablizes
+     */
+    public abstract DialectHandle getDialect();
+    
 	/**
 	 * Fires a loads request for a {@link Kam kam} on the server end of the 
 	 * webservice and returns a {@link LoadKamResponse response}.
@@ -75,8 +81,10 @@ public interface KAMService {
 	 * Finds {@link KamNode kam nodes} by {@link FunctionType BEL function} for
 	 * a specific loaded kam.
 	 *
-	 * @param handle the {@link KamHandle kam handle} that identifies a loaded
+	 * @param kamHandle the {@link KamHandle kam handle} that identifies a loaded
 	 * {@link Kam}
+	 * @param dialectHandle the {@link DialectHandle dialect handle} that 
+     * identifies a loaded dialect, can be null
 	 * @param function the {@link FunctionType BEL function} to find by
 	 * @return the {@link List} of {@link KamNode kam nodes}, which will not be
 	 * {@code null} but may be empty
@@ -84,14 +92,17 @@ public interface KAMService {
 	 * {@code function} parameter is {@code null}
 	 */
 	public abstract List<KamNode> findKamNodesByFunction(
-			final KamHandle handle, final FunctionType function);
+			final KamHandle kamHandle, final DialectHandle dialectHandle, 
+			final FunctionType function);
 
 	/**
 	 * Finds {@link KamNode kam nodes} by a regular expression pattern and
 	 * optional {@link NodeFilter node filter}.
 	 *
-	 * @param handle the {@link KamHandle kam handle} that identifies a loaded
+	 * @param kamHandle the {@link KamHandle kam handle} that identifies a loaded
 	 * {@link Kam kam}
+	 * @param dialectHandle the {@link DialectHandle dialect handle} that 
+	 * identifies a loaded dialect, can be null
 	 * @param regex the regular expression {@link String} to find by
 	 * @param nf the optional {@link NodeFilter node filter} to further
 	 * restrict the results
@@ -101,7 +112,8 @@ public interface KAMService {
 	 * {@code regex} parameter is {@code null}
 	 */
 	public abstract List<KamNode> findKamNodesByPatterns(
-			final KamHandle handle, final String regex, final NodeFilter nf);
+			final KamHandle kamHandle, final DialectHandle dialectHandle, 
+			final String regex, final NodeFilter nf);
 
 	/**
 	 * Retrieves {@link KamEdge kam edges} that are adjacent to a
@@ -109,6 +121,8 @@ public interface KAMService {
 	 * directions.  Optionally an {@link EdgeFilter edge filter} can be used to
 	 * further restrict the results
 	 *
+	 * @param dialectHandle the {@link DialectHandle dialect handle} that 
+	 * identifies a loaded dialect, can be null
 	 * @param node the {@link KamNode kam node} to find adjacent
 	 * {@link KamEdge kam edges} for
 	 * @param direction the {@link EdgeDirectionType edge direction}
@@ -118,12 +132,16 @@ public interface KAMService {
 	 * @throws IllegalArgumentException Thrown if the {@code node} or
 	 * {@code direction} parameter is {@code null}
 	 */
-	public abstract List<KamEdge> getAdjacentKamEdges(final KamNode node,
-			final EdgeDirectionType direction, final EdgeFilter ef);
+	public abstract List<KamEdge> getAdjacentKamEdges(
+	        final DialectHandle dialectHandle, final KamNode node, 
+	        final EdgeDirectionType direction, final EdgeFilter ef);
 
     /**
      * Retrieves {@link SimplePath SimplePaths} between the given source nodes.
      * 
+     * @param dialectHandle
+     *            the {@link DialectHandle dialect handle} that identifies a
+     *            loaded dialect, can be null
      * @param sources
      *            {@link KamNode KamNodes} 2 or more nodes to search between,
      *            should not be {@code null} or less then 2.
@@ -133,6 +151,7 @@ public interface KAMService {
      *         but never {@code null}.
      */
     public abstract List<SimplePath> interconnect(
+            final DialectHandle dialectHandle, 
             final Collection<KamNode> sources, final Integer maxDepth);
-	
+
 }

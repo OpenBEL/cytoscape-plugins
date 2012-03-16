@@ -22,6 +22,7 @@ package org.openbel.belframework.webservice;
 import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByPatternsRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetAdjacentKamEdgesRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetCatalogRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createGetDialectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingEvidenceRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingTermsRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createInterconnectRequest;
@@ -44,6 +45,8 @@ import com.selventa.belframework.ws.client.GetAdjacentKamEdgesRequest;
 import com.selventa.belframework.ws.client.GetAdjacentKamEdgesResponse;
 import com.selventa.belframework.ws.client.GetCatalogRequest;
 import com.selventa.belframework.ws.client.GetCatalogResponse;
+import com.selventa.belframework.ws.client.GetDialectRequest;
+import com.selventa.belframework.ws.client.GetDialectResponse;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
 import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
@@ -59,6 +62,7 @@ import com.selventa.belframework.ws.client.LoadKamResponse;
 import com.selventa.belframework.ws.client.NodeFilter;
 import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
+import com.selventa.belframework.ws.client.DialectHandle;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
@@ -117,6 +121,20 @@ class DefaultKAMService implements KAMService {
         final LoadKamRequest req = createLoadKamRequest();
         req.setKam(kam);
         return ws.loadKam(req);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DialectHandle getDialect() {
+        // no parameters yet
+        
+        checkValid();
+        final GetDialectRequest req = createGetDialectRequest();
+        // nothing in the request
+        final GetDialectResponse res = ws.getDialect(req);
+        return res.getDialect();
     }
 
     /**
@@ -191,8 +209,8 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-	public List<KamNode> findKamNodesByFunction(final KamHandle handle,
-            final FunctionType function) {
+	public List<KamNode> findKamNodesByFunction(final KamHandle handle, 
+	        final DialectHandle dialectHandle, final FunctionType function) {
         if (handle == null) {
             throw new IllegalArgumentException("handle is null");
         }
@@ -206,6 +224,9 @@ class DefaultKAMService implements KAMService {
         final FindKamNodesByPatternsRequest req =
                 createFindKamNodesByPatternsRequest();
         req.setHandle(handle);
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
         req.getPatterns().add(".*");
 
         final NodeFilter nf = new NodeFilter();
@@ -226,7 +247,8 @@ class DefaultKAMService implements KAMService {
      */
     @Override
 	public List<KamNode> findKamNodesByPatterns(final KamHandle handle,
-            final String regex, final NodeFilter nf) {
+	        final DialectHandle dialectHandle, final String regex, 
+	        final NodeFilter nf) {
         if (handle == null) {
             throw new IllegalArgumentException("handle is null");
         }
@@ -240,6 +262,9 @@ class DefaultKAMService implements KAMService {
         final FindKamNodesByPatternsRequest req =
                 createFindKamNodesByPatternsRequest();
         req.setHandle(handle);
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
 
         req.getPatterns().add(regex);
         if (nf != null) {
@@ -255,8 +280,9 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-	public List<KamEdge> getAdjacentKamEdges(final KamNode node,
-            final EdgeDirectionType direction, final EdgeFilter ef) {
+	public List<KamEdge> getAdjacentKamEdges(final DialectHandle dialectHandle, 
+	        final KamNode node, final EdgeDirectionType direction, 
+	        final EdgeFilter ef) {
         if (node == null) {
             throw new IllegalArgumentException("node is null");
         }
@@ -269,6 +295,9 @@ class DefaultKAMService implements KAMService {
 
         final GetAdjacentKamEdgesRequest req =
                 createGetAdjacentKamEdgesRequest();
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
         req.setKamNode(node);
         req.setDirection(direction);
 
@@ -284,7 +313,8 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-    public List<SimplePath> interconnect(final Collection<KamNode> sources,
+    public List<SimplePath> interconnect(final DialectHandle dialectHandle, 
+            final Collection<KamNode> sources,
             final Integer maxDepth) {
         if (sources == null) {
             throw new IllegalArgumentException("sources is null");
@@ -297,6 +327,9 @@ class DefaultKAMService implements KAMService {
         checkValid();
 
         final InterconnectRequest req = createInterconnectRequest();
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
         req.getSources().addAll(sources);
         req.setMaxDepth(maxDepth);
 
