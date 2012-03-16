@@ -149,6 +149,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         addButton.setEnabled(false);
         resultsTable.setModel(new EdgeTableModel());
         resultsTable.getSelectionModel().addListSelectionListener(new ResultsSelectionListener());
+
+        expandBothButton.setSelected(true);
+        expandBothButton.addActionListener(this);
+        expandUpstreamButton.addActionListener(this);
+        expandDownstreamButton.addActionListener(this);
     }
 
     /**
@@ -161,8 +166,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
 
         if (e.getSource().equals(cancelButton)) {
+            // cancel button
             this.dispose();
         } else if (e.getSource().equals(addButton)) {
+            // add button
             EdgeTableModel model = (EdgeTableModel) resultsTable.getModel();
             List<KamEdge> edges = model.getEdges();
 
@@ -184,6 +191,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     Cytoscape.getCurrentNetwork());
 
             KAMTasks.addEdges(kamNetwork, selectedEdges);
+        } else if (e.getSource().equals(expandBothButton) 
+                || e.getSource().equals(expandUpstreamButton)
+                || e.getSource().equals(expandDownstreamButton)) {
+            // expand radio button selection changed
+            loadNeighborhood();
         }
     }
 
@@ -227,11 +239,17 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             kamNodes.add(kamNetwork.getKAMNode(cynode));
         }
 
+        EdgeDirectionType direction = EdgeDirectionType.BOTH;
+        if (expandUpstreamButton.isSelected()) {
+            direction = EdgeDirectionType.REVERSE;
+        } else if (expandDownstreamButton.isSelected()) {
+            direction = EdgeDirectionType.FORWARD;
+        }
+        
         List<KamEdge> edges = new ArrayList<KamEdge>();
         for (KamNode kamNode : kamNodes) {
             edges.addAll(kamService.getAdjacentKamEdges(
-                    kamNetwork.getDialectHandle(), kamNode, 
-                    EdgeDirectionType.BOTH, null));
+                    kamNetwork.getDialectHandle(), kamNode, direction, null));
         }
 
         final EdgeTableModel model = (EdgeTableModel) this.resultsTable
