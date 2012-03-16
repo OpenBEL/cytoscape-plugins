@@ -19,6 +19,7 @@
  */
 package org.openbel.belframework.kam;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -27,15 +28,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -70,10 +79,30 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     // swing components
     private JButton addButton;
     private JButton cancelButton;
+    private JLabel edgeLabel;
+    private JComboBox edgeRelationshipCombo;
+    private JLabel edgeRelationshipLabel;
+    private JRadioButton expandBothButton;
+    private ButtonGroup expandButtonGroup;
+    private JRadioButton expandDownstreamButton;
+    private JLabel expandLabel;
+    private JRadioButton expandUpstreamButton;
+    private JPanel filterPanel;
     private JLabel resultsLabel;
     private JTable resultsTable;
     private JLabel selectionLabel;
+    private JSeparator separator;
+    private JComboBox sourceFunctionCombo;
+    private JLabel sourceFunctionLabel;
+    private JLabel sourceLabel;
+    private JTextField sourceLabelField;
+    private JLabel sourceLabelLabel;
     private JScrollPane tableScrollPane;
+    private JComboBox targetFunctionCombo;
+    private JLabel targetFunctionLabel;
+    private JLabel targetLabel;
+    private JTextField targetLabelField;
+    private JLabel targetLabelLabel;
 
     /**
      * Construct the {@link JDialog dialog} and initialize the UI.
@@ -112,7 +141,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private void initUI() {
         initComponents();
         
-        // additional stuff (kept seprate for future UI work)
+        // additional stuff (kept seperate for future UI work)
         resultsLabel.setText("");
         selectionLabel.setText("");
         cancelButton.addActionListener(this);
@@ -239,9 +268,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             }, new String[] { "Source", "Relationship", "Target" });
         }
 
+        @SuppressWarnings("rawtypes")
         Class[] types = new Class[] { String.class, String.class, String.class };
         boolean[] canEdit = new boolean[] { false, false, false };
 
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         public Class getColumnClass(int columnIndex) {
             return types[columnIndex];
         }
@@ -270,77 +301,234 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     }
 
     // taken from netbeans
+    // this method was taken auto generated code, apologies if it sucks
     private void initComponents() {
 
+        expandButtonGroup = new ButtonGroup();
         resultsLabel = new JLabel();
         selectionLabel = new JLabel();
         cancelButton = new JButton();
         addButton = new JButton();
         tableScrollPane = new JScrollPane();
         resultsTable = new JTable();
+        filterPanel = new JPanel();
+        expandLabel = new JLabel();
+        expandBothButton = new JRadioButton();
+        expandUpstreamButton = new JRadioButton();
+        expandDownstreamButton = new JRadioButton();
+        edgeLabel = new JLabel();
+        edgeRelationshipCombo = new JComboBox();
+        edgeRelationshipLabel = new JLabel();
+        sourceLabel = new JLabel();
+        targetLabel = new JLabel();
+        targetFunctionLabel = new JLabel();
+        targetFunctionCombo = new JComboBox();
+        targetLabelLabel = new JLabel();
+        targetLabelField = new JTextField();
+        sourceFunctionLabel = new JLabel();
+        sourceLabelLabel = new JLabel();
+        sourceFunctionCombo = new JComboBox();
+        sourceLabelField = new JTextField();
+        separator = new JSeparator();
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
 
-        resultsLabel.setText("Found n items");
+        resultsLabel.setText("Found n Items");
 
         selectionLabel.setText("n items selected");
 
         cancelButton.setText("Cancel");
         cancelButton.setToolTipText("Close this window");
-        /*
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
-            }
-        });
-        */
 
         addButton.setText("Add");
         addButton.setToolTipText("Add selected edges to graph");
 
-        // resultsTable.setModel(new EdgeTableModel());
         tableScrollPane.setViewportView(resultsTable);
+
+        filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
+
+        expandLabel.setFont(expandLabel.getFont().deriveFont(expandLabel.getFont().getStyle() | Font.BOLD));
+        expandLabel.setText("Expand:");
+
+        expandButtonGroup.add(expandBothButton);
+        expandBothButton.setText("Both");
+
+        expandButtonGroup.add(expandUpstreamButton);
+        expandUpstreamButton.setText("Upstream");
+
+        expandButtonGroup.add(expandDownstreamButton);
+        expandDownstreamButton.setText("Downstream");
+
+        edgeLabel.setFont(edgeLabel.getFont().deriveFont(edgeLabel.getFont().getStyle() | Font.BOLD));
+        edgeLabel.setText("Edge:");
+
+        edgeRelationshipCombo.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        edgeRelationshipLabel.setLabelFor(edgeRelationshipCombo);
+        edgeRelationshipLabel.setText("Relationship");
+
+        sourceLabel.setFont(sourceLabel.getFont().deriveFont(sourceLabel.getFont().getStyle() | Font.BOLD));
+        sourceLabel.setText("Source:");
+
+        targetLabel.setFont(targetLabel.getFont().deriveFont(targetLabel.getFont().getStyle() | Font.BOLD));
+        targetLabel.setText("Target:");
+
+        targetFunctionLabel.setLabelFor(targetFunctionCombo);
+        targetFunctionLabel.setText("Function");
+
+        targetFunctionCombo.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        targetLabelLabel.setLabelFor(targetLabelField);
+        targetLabelLabel.setText("Label");
+
+        sourceFunctionLabel.setLabelFor(sourceFunctionCombo);
+        sourceFunctionLabel.setText("Function");
+
+        sourceLabelLabel.setLabelFor(sourceLabelField);
+        sourceLabelLabel.setText("Label");
+
+        sourceFunctionCombo.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        GroupLayout filterPanelLayout = new GroupLayout(filterPanel);
+        filterPanel.setLayout(filterPanelLayout);
+        filterPanelLayout.setHorizontalGroup(
+            filterPanelLayout.createParallelGroup(Alignment.LEADING)
+            .addGroup(filterPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                    .addGroup(filterPanelLayout.createSequentialGroup()
+                        .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                            .addComponent(expandLabel)
+                            .addGroup(filterPanelLayout.createSequentialGroup()
+                                .addGap(24, 24, 24)
+                                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                                    .addComponent(expandUpstreamButton)
+                                    .addComponent(expandBothButton)
+                                    .addComponent(expandDownstreamButton)))
+                            .addGroup(filterPanelLayout.createSequentialGroup()
+                                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                                    .addGroup(filterPanelLayout.createSequentialGroup()
+                                        .addGap(39, 39, 39)
+                                        .addComponent(sourceLabelLabel))
+                                    .addGroup(filterPanelLayout.createSequentialGroup()
+                                        .addGap(20, 20, 20)
+                                        .addComponent(sourceFunctionLabel)))
+                                .addPreferredGap(ComponentPlacement.RELATED)
+                                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                                    .addComponent(sourceFunctionCombo, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(sourceLabelField, GroupLayout.PREFERRED_SIZE, 194, GroupLayout.PREFERRED_SIZE))))
+                        .addPreferredGap(ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
+                        .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                            .addGroup(filterPanelLayout.createSequentialGroup()
+                                .addGroup(filterPanelLayout.createParallelGroup(Alignment.TRAILING)
+                                    .addComponent(targetLabelLabel)
+                                    .addComponent(targetFunctionLabel)
+                                    .addComponent(edgeRelationshipLabel))
+                                .addGap(18, 18, 18)
+                                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING, false)
+                                    .addComponent(targetFunctionCombo, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(targetLabelField, GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+                                    .addComponent(edgeRelationshipCombo, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(filterPanelLayout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                                    .addComponent(targetLabel)
+                                    .addComponent(edgeLabel)))))
+                    .addGroup(filterPanelLayout.createSequentialGroup()
+                        .addComponent(sourceLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        filterPanelLayout.setVerticalGroup(
+            filterPanelLayout.createParallelGroup(Alignment.LEADING)
+            .addGroup(filterPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                    .addComponent(expandLabel)
+                    .addComponent(edgeLabel))
+                .addPreferredGap(ComponentPlacement.RELATED)
+                .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                    .addComponent(expandBothButton)
+                    .addComponent(edgeRelationshipLabel)
+                    .addComponent(edgeRelationshipCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(ComponentPlacement.RELATED)
+                .addComponent(expandUpstreamButton)
+                .addPreferredGap(ComponentPlacement.UNRELATED)
+                .addComponent(expandDownstreamButton)
+                .addPreferredGap(ComponentPlacement.UNRELATED)
+                .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                    .addComponent(sourceLabel)
+                    .addComponent(targetLabel))
+                .addPreferredGap(ComponentPlacement.UNRELATED)
+                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                    .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(targetFunctionLabel)
+                        .addComponent(targetFunctionCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(sourceFunctionLabel)
+                        .addComponent(sourceFunctionCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(filterPanelLayout.createParallelGroup(Alignment.LEADING)
+                    .addGroup(filterPanelLayout.createSequentialGroup()
+                        .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                            .addComponent(targetLabelField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(targetLabelLabel))
+                        .addContainerGap())
+                    .addGroup(Alignment.TRAILING, filterPanelLayout.createSequentialGroup()
+                        .addGroup(filterPanelLayout.createParallelGroup(Alignment.BASELINE)
+                            .addComponent(sourceLabelField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sourceLabelLabel))
+                        .addGap(35, 35, 35))))
+        );
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(Alignment.LEADING)
                     .addGroup(Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(Alignment.TRAILING)
-                            .addComponent(tableScrollPane, GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(cancelButton)
-                                .addPreferredGap(ComponentPlacement.UNRELATED)
-                                .addComponent(addButton)))
-                        .addGap(20, 20, 20))
+                        .addContainerGap()
+                        .addComponent(filterPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(tableScrollPane, GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(resultsLabel)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
                         .addComponent(selectionLabel)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cancelButton)
+                        .addPreferredGap(ComponentPlacement.UNRELATED)
+                        .addComponent(addButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(resultsLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .addComponent(separator)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(Alignment.LEADING)
-            .addGroup(Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(filterPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addGap(14, 14, 14)
+                .addComponent(separator, GroupLayout.PREFERRED_SIZE, 10, GroupLayout.PREFERRED_SIZE)
+                .addGap(3, 3, 3)
                 .addComponent(resultsLabel)
-                .addPreferredGap(ComponentPlacement.UNRELATED)
-                .addComponent(tableScrollPane, GroupLayout.PREFERRED_SIZE, 208, GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 9, 9)
+                .addComponent(tableScrollPane, GroupLayout.PREFERRED_SIZE, 219, GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(selectionLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                             .addComponent(addButton)
-                            .addComponent(cancelButton)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(ComponentPlacement.UNRELATED)
-                        .addComponent(selectionLabel)))
-                .addContainerGap())
+                            .addComponent(cancelButton))))
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
