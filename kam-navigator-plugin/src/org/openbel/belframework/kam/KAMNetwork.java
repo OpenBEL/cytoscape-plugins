@@ -27,10 +27,6 @@ import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATT
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
-
-import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.Kam;
@@ -77,7 +73,6 @@ public class KAMNetwork {
     private static final CyAttributes edgeAtt = Cytoscape.getEdgeAttributes();
     private static final String NETWORK_SUFFIX = " (KAM)";
     private final CyNetwork cyn;
-    private final KAMService kamService;
     private final KamHandle kamHandle;
     private final DialectHandle dialectHandle;
 
@@ -94,7 +89,6 @@ public class KAMNetwork {
         this.kamHandle = kamHandle;
         this.dialectHandle = dialectHandle;
         this.cyn = Cytoscape.createNetwork(kamName + NETWORK_SUFFIX, true);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.cyn.addSelectEventListener(new NetworkDetailsListener(this));
 
         loadNetworkStyle();
@@ -225,17 +219,14 @@ public class KAMNetwork {
      * {@link KamNode kam node}
      */
     public CyNode addNode(final KamNode node) {
-        final List<BelTerm> terms = kamService.getSupportingTerms(node);
-        final BelTerm firstTerm = terms.get(0);
-
         // create cytoscape node and attach KAM node id as hidden attribute
-        CyNode cynode = Cytoscape.getCyNode(firstTerm.getLabel(), true);
+        CyNode cynode = Cytoscape.getCyNode(node.getLabel(), true);
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_ID_ATTR,
                 node.getId());
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_FUNCTION_ATTR,
                 node.getFunction().name());
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_LABEL_ATTR,
-                firstTerm.getLabel());
+                node.getLabel());
 
         cyn.addNode(cynode);
         return cynode;

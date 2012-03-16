@@ -28,10 +28,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,7 +56,6 @@ import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.Kam;
@@ -495,27 +492,13 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                             kamNetwork.getKAMHandle(), 
                             kamNetwork.getDialectHandle(), selfunc);
                     
-                    // build out term map
-                    // XXX most of the time searching for nodes is spent here,
-                    // might be worth reviewing
-                    final Map<KamNode, BelTerm> termMap = new HashMap<KamNode, BelTerm>();
-                    for (final KamNode node : nodes) {
-                        if (halt) {
-                            break;
-                        }
-                        
-                        final List<BelTerm> terms = kamService.getSupportingTerms(node);
-                        final BelTerm firstTerm = terms.get(0);
-                        termMap.put(node, firstTerm);
-                    }
-                    
                     ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
                     if (halt) {
                         // don't update ui if search is halted
                         return;
                     }
                     
-                    rtm.setData(nodes, termMap);
+                    rtm.setData(nodes);
                     int nodeCount = nodes.size();
                     filterTxt.setEnabled(nodeCount > 0);
                     if (nodeCount == 1) {
@@ -554,18 +537,12 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         private static final long serialVersionUID = -5744344001683506045L;
         private final String[] headers = new String[] { "Label" };
         private final List<KamNode> nodes;
-        private final Map<KamNode, BelTerm> termMap;
 
         private ResultsTableModel() {
             this.nodes = new ArrayList<KamNode>();
-            this.termMap = new HashMap<KamNode, BelTerm>();
         }
 
-        private void setData(final List<KamNode> nodes, 
-                final Map<KamNode, BelTerm> termMap) {
-            this.termMap.clear();
-            this.termMap.putAll(termMap);
-
+        private void setData(final List<KamNode> nodes) {
             this.nodes.clear();
             this.nodes.addAll(nodes);
             fireTableDataChanged();
@@ -573,7 +550,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
         private void clear() {
             nodes.clear();
-            termMap.clear();
         }
 
         /**
@@ -609,7 +585,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
             switch (ci) {
                 case 0:
-                    return termMap.get(node).getLabel();
+                    return node.getLabel();
             }
 
             return null;
@@ -653,8 +629,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
             final ResultsTableModel rtm = entry.getModel();
             KamNode node = rtm.nodes.get(entry.getIdentifier());
-            final BelTerm term = rtm.termMap.get(node);
-            final String lowerLabel = term.getLabel().toLowerCase();
+            final String lowerLabel = node.getLabel().toLowerCase();
 
             return lowerLabel.contains(filterTxt.getText().toLowerCase());
         }
