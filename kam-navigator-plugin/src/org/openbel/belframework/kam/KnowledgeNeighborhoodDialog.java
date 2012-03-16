@@ -226,7 +226,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             final EdgeTableModel model = (EdgeTableModel) this.resultsTable
                     .getModel();
             model.clear();
-            resultsLabel.setText("Found 0 items");
+            resultsLabel.setText("Found 0 edges");
             return;
         }
 
@@ -256,7 +256,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 .getModel();
         model.clear();
         model.addEdges(edges);
-        resultsLabel.setText("Found " + model.getRowCount() + " items");
+        resultsLabel.setText("Found " + model.getRowCount() + " edges");
     }
     
     private class ResultsSelectionListener implements ListSelectionListener {
@@ -269,7 +269,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             ListSelectionModel selModel = (ListSelectionModel) e.getSource();
             addButton.setEnabled(!selModel.isSelectionEmpty());
             int selectionNumber = resultsTable.getSelectedRows().length;
-            selectionLabel.setText(selectionNumber + " items selected");
+            selectionLabel.setText(selectionNumber + " edges selected");
         }
     }
 
@@ -357,9 +357,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
 
-        resultsLabel.setText("Found n items");
+        resultsLabel.setText("Found n edges");
 
-        selectionLabel.setText("n items selected");
+        selectionLabel.setText("n edges selected");
 
         cancelButton.setText("Cancel");
         cancelButton.setToolTipText("Close this window");
