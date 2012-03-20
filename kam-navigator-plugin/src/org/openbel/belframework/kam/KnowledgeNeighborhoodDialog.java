@@ -81,6 +81,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         ActionListener, SelectEventListener {
     private static final long serialVersionUID = -736918933072782546L;
     private static final String DIALOG_TITLE = "Knowledge Neighborhood";
+    private static final String ALL_SELECTION = "All";
     private final KAMService kamService;
 
     // swing components
@@ -184,9 +185,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         edgeRelationshipCombo.addActionListener(this);
         
         // set selected to empty
-        sourceFunctionCombo.setSelectedIndex(-1);
-        targetFunctionCombo.setSelectedIndex(-1);
-        edgeRelationshipCombo.setSelectedIndex(-1);
+        sourceFunctionCombo.setSelectedItem(ALL_SELECTION);
+        targetFunctionCombo.setSelectedItem(ALL_SELECTION);
+        edgeRelationshipCombo.setSelectedItem(ALL_SELECTION);
         
         // key listener for target / source labels
         KeyListener keyListener = new KeyListener() {
@@ -415,32 +416,35 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         private static final long serialVersionUID = 847486496638770057L;
         
         public void updateEdges(final Collection<KamEdge> edges) {
-            FunctionType previousSelection = (FunctionType) getSelectedItem();
+            String previousSelection = (String) getSelectedItem();
             removeAllElements();
 
             // filter duplicates out by using a set
-            Set<FunctionType> functions = new HashSet<FunctionType>();
+            Set<String> functions = new HashSet<String>();
             for (KamEdge e : edges) {
                 FunctionType functionType = e.getSource().getFunction();
                 if (functionType != null) {
-                    functions.add(functionType);
+                    functions.add(functionType.name());
                 }
             }
             
-            List<FunctionType> sortedFunctions = new ArrayList<FunctionType>(functions);
+            List<String> sortedFunctions = new ArrayList<String>(functions);
             Collections.sort(sortedFunctions);
-            for (FunctionType ft : sortedFunctions) {
-                addElement(ft);
+            // add all selection option at beginning
+            sortedFunctions.add(0, ALL_SELECTION);
+            
+            for (String functionName : sortedFunctions) {
+                addElement(functionName);
 
                 // restore previous selections
-                if (ft == previousSelection) {
-                    setSelectedItem(ft);
+                if (functionName.equals(previousSelection)) {
+                    setSelectedItem(functionName);
                 }
             }
             
             if (previousSelection == null) {
                 // work around for addElement making a selection
-                setSelectedItem(null);
+                setSelectedItem(ALL_SELECTION);
             }
             
             fireContentsChanged(this, 0, functions.size());
@@ -452,32 +456,35 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         private static final long serialVersionUID = -6749141138659929487L;
 
         public void updateEdges(final Collection<KamEdge> edges) {
-            FunctionType previousSelection = (FunctionType) getSelectedItem();
+            String previousSelection = (String) getSelectedItem();
             removeAllElements();
 
             // filter duplicates out by using a set
-            Set<FunctionType> functions = new HashSet<FunctionType>();
+            Set<String> functions = new HashSet<String>();
             for (KamEdge e : edges) {
                 FunctionType functionType = e.getTarget().getFunction();
                 if (functionType != null) {
-                    functions.add(functionType);
+                    functions.add(functionType.name());
                 }
             }
             
-            List<FunctionType> sortedFunctions = new ArrayList<FunctionType>(functions);
+            List<String> sortedFunctions = new ArrayList<String>(functions);
             Collections.sort(sortedFunctions);
-            for (FunctionType ft : sortedFunctions) {
-                addElement(ft);
+            // add all selection option at beginning
+            sortedFunctions.add(0, ALL_SELECTION);
+            
+            for (String functionName : sortedFunctions) {
+                addElement(functionName);
 
                 // restore previous selections
-                if (ft == previousSelection) {
-                    setSelectedItem(ft);
+                if (functionName.equals(previousSelection)) {
+                    setSelectedItem(functionName);
                 }
             }
             
             if (previousSelection == null) {
                 // work around for addElement making a selection
-                setSelectedItem(null);
+                setSelectedItem(ALL_SELECTION);
             }
             
             fireContentsChanged(this, 0, functions.size());
@@ -489,32 +496,35 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         private static final long serialVersionUID = 4774181753730742386L;
 
         public void updateEdges(final Collection<KamEdge> edges) {
-            RelationshipType previousSelection = (RelationshipType) getSelectedItem();
+            String previousSelection = (String) getSelectedItem();
             removeAllElements();
 
             // filter duplicates out by using a set
-            Set<RelationshipType> relationships = new HashSet<RelationshipType>();
+            Set<String> relationships = new HashSet<String>();
             for (KamEdge e : edges) {
                 RelationshipType relationshipType = e.getRelationship();
                 if (relationshipType != null) {
-                    relationships.add(relationshipType);
+                    relationships.add(relationshipType.name());
                 }
             }
             
-            List<RelationshipType> sortedRelationships = new ArrayList<RelationshipType>(relationships);
+            List<String> sortedRelationships = new ArrayList<String>(relationships);
             Collections.sort(sortedRelationships);
-            for (RelationshipType rt : sortedRelationships) {
-                addElement(rt);
+            // add all selection option at beginning
+            sortedRelationships.add(0, ALL_SELECTION);
+            
+            for (String relationshipName : sortedRelationships) {
+                addElement(relationshipName);
 
                 // restore previous selections
-                if (rt == previousSelection) {
-                    setSelectedItem(rt);
+                if (relationshipName.equals(previousSelection)) {
+                    setSelectedItem(relationshipName);
                 }
             }
             
             if (previousSelection == null) {
                 // work around for addElement making a selection
-                setSelectedItem(null);
+                setSelectedItem(ALL_SELECTION);
             }
             
             fireContentsChanged(this, 0, relationships.size());
@@ -530,12 +540,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         @Override
         public boolean include(
                 javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
-            if (sourceFunctionCombo.getSelectedItem() == null) {
+            String selected = (String) sourceFunctionCombo.getSelectedItem();
+            if (selected == null || ALL_SELECTION.equals(selected)) {
                 return true;
             }
 
             KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
-            FunctionType function = (FunctionType) sourceFunctionCombo.getSelectedItem();
+            FunctionType function = FunctionType.valueOf(selected);
             
             return function.equals(edge.getSource().getFunction());
         }
@@ -568,12 +579,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         @Override
         public boolean include(
                 javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
-            if (targetFunctionCombo.getSelectedItem() == null) {
+            String selected = (String) targetFunctionCombo.getSelectedItem();
+            if (selected == null || ALL_SELECTION.equals(selected)) {
                 return true;
             }
 
             KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
-            FunctionType function = (FunctionType) targetFunctionCombo.getSelectedItem();
+            FunctionType function = FunctionType.valueOf(selected);
             
             return function.equals(edge.getTarget().getFunction());
         }
@@ -606,12 +618,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         @Override
         public boolean include(
                 javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
-            if (edgeRelationshipCombo.getSelectedItem() == null) {
+            String selected = (String) edgeRelationshipCombo.getSelectedItem();
+            if (selected == null || ALL_SELECTION.equals(selected)) {
                 return true;
             }
 
             KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
-            RelationshipType relationship = (RelationshipType) edgeRelationshipCombo.getSelectedItem();
+            RelationshipType relationship = RelationshipType.valueOf(selected);
             
             return relationship.equals(edge.getRelationship());
         }
