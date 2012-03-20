@@ -76,6 +76,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         NodeContextMenuListener {
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
     private static final String INTERCONNECT_LABEL = "Interconnect";
+    private static final int DEFAULT_INTERCONNECT_DEPTH = 2;
 
     /**
      * {@inheritDoc}
@@ -236,9 +237,9 @@ public class KAMNodeContextListener implements PropertyChangeListener,
                 kamNodes.add(kamNetwork.getKAMNode(cynode));
             }
 
-            // null max depth to let service choose it's default (currently 4)
             final List<SimplePath> paths = kamService.interconnect(
-                    kamNetwork.getDialectHandle(), kamNodes, null);
+                    kamNetwork.getDialectHandle(), kamNodes, 
+                    DEFAULT_INTERCONNECT_DEPTH);
             final List<KamEdge> edges = new ArrayList<KamEdge>();
             for (final SimplePath path : paths) {
                 edges.addAll(path.getEdges());
