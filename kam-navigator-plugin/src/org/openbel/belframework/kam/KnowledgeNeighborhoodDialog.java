@@ -415,114 +415,72 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
     }
 
-    private class SourceFunctionComboBoxModel extends DefaultComboBoxModel {
+    private class SourceFunctionComboBoxModel extends UpdatableComboBoxModel {
         private static final long serialVersionUID = 847486496638770057L;
 
-        public void updateEdges(final Collection<KamEdge> edges) {
-            String previousSelection = (String) getSelectedItem();
-            removeAllElements();
-
-            // filter duplicates out by using a set
-            Set<String> functions = new HashSet<String>();
-            for (KamEdge e : edges) {
-                FunctionType functionType = e.getSource().getFunction();
-                if (functionType != null) {
-                    functions.add(functionType.name());
-                }
+        @Override
+        protected String getName(final KamEdge e) {
+            if (e.getSource() == null || e.getSource().getFunction() == null) {
+                return null;
             }
-
-            List<String> sortedFunctions = new ArrayList<String>(functions);
-            Collections.sort(sortedFunctions);
-            // add all selection option at beginning
-            sortedFunctions.add(0, ALL_SELECTION);
-
-            for (String functionName : sortedFunctions) {
-                addElement(functionName);
-
-                // restore previous selections
-                if (functionName.equals(previousSelection)) {
-                    setSelectedItem(functionName);
-                }
-            }
-
-            if (previousSelection == null) {
-                // work around for addElement making a selection
-                setSelectedItem(ALL_SELECTION);
-            }
-
-            fireContentsChanged(this, 0, functions.size());
+            return e.getSource().getFunction().name();
         }
 
     }
 
-    private class TargetFunctionComboBoxModel extends DefaultComboBoxModel {
+    private class TargetFunctionComboBoxModel extends UpdatableComboBoxModel {
         private static final long serialVersionUID = -6749141138659929487L;
 
-        public void updateEdges(final Collection<KamEdge> edges) {
-            String previousSelection = (String) getSelectedItem();
-            removeAllElements();
-
-            // filter duplicates out by using a set
-            Set<String> functions = new HashSet<String>();
-            for (KamEdge e : edges) {
-                FunctionType functionType = e.getTarget().getFunction();
-                if (functionType != null) {
-                    functions.add(functionType.name());
-                }
+        @Override
+        protected String getName(final KamEdge e) {
+            if (e.getTarget() == null || e.getTarget().getFunction() == null) {
+                return null;
             }
-
-            List<String> sortedFunctions = new ArrayList<String>(functions);
-            Collections.sort(sortedFunctions);
-            // add all selection option at beginning
-            sortedFunctions.add(0, ALL_SELECTION);
-
-            for (String functionName : sortedFunctions) {
-                addElement(functionName);
-
-                // restore previous selections
-                if (functionName.equals(previousSelection)) {
-                    setSelectedItem(functionName);
-                }
-            }
-
-            if (previousSelection == null) {
-                // work around for addElement making a selection
-                setSelectedItem(ALL_SELECTION);
-            }
-
-            fireContentsChanged(this, 0, functions.size());
+            return e.getTarget().getFunction().name();
         }
 
     }
 
-    private class RelationshipComboBoxModel extends DefaultComboBoxModel {
+    private class RelationshipComboBoxModel extends UpdatableComboBoxModel {
         private static final long serialVersionUID = 4774181753730742386L;
 
+        @Override
+        protected String getName(final KamEdge e) {
+            if (e.getRelationship() == null) {
+                return null;
+            }
+            return e.getRelationship().name();
+        }
+    }
+    
+    private abstract class UpdatableComboBoxModel extends DefaultComboBoxModel {
+        private static final long serialVersionUID = -8049723723613055311L;
+        
         public void updateEdges(final Collection<KamEdge> edges) {
             String previousSelection = (String) getSelectedItem();
             removeAllElements();
 
             // filter duplicates out by using a set
-            Set<String> relationships = new HashSet<String>();
+            Set<String> names = new HashSet<String>();
             for (KamEdge e : edges) {
-                RelationshipType relationshipType = e.getRelationship();
-                if (relationshipType != null) {
-                    relationships.add(relationshipType.name());
+                String name = getName(e);
+                if (name != null) {
+                    names.add(name);
                 }
             }
 
-            List<String> sortedRelationships = new ArrayList<String>(
-                    relationships);
-            Collections.sort(sortedRelationships);
+            List<String> sortedNames = new ArrayList<String>(
+                    names);
+            Collections.sort(sortedNames);
             // add all selection option at beginning
-            sortedRelationships.add(0, ALL_SELECTION);
+            sortedNames.add(0, ALL_SELECTION);
 
-            for (String relationshipName : sortedRelationships) {
-                addElement(relationshipName);
+            for (String name : sortedNames) {
+                addElement(name);
 
                 // restore previous selections
-                if (relationshipName.equals(previousSelection)) {
-                    setSelectedItem(relationshipName);
+                if (name.equals(previousSelection)) {
+                    setSelectedItem(name);
                 }
             }
 
@@ -531,9 +489,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 setSelectedItem(ALL_SELECTION);
             }
 
-            fireContentsChanged(this, 0, relationships.size());
+            fireContentsChanged(this, 0, names.size());
         }
 
+        protected abstract String getName(KamEdge e);
     }
 
     private class SourceFunctionFilter extends
