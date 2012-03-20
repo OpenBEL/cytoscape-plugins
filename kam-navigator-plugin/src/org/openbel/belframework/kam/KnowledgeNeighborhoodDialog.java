@@ -558,27 +558,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
     }
 
-    private class SourceLabelFilter extends RowFilter<EdgeTableModel, Integer> {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean include(
-                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
-            String filterText = sourceLabelField.getText();
-            if (filterText == null || filterText.isEmpty()) {
-                return true;
-            }
-
-            KamEdge edge = entry.getModel().getEdges()
-                    .get(entry.getIdentifier());
-
-            return edge.getSource().getLabel().toLowerCase()
-                    .contains(filterText.toLowerCase());
-        }
-    }
-
     private class TargetFunctionFilter extends
             RowFilter<EdgeTableModel, Integer> {
 
@@ -601,27 +580,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
     }
 
-    private class TargetLabelFilter extends RowFilter<EdgeTableModel, Integer> {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean include(
-                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
-            String filterText = targetLabelField.getText();
-            if (filterText == null || filterText.isEmpty()) {
-                return true;
-            }
-
-            KamEdge edge = entry.getModel().getEdges()
-                    .get(entry.getIdentifier());
-
-            return edge.getTarget().getLabel().toLowerCase()
-                    .contains(filterText.toLowerCase());
-        }
-    }
-
     private class RelationshipFilter extends RowFilter<EdgeTableModel, Integer> {
 
         /**
@@ -640,6 +598,48 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             RelationshipType relationship = RelationshipType.valueOf(selected);
 
             return relationship.equals(edge.getRelationship());
+        }
+    }
+
+    private class SourceLabelFilter extends RowFilter<EdgeTableModel, Integer> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            String filterText = sourceLabelField.getText();
+            if (filterText == null || filterText.isEmpty()) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
+
+            return edge.getSource().getLabel().toLowerCase()
+                    .contains(filterText.toLowerCase());
+        }
+    }
+
+    private class TargetLabelFilter extends RowFilter<EdgeTableModel, Integer> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            String filterText = targetLabelField.getText();
+            if (filterText == null || filterText.isEmpty()) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
+
+            return edge.getTarget().getLabel().toLowerCase()
+                    .contains(filterText.toLowerCase());
         }
     }
 
