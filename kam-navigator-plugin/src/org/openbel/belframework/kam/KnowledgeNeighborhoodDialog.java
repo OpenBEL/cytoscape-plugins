@@ -148,7 +148,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
     private void initUI() {
         initComponents();
-        
+
         // additional stuff (kept separate for future UI work)
         resultsLabel.setText("");
         selectionLabel.setText("");
@@ -156,8 +156,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         addButton.addActionListener(this);
         addButton.setEnabled(false);
         resultsTable.setModel(new EdgeTableModel());
-        resultsTable.getSelectionModel().addListSelectionListener(new ResultsSelectionListener());
-        
+        resultsTable.getSelectionModel().addListSelectionListener(
+                new ResultsSelectionListener());
+
         // register the filters with the sorter
         Collection<RowFilter<EdgeTableModel, Integer>> filters = new HashSet<RowFilter<EdgeTableModel, Integer>>();
         filters.add(new SourceFunctionFilter());
@@ -165,8 +166,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         filters.add(new RelationshipFilter());
         filters.add(new SourceLabelFilter());
         filters.add(new TargetLabelFilter());
-        RowFilter<EdgeTableModel, Integer> andFilter = RowFilter.andFilter(filters);
-        TableRowSorter<EdgeTableModel> rowSorter = new TableRowSorter<EdgeTableModel>((EdgeTableModel) resultsTable.getModel());
+        RowFilter<EdgeTableModel, Integer> andFilter = RowFilter
+                .andFilter(filters);
+        TableRowSorter<EdgeTableModel> rowSorter = new TableRowSorter<EdgeTableModel>(
+                (EdgeTableModel) resultsTable.getModel());
         rowSorter.setRowFilter(andFilter);
         resultsTable.setRowSorter(rowSorter);
 
@@ -175,20 +178,20 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         expandBothButton.addActionListener(this);
         expandUpstreamButton.addActionListener(this);
         expandDownstreamButton.addActionListener(this);
-        
+
         sourceFunctionCombo.setModel(new SourceFunctionComboBoxModel());
         targetFunctionCombo.setModel(new TargetFunctionComboBoxModel());
         edgeRelationshipCombo.setModel(new RelationshipComboBoxModel());
-        
+
         sourceFunctionCombo.addActionListener(this);
         targetFunctionCombo.addActionListener(this);
         edgeRelationshipCombo.addActionListener(this);
-        
+
         // set selected to empty
         sourceFunctionCombo.setSelectedItem(ALL_SELECTION);
         targetFunctionCombo.setSelectedItem(ALL_SELECTION);
         edgeRelationshipCombo.setSelectedItem(ALL_SELECTION);
-        
+
         // key listener for target / source labels
         KeyListener keyListener = new KeyListener() {
 
@@ -247,7 +250,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     Cytoscape.getCurrentNetwork());
 
             KAMTasks.addEdges(kamNetwork, selectedEdges);
-        } else if (e.getSource().equals(expandBothButton) 
+        } else if (e.getSource().equals(expandBothButton)
                 || e.getSource().equals(expandUpstreamButton)
                 || e.getSource().equals(expandDownstreamButton)) {
             // expand radio button selection changed
@@ -273,7 +276,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             loadNeighborhood();
         }
     }
-    
+
     /**
      * Refreshes the table sort and filters
      */
@@ -333,7 +336,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         final EdgeTableModel model = (EdgeTableModel) this.resultsTable
                 .getModel();
         model.addEdges(edges);
-        
+
         // update filters combo boxes
         ((SourceFunctionComboBoxModel) sourceFunctionCombo.getModel())
                 .updateEdges(edges);
@@ -344,7 +347,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         // resort filters after update
         sort();
     }
-    
+
     private class ResultsSelectionListener implements ListSelectionListener {
 
         /**
@@ -385,7 +388,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         public void addEdges(Collection<KamEdge> edges) {
             // clear out previous edges
             clear();
-            
+
             for (KamEdge edge : edges) {
                 if (edge != null) {
                     addEdge(edge);
@@ -403,7 +406,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         public List<KamEdge> getEdges() {
             return edges;
         }
-        
+
         private void addEdge(KamEdge edge) {
             super.addRow(new String[] { edge.getSource().getLabel(),
                     edge.getRelationship().toString(),
@@ -411,10 +414,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             edges.add(edge);
         }
     }
-    
+
     private class SourceFunctionComboBoxModel extends DefaultComboBoxModel {
         private static final long serialVersionUID = 847486496638770057L;
-        
+
         public void updateEdges(final Collection<KamEdge> edges) {
             String previousSelection = (String) getSelectedItem();
             removeAllElements();
@@ -427,12 +430,12 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     functions.add(functionType.name());
                 }
             }
-            
+
             List<String> sortedFunctions = new ArrayList<String>(functions);
             Collections.sort(sortedFunctions);
             // add all selection option at beginning
             sortedFunctions.add(0, ALL_SELECTION);
-            
+
             for (String functionName : sortedFunctions) {
                 addElement(functionName);
 
@@ -441,12 +444,12 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     setSelectedItem(functionName);
                 }
             }
-            
+
             if (previousSelection == null) {
                 // work around for addElement making a selection
                 setSelectedItem(ALL_SELECTION);
             }
-            
+
             fireContentsChanged(this, 0, functions.size());
         }
 
@@ -467,12 +470,12 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     functions.add(functionType.name());
                 }
             }
-            
+
             List<String> sortedFunctions = new ArrayList<String>(functions);
             Collections.sort(sortedFunctions);
             // add all selection option at beginning
             sortedFunctions.add(0, ALL_SELECTION);
-            
+
             for (String functionName : sortedFunctions) {
                 addElement(functionName);
 
@@ -481,12 +484,12 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     setSelectedItem(functionName);
                 }
             }
-            
+
             if (previousSelection == null) {
                 // work around for addElement making a selection
                 setSelectedItem(ALL_SELECTION);
             }
-            
+
             fireContentsChanged(this, 0, functions.size());
         }
 
@@ -507,12 +510,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     relationships.add(relationshipType.name());
                 }
             }
-            
-            List<String> sortedRelationships = new ArrayList<String>(relationships);
+
+            List<String> sortedRelationships = new ArrayList<String>(
+                    relationships);
             Collections.sort(sortedRelationships);
             // add all selection option at beginning
             sortedRelationships.add(0, ALL_SELECTION);
-            
+
             for (String relationshipName : sortedRelationships) {
                 addElement(relationshipName);
 
@@ -521,19 +525,20 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     setSelectedItem(relationshipName);
                 }
             }
-            
+
             if (previousSelection == null) {
                 // work around for addElement making a selection
                 setSelectedItem(ALL_SELECTION);
             }
-            
+
             fireContentsChanged(this, 0, relationships.size());
         }
 
     }
-    
-    private class SourceFunctionFilter extends RowFilter<EdgeTableModel, Integer> {
-        
+
+    private class SourceFunctionFilter extends
+            RowFilter<EdgeTableModel, Integer> {
+
         /**
          * {@inheritDoc}
          */
@@ -545,15 +550,16 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 return true;
             }
 
-            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
             FunctionType function = FunctionType.valueOf(selected);
-            
+
             return function.equals(edge.getSource().getFunction());
         }
     }
-    
+
     private class SourceLabelFilter extends RowFilter<EdgeTableModel, Integer> {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -565,14 +571,17 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 return true;
             }
 
-            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
-            
-            return edge.getSource().getLabel().toLowerCase().contains(filterText.toLowerCase());
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
+
+            return edge.getSource().getLabel().toLowerCase()
+                    .contains(filterText.toLowerCase());
         }
     }
-    
-    private class TargetFunctionFilter extends RowFilter<EdgeTableModel, Integer> {
-        
+
+    private class TargetFunctionFilter extends
+            RowFilter<EdgeTableModel, Integer> {
+
         /**
          * {@inheritDoc}
          */
@@ -584,15 +593,16 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 return true;
             }
 
-            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
             FunctionType function = FunctionType.valueOf(selected);
-            
+
             return function.equals(edge.getTarget().getFunction());
         }
     }
-    
+
     private class TargetLabelFilter extends RowFilter<EdgeTableModel, Integer> {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -604,14 +614,16 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 return true;
             }
 
-            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
-            
-            return edge.getTarget().getLabel().toLowerCase().contains(filterText.toLowerCase());
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
+
+            return edge.getTarget().getLabel().toLowerCase()
+                    .contains(filterText.toLowerCase());
         }
     }
-    
+
     private class RelationshipFilter extends RowFilter<EdgeTableModel, Integer> {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -623,9 +635,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 return true;
             }
 
-            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            KamEdge edge = entry.getModel().getEdges()
+                    .get(entry.getIdentifier());
             RelationshipType relationship = RelationshipType.valueOf(selected);
-            
+
             return relationship.equals(edge.getRelationship());
         }
     }
