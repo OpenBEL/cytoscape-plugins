@@ -22,8 +22,11 @@ package org.openbel.belframework.kam;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,18 +48,22 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
+import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
+import com.selventa.belframework.ws.client.RelationshipType;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
@@ -149,11 +156,59 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         addButton.setEnabled(false);
         resultsTable.setModel(new EdgeTableModel());
         resultsTable.getSelectionModel().addListSelectionListener(new ResultsSelectionListener());
+        
+        // register the filters with the sorter
+        Collection<RowFilter<EdgeTableModel, Integer>> filters = new HashSet<RowFilter<EdgeTableModel, Integer>>();
+        filters.add(new SourceFunctionFilter());
+        filters.add(new TargetFunctionFilter());
+        filters.add(new RelationshipFilter());
+        filters.add(new SourceLabelFilter());
+        filters.add(new TargetLabelFilter());
+        RowFilter<EdgeTableModel, Integer> andFilter = RowFilter.andFilter(filters);
+        TableRowSorter<EdgeTableModel> rowSorter = new TableRowSorter<EdgeTableModel>((EdgeTableModel) resultsTable.getModel());
+        rowSorter.setRowFilter(andFilter);
+        resultsTable.setRowSorter(rowSorter);
 
+        // filter options
         expandBothButton.setSelected(true);
         expandBothButton.addActionListener(this);
         expandUpstreamButton.addActionListener(this);
         expandDownstreamButton.addActionListener(this);
+        
+        sourceFunctionCombo.setModel(new SourceFunctionComboBoxModel());
+        targetFunctionCombo.setModel(new TargetFunctionComboBoxModel());
+        edgeRelationshipCombo.setModel(new RelationshipComboBoxModel());
+        
+        sourceFunctionCombo.addActionListener(this);
+        targetFunctionCombo.addActionListener(this);
+        edgeRelationshipCombo.addActionListener(this);
+        
+        // set selected to empty
+        sourceFunctionCombo.setSelectedIndex(-1);
+        targetFunctionCombo.setSelectedIndex(-1);
+        edgeRelationshipCombo.setSelectedIndex(-1);
+        
+        // key listener for target / source labels
+        KeyListener keyListener = new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                sort();
+            }
+
+            // TODO do we need sort on key released or pressed?
+            @Override
+            public void keyReleased(KeyEvent e) {
+                sort();
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                sort();
+            }
+        };
+        sourceLabelField.addKeyListener(keyListener);
+        targetLabelField.addKeyListener(keyListener);
     }
 
     /**
@@ -196,6 +251,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 || e.getSource().equals(expandDownstreamButton)) {
             // expand radio button selection changed
             loadNeighborhood();
+        } else if (e.getSource().equals(sourceFunctionCombo)
+                || e.getSource().equals(targetFunctionCombo)
+                || e.getSource().equals(edgeRelationshipCombo)) {
+            sort();
         }
     }
 
@@ -213,10 +272,19 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             loadNeighborhood();
         }
     }
+    
+    /**
+     * Refreshes the table sort and filters
+     */
+    private void sort() {
+        ((TableRowSorter<EdgeTableModel>) resultsTable.getRowSorter()).sort();
+        // number of found should be constructed post filter
+        resultsLabel.setText("Found " + resultsTable.getRowCount() + " edges");
+    }
 
     private void loadNeighborhood() {
         // TODO put this a thread so it doesn't slow down other UI actions
-        
+
         // TODO change the way we load selected
         @SuppressWarnings("unchecked")
         final Set<CyNode> selected = Cytoscape.getCurrentNetwork()
@@ -227,6 +295,15 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     .getModel();
             model.clear();
             resultsLabel.setText("Found 0 edges");
+
+            // clear filters
+            ((DefaultComboBoxModel) sourceFunctionCombo.getModel())
+                    .removeAllElements();
+            ((DefaultComboBoxModel) targetFunctionCombo.getModel())
+                    .removeAllElements();
+            ((DefaultComboBoxModel) edgeRelationshipCombo.getModel())
+                    .removeAllElements();
+
             return;
         }
 
@@ -245,7 +322,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         } else if (expandDownstreamButton.isSelected()) {
             direction = EdgeDirectionType.FORWARD;
         }
-        
+
         List<KamEdge> edges = new ArrayList<KamEdge>();
         for (KamNode kamNode : kamNodes) {
             edges.addAll(kamService.getAdjacentKamEdges(
@@ -254,9 +331,17 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         final EdgeTableModel model = (EdgeTableModel) this.resultsTable
                 .getModel();
-        model.clear();
         model.addEdges(edges);
-        resultsLabel.setText("Found " + model.getRowCount() + " edges");
+        
+        // update filters combo boxes
+        ((SourceFunctionComboBoxModel) sourceFunctionCombo.getModel())
+                .updateEdges(edges);
+        ((TargetFunctionComboBoxModel) targetFunctionCombo.getModel())
+                .updateEdges(edges);
+        ((RelationshipComboBoxModel) edgeRelationshipCombo.getModel())
+                .updateEdges(edges);
+        // resort filters after update
+        sort();
     }
     
     private class ResultsSelectionListener implements ListSelectionListener {
@@ -297,6 +382,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
 
         public void addEdges(Collection<KamEdge> edges) {
+            // clear out previous edges
+            clear();
+            
             for (KamEdge edge : edges) {
                 if (edge != null) {
                     addEdge(edge);
@@ -320,6 +408,212 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     edge.getRelationship().toString(),
                     edge.getTarget().getLabel() });
             edges.add(edge);
+        }
+    }
+    
+    private class SourceFunctionComboBoxModel extends DefaultComboBoxModel {
+        private static final long serialVersionUID = 847486496638770057L;
+        
+        public void updateEdges(final Collection<KamEdge> edges) {
+            FunctionType previousSelection = (FunctionType) getSelectedItem();
+            removeAllElements();
+
+            // filter duplicates out by using a set
+            Set<FunctionType> functions = new HashSet<FunctionType>();
+            for (KamEdge e : edges) {
+                FunctionType functionType = e.getSource().getFunction();
+                if (functionType != null) {
+                    functions.add(functionType);
+                }
+            }
+            
+            List<FunctionType> sortedFunctions = new ArrayList<FunctionType>(functions);
+            Collections.sort(sortedFunctions);
+            for (FunctionType ft : sortedFunctions) {
+                addElement(ft);
+
+                // restore previous selections
+                if (ft == previousSelection) {
+                    setSelectedItem(ft);
+                }
+            }
+            
+            if (previousSelection == null) {
+                // work around for addElement making a selection
+                setSelectedItem(null);
+            }
+            
+            fireContentsChanged(this, 0, functions.size());
+        }
+
+    }
+
+    private class TargetFunctionComboBoxModel extends DefaultComboBoxModel {
+        private static final long serialVersionUID = -6749141138659929487L;
+
+        public void updateEdges(final Collection<KamEdge> edges) {
+            FunctionType previousSelection = (FunctionType) getSelectedItem();
+            removeAllElements();
+
+            // filter duplicates out by using a set
+            Set<FunctionType> functions = new HashSet<FunctionType>();
+            for (KamEdge e : edges) {
+                FunctionType functionType = e.getTarget().getFunction();
+                if (functionType != null) {
+                    functions.add(functionType);
+                }
+            }
+            
+            List<FunctionType> sortedFunctions = new ArrayList<FunctionType>(functions);
+            Collections.sort(sortedFunctions);
+            for (FunctionType ft : sortedFunctions) {
+                addElement(ft);
+
+                // restore previous selections
+                if (ft == previousSelection) {
+                    setSelectedItem(ft);
+                }
+            }
+            
+            if (previousSelection == null) {
+                // work around for addElement making a selection
+                setSelectedItem(null);
+            }
+            
+            fireContentsChanged(this, 0, functions.size());
+        }
+
+    }
+
+    private class RelationshipComboBoxModel extends DefaultComboBoxModel {
+        private static final long serialVersionUID = 4774181753730742386L;
+
+        public void updateEdges(final Collection<KamEdge> edges) {
+            RelationshipType previousSelection = (RelationshipType) getSelectedItem();
+            removeAllElements();
+
+            // filter duplicates out by using a set
+            Set<RelationshipType> relationships = new HashSet<RelationshipType>();
+            for (KamEdge e : edges) {
+                RelationshipType relationshipType = e.getRelationship();
+                if (relationshipType != null) {
+                    relationships.add(relationshipType);
+                }
+            }
+            
+            List<RelationshipType> sortedRelationships = new ArrayList<RelationshipType>(relationships);
+            Collections.sort(sortedRelationships);
+            for (RelationshipType rt : sortedRelationships) {
+                addElement(rt);
+
+                // restore previous selections
+                if (rt == previousSelection) {
+                    setSelectedItem(rt);
+                }
+            }
+            
+            if (previousSelection == null) {
+                // work around for addElement making a selection
+                setSelectedItem(null);
+            }
+            
+            fireContentsChanged(this, 0, relationships.size());
+        }
+
+    }
+    
+    private class SourceFunctionFilter extends RowFilter<EdgeTableModel, Integer> {
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            if (sourceFunctionCombo.getSelectedItem() == null) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            FunctionType function = (FunctionType) sourceFunctionCombo.getSelectedItem();
+            
+            return function.equals(edge.getSource().getFunction());
+        }
+    }
+    
+    private class SourceLabelFilter extends RowFilter<EdgeTableModel, Integer> {
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            String filterText = sourceLabelField.getText();
+            if (filterText == null || filterText.isEmpty()) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            
+            return edge.getSource().getLabel().toLowerCase().contains(filterText.toLowerCase());
+        }
+    }
+    
+    private class TargetFunctionFilter extends RowFilter<EdgeTableModel, Integer> {
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            if (targetFunctionCombo.getSelectedItem() == null) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            FunctionType function = (FunctionType) targetFunctionCombo.getSelectedItem();
+            
+            return function.equals(edge.getTarget().getFunction());
+        }
+    }
+    
+    private class TargetLabelFilter extends RowFilter<EdgeTableModel, Integer> {
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            String filterText = targetLabelField.getText();
+            if (filterText == null || filterText.isEmpty()) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            
+            return edge.getTarget().getLabel().toLowerCase().contains(filterText.toLowerCase());
+        }
+    }
+    
+    private class RelationshipFilter extends RowFilter<EdgeTableModel, Integer> {
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean include(
+                javax.swing.RowFilter.Entry<? extends EdgeTableModel, ? extends Integer> entry) {
+            if (edgeRelationshipCombo.getSelectedItem() == null) {
+                return true;
+            }
+
+            KamEdge edge = entry.getModel().getEdges().get(entry.getIdentifier());
+            RelationshipType relationship = (RelationshipType) edgeRelationshipCombo.getSelectedItem();
+            
+            return relationship.equals(edge.getRelationship());
         }
     }
 
