@@ -153,6 +153,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         initComponents();
 
         // additional stuff (kept separate for future UI work)
+        // adjust position to default, keeps dialog from appearing offscreen
+        setLocationRelativeTo(null); 
+        
         resultsLabel.setText("");
         selectionLabel.setText("");
         cancelButton.addActionListener(this);
