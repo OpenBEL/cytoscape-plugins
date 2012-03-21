@@ -183,6 +183,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         filters.add(new DirectionFilter());
         RowFilter<EdgeTableModel, Integer> andFilter = RowFilter
                 .andFilter(filters);
+        // sorter has alphabetical column sort on by default
         TableRowSorter<EdgeTableModel> rowSorter = new TableRowSorter<EdgeTableModel>(
                 (EdgeTableModel) resultsTable.getModel());
         rowSorter.setRowFilter(andFilter);
@@ -295,12 +296,16 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     /**
      * Refreshes the table sort and filters
      */
+    @SuppressWarnings("unchecked")
     private void sort() {
         ((TableRowSorter<EdgeTableModel>) resultsTable.getRowSorter()).sort();
         // number of found should be constructed post filter
         resultsLabel.setText("Found " + resultsTable.getRowCount() + " edges");
     }
 
+    /**
+     * Load (or reload) the edges around the selected nodes, update UI to match
+     */
     private void loadNeighborhood() {
         // TODO put this a thread so it doesn't slow down other UI actions
 
@@ -362,7 +367,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         sort();
     }
 
-    private class EdgeTableModel extends DefaultTableModel {
+    /**
+     * Simple extension of {@link DefaultTableModel} to keep track of added
+     * edges
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static final class EdgeTableModel extends DefaultTableModel {
         private static final long serialVersionUID = 56833762228520599L;
         private final List<KamEdge> edges = new ArrayList<KamEdge>();
 
@@ -415,7 +426,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
     }
 
-    private class SourceFunctionComboBoxModel extends UpdatableComboBoxModel {
+    /**
+     * Model for the source function combo box filter
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static final class SourceFunctionComboBoxModel extends
+            UpdatableComboBoxModel {
         private static final long serialVersionUID = 847486496638770057L;
 
         @Override
@@ -428,7 +445,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
     }
 
-    private class TargetFunctionComboBoxModel extends UpdatableComboBoxModel {
+    /**
+     * Model for the target function combo box filter
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static final class TargetFunctionComboBoxModel extends
+            UpdatableComboBoxModel {
         private static final long serialVersionUID = -6749141138659929487L;
 
         @Override
@@ -441,7 +464,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
     }
 
-    private class RelationshipComboBoxModel extends UpdatableComboBoxModel {
+    /**
+     * Model for the edge relationship combo box filter
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static final class RelationshipComboBoxModel extends
+            UpdatableComboBoxModel {
         private static final long serialVersionUID = 4774181753730742386L;
 
         @Override
@@ -452,10 +481,17 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             return e.getRelationship().name();
         }
     }
-    
-    private abstract class UpdatableComboBoxModel extends DefaultComboBoxModel {
+
+    /**
+     * Extension of {@link DefaultComboBoxModel} that adds the ablity to update
+     * its contents based on a collection of {@link KamEdge}s
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private abstract static class UpdatableComboBoxModel extends
+            DefaultComboBoxModel {
         private static final long serialVersionUID = -8049723723613055311L;
-        
+
         public void updateEdges(final Collection<KamEdge> edges) {
             String previousSelection = (String) getSelectedItem();
             removeAllElements();
@@ -469,8 +505,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 }
             }
 
-            List<String> sortedNames = new ArrayList<String>(
-                    names);
+            List<String> sortedNames = new ArrayList<String>(names);
             Collections.sort(sortedNames);
             // add all selection option at beginning
             sortedNames.add(0, ALL_SELECTION);
