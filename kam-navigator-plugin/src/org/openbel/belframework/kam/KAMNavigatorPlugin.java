@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JMenu;
 
+import org.openbel.belframework.webservice.SettingsDialog;
+
 import cytoscape.Cytoscape;
 import cytoscape.plugin.CytoscapePlugin;
 import cytoscape.util.CytoscapeAction;
@@ -98,6 +100,9 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // add separtor before bel configuration entry
         kiMenu.addSeparator();
 
+        // add to "KAM Navigator" menu if KAM Plugin is available
+        kiMenu.add(new SettingsDialogAction());
+
         // hook up propery change listeners
         final KAMNodeContextListener nctx = new KAMNodeContextListener();
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
@@ -170,6 +175,30 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         public void actionPerformed(ActionEvent event) {
             KnowledgeNeighborhoodDialog dialog = new KnowledgeNeighborhoodDialog();
             dialog.setVisible(true);
+        }
+    }
+
+    /**
+     * Defines a {@link CytoscapeAction cytoscape action} to launch the
+     * <em>BELFramework Configuration</em> dialog.  This allows the cytoscape
+     * user to configure their access to the BELFramework Web API.
+     *
+     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
+     */
+    private class SettingsDialogAction extends CytoscapeAction {
+        private static final long serialVersionUID = 5424095704897475438L;
+
+        public SettingsDialogAction() {
+            super("BELFramework Configuration");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            SettingsDialog settingsDialog = new SettingsDialog();
+            settingsDialog.setVisible(true);
         }
     }
 }
