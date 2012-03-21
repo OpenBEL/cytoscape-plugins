@@ -151,6 +151,65 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         network.removeSelectEventListener(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e == null) {
+            return;
+        }
+
+        if (e.getSource().equals(cancelButton)) {
+            // cancel button
+            this.dispose();
+        } else if (e.getSource().equals(addButton)) {
+            // add button
+            EdgeTableModel model = (EdgeTableModel) resultsTable.getModel();
+            List<KamEdge> edges = model.getEdges();
+
+            List<KamEdge> selectedEdges = new ArrayList<KamEdge>();
+
+            // determine selected rows from the filtered view
+            int[] viewIndices = resultsTable.getSelectedRows();
+            for (int viewIndex : viewIndices) {
+                int modelIndex = resultsTable.convertRowIndexToModel(viewIndex);
+
+                KamEdge selectedEdge = edges.get(modelIndex);
+                if (selectedEdge != null) {
+                    selectedEdges.add(selectedEdge);
+                }
+            }
+
+            KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
+                    network);
+
+            KAMTasks.addEdges(kamNetwork, selectedEdges);
+        } else if (e.getSource().equals(expandBothButton)
+                || e.getSource().equals(expandUpstreamButton)
+                || e.getSource().equals(expandDownstreamButton)
+                || e.getSource().equals(sourceFunctionCombo)
+                || e.getSource().equals(targetFunctionCombo)
+                || e.getSource().equals(edgeRelationshipCombo)) {
+            sort();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onSelectEvent(SelectEvent e) {
+        if (e == null) {
+            return;
+        }
+        
+        if (e.getTargetType() == SelectEvent.SINGLE_NODE
+                || e.getTargetType() == SelectEvent.NODE_SET) {
+            loadNeighborhood();
+        }
+    }
+    
     private void initUI() {
         initComponents();
 
@@ -236,65 +295,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         expandBothButton.setSelected(true);
         sourceLabelField.setText(null);
         targetLabelField.setText(null);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e == null) {
-            return;
-        }
-
-        if (e.getSource().equals(cancelButton)) {
-            // cancel button
-            this.dispose();
-        } else if (e.getSource().equals(addButton)) {
-            // add button
-            EdgeTableModel model = (EdgeTableModel) resultsTable.getModel();
-            List<KamEdge> edges = model.getEdges();
-
-            List<KamEdge> selectedEdges = new ArrayList<KamEdge>();
-
-            // determine selected rows from the filtered view
-            int[] viewIndices = resultsTable.getSelectedRows();
-            for (int viewIndex : viewIndices) {
-                int modelIndex = resultsTable.convertRowIndexToModel(viewIndex);
-
-                KamEdge selectedEdge = edges.get(modelIndex);
-                if (selectedEdge != null) {
-                    selectedEdges.add(selectedEdge);
-                }
-            }
-
-            KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
-                    network);
-
-            KAMTasks.addEdges(kamNetwork, selectedEdges);
-        } else if (e.getSource().equals(expandBothButton)
-                || e.getSource().equals(expandUpstreamButton)
-                || e.getSource().equals(expandDownstreamButton)
-                || e.getSource().equals(sourceFunctionCombo)
-                || e.getSource().equals(targetFunctionCombo)
-                || e.getSource().equals(edgeRelationshipCombo)) {
-            sort();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onSelectEvent(SelectEvent e) {
-        if (e == null) {
-            return;
-        }
-
-        if (e.getTargetType() == SelectEvent.SINGLE_NODE
-                || e.getTargetType() == SelectEvent.NODE_SET) {
-            loadNeighborhood();
-        }
     }
 
     /**
