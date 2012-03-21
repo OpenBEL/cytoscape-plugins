@@ -110,7 +110,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         // documentation doesn't specify that selected nodes are CyNodes 
         //  but they should be 
         @SuppressWarnings("unchecked")
-        Set<CyNode> selected = new HashSet<CyNode>(view.getSelectedNodes());
+        Set<CyNode> selected = view.getNetwork().getSelectedNodes();
         for (CyNode cynode : selected) {
             // check to see if node is KAM backed
             String cyid = cynode.getIdentifier();
