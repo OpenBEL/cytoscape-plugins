@@ -86,6 +86,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private final KAMService kamService;
     // used to keep track of currently selected nodes in kam form
     private final Set<String> selectedKamNodeIds = new HashSet<String>();
+    private CyNetwork network;
 
     // swing components
     private JButton addButton;
@@ -126,10 +127,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         initUI();
 
-        // register listener
         // TODO: what if the KAM network is loaded after?
         // what if the current network is not the KAM network?
-        Cytoscape.getCurrentNetwork().addSelectEventListener(this);
+        network = Cytoscape.getCurrentNetwork();
+        // register listener
+        network.addSelectEventListener(this);
 
         loadNeighborhood();
     }
@@ -146,7 +148,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     public void dispose() {
         super.dispose();
 
-        Cytoscape.getCurrentNetwork().removeSelectEventListener(this);
+        network.removeSelectEventListener(this);
     }
 
     private void initUI() {
@@ -266,9 +268,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 }
             }
 
-            // FIXME change how we get the network
             KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
-                    Cytoscape.getCurrentNetwork());
+                    network);
 
             KAMTasks.addEdges(kamNetwork, selectedEdges);
         } else if (e.getSource().equals(expandBothButton)
@@ -314,10 +315,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         // clear previously selected
         selectedKamNodeIds.clear();
-        // TODO change the way we load selected
         @SuppressWarnings("unchecked")
-        final Set<CyNode> selected = Cytoscape.getCurrentNetwork()
-                .getSelectedNodes();
+        final Set<CyNode> selected = network.getSelectedNodes();
         
         if (selected.isEmpty()) {
             // if empty no point in resolve edges
@@ -337,7 +336,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             return;
         }
 
-        final CyNetwork network = Cytoscape.getCurrentNetwork();
         final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
                 network);
 
