@@ -160,7 +160,18 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         addButton.setEnabled(false);
         resultsTable.setModel(new EdgeTableModel());
         resultsTable.getSelectionModel().addListSelectionListener(
-                new ResultsSelectionListener());
+                new ListSelectionListener() {
+
+                    @Override
+                    public void valueChanged(ListSelectionEvent e) {
+                        ListSelectionModel selModel = (ListSelectionModel) e
+                                .getSource();
+                        addButton.setEnabled(!selModel.isSelectionEmpty());
+                        int selectionNumber = resultsTable.getSelectedRows().length;
+                        selectionLabel.setText(selectionNumber
+                                + " edges selected");
+                    }
+                });
 
         // register the filters with the sorter
         Collection<RowFilter<EdgeTableModel, Integer>> filters = new HashSet<RowFilter<EdgeTableModel, Integer>>();
@@ -349,20 +360,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 .updateEdges(edges);
         // resort filters after update
         sort();
-    }
-
-    private class ResultsSelectionListener implements ListSelectionListener {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void valueChanged(ListSelectionEvent e) {
-            ListSelectionModel selModel = (ListSelectionModel) e.getSource();
-            addButton.setEnabled(!selModel.isSelectionEmpty());
-            int selectionNumber = resultsTable.getSelectedRows().length;
-            selectionLabel.setText(selectionNumber + " edges selected");
-        }
     }
 
     private class EdgeTableModel extends DefaultTableModel {
