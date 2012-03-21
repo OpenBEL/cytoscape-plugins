@@ -101,11 +101,16 @@ public class KAMNodeContextListener implements PropertyChangeListener,
      */
     @Override
     public void addNodeContextMenuItems(NodeView nv, JPopupMenu menu) {
+        if (!(nv.getGraphView() instanceof CyNetworkView)) {
+            // this shouldn't happen, but if it does return gracefully
+            return;
+        }
+        
+        CyNetworkView view = (CyNetworkView) nv.getGraphView();
         // documentation doesn't specify that selected nodes are CyNodes 
         //  but they should be 
-        // FIXME what if the current network is not the kam network?
         @SuppressWarnings("unchecked")
-        Set<CyNode> selected = Cytoscape.getCurrentNetwork().getSelectedNodes();
+        Set<CyNode> selected = new HashSet<CyNode>(view.getSelectedNodes());
         for (CyNode cynode : selected) {
             // check to see if node is KAM backed
             String cyid = cynode.getIdentifier();
@@ -125,19 +130,19 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         // construct node menu and add to context popup
         final JMenu kamNodeItem = new JMenu("KAM Node");
         final JMenuItem downstream = new JMenuItem(new ExpandAction(FORWARD,
-                selected, (CyNetworkView) nv.getGraphView()));
+                selected, view));
         kamNodeItem.add(downstream);
         final JMenuItem upstream = new JMenuItem(new ExpandAction(REVERSE,
-                selected, (CyNetworkView) nv.getGraphView()));
+                selected, view));
         kamNodeItem.add(upstream);
         final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, selected,
-                (CyNetworkView) nv.getGraphView()));
+                view));
         kamNodeItem.add(both);
         
         if (selected.size() > 1) {
             // interconnect added only if more then one nodes are selected
             final JMenuItem interconnect = new JMenuItem(new InterconnectAction(
-                    selected, (CyNetworkView) nv.getGraphView()));
+                    selected, view));
             kamNodeItem.add(interconnect);
         } else {
             // create placeholder disabled item for interconnect to keep menu 
