@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,6 +72,8 @@ import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.data.SelectEvent;
 import cytoscape.data.SelectEventListener;
+import cytoscape.view.CyNetworkView;
+import cytoscape.view.CytoscapeDesktop;
 
 /**
  * {@link KnowledgeNeighborhoodDialog} represents the UI for the Knowledge
@@ -78,7 +82,7 @@ import cytoscape.data.SelectEventListener;
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 public class KnowledgeNeighborhoodDialog extends JDialog implements
-        ActionListener, SelectEventListener {
+        ActionListener, PropertyChangeListener, SelectEventListener {
     private static final long serialVersionUID = -736918933072782546L;
     private static final String DIALOG_TITLE = "Knowledge Neighborhood";
     private static final String ALL_SELECTION = "All";
@@ -86,7 +90,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private final KAMService kamService;
     // used to keep track of currently selected nodes in kam form
     private final Set<String> selectedKamNodeIds = new HashSet<String>();
-    private CyNetwork network;
+    // networks that this instance is registered as a listener on
+    private final Set<CyNetwork> subjectNetworks = new HashSet<CyNetwork>();
+    // network that nodes were last selected on
+    private CyNetwork currentNetwork;
 
     // swing components
     private JButton addButton;
@@ -127,11 +134,16 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         initUI();
 
-        // TODO: what if the KAM network is loaded after?
-        // what if the current network is not the KAM network?
-        network = Cytoscape.getCurrentNetwork();
+        
+        // register property change listener for this instace
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_CREATED, this);
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
+        
         // register listener
-        network.addSelectEventListener(this);
+        Cytoscape.getCurrentNetwork().addSelectEventListener(this);
+        subjectNetworks.add(Cytoscape.getCurrentNetwork());
 
         loadNeighborhood();
     }
@@ -148,7 +160,13 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     public void dispose() {
         super.dispose();
 
-        network.removeSelectEventListener(this);
+        // deregister this listener for all associated objects
+        Cytoscape.getPropertyChangeSupport().removePropertyChangeListener(this);
+        for (CyNetwork network : subjectNetworks) {
+            if (network != null) {
+                network.removeSelectEventListener(this);
+            }
+        }
     }
 
     /**
@@ -182,7 +200,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             }
 
             KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
-                    network);
+                    currentNetwork);
 
             KAMTasks.addEdges(kamNetwork, selectedEdges);
         } else if (e.getSource().equals(expandBothButton)
@@ -192,6 +210,28 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 || e.getSource().equals(targetFunctionCombo)
                 || e.getSource().equals(edgeRelationshipCombo)) {
             sort();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent e) {
+        if (e == null) {
+            return;
+        }
+        
+        if (CytoscapeDesktop.NETWORK_VIEW_CREATED.equals(e
+                .getPropertyName())) {
+            CyNetworkView view = (CyNetworkView) e.getNewValue();
+            view.getNetwork().addSelectEventListener(this);
+            subjectNetworks.add(view.getNetwork());
+        } else if (CytoscapeDesktop.NETWORK_VIEW_DESTROYED.equals(e
+                .getPropertyName())) {
+            CyNetworkView view = (CyNetworkView) e.getNewValue();
+            view.getNetwork().removeSelectEventListener(this);
+            subjectNetworks.remove(view.getNetwork());
         }
     }
 
@@ -315,8 +355,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         // clear previously selected
         selectedKamNodeIds.clear();
+        
+        // register current network (will be used for add edges command)
+        currentNetwork = Cytoscape.getCurrentNetwork();
         @SuppressWarnings("unchecked")
-        final Set<CyNode> selected = network.getSelectedNodes();
+        final Set<CyNode> selected = currentNetwork.getSelectedNodes();
         
         if (selected.isEmpty()) {
             // if empty no point in resolve edges
@@ -337,7 +380,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
 
         final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
-                network);
+                currentNetwork);
 
         final Collection<KamNode> kamNodes = new HashSet<KamNode>();
         for (final CyNode cynode : selected) {
