@@ -76,8 +76,8 @@ import cytoscape.data.webservice.WebServiceClientManager;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
-    protected WebAPI ws;
-    private ClientConnector wsClient;
+    protected WebAPI webAPI;
+    private ClientConnector clientConnector;
 
     /**
      * Retrieves the webservice client from the
@@ -92,13 +92,13 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     public void reloadClientConnector() {
-        wsClient = (ClientConnector) WebServiceClientManager
+        clientConnector = (ClientConnector) WebServiceClientManager
                 .getClient("belframework");
-        if (wsClient == null) {
+        if (clientConnector == null) {
             return;
         }
 
-        ws = wsClient.getClientStub();
+        webAPI = clientConnector.getClientStub();
     }
 
     /**
@@ -110,7 +110,7 @@ class DefaultKAMService implements KAMService {
 
         final GetCatalogRequest req = createGetCatalogRequest();
 
-        final GetCatalogResponse res = ws.getCatalog(req);
+        final GetCatalogResponse res = webAPI.getCatalog(req);
         return res.getKams();
     }
 
@@ -127,7 +127,7 @@ class DefaultKAMService implements KAMService {
 
         final LoadKamRequest req = createLoadKamRequest();
         req.setKam(kam);
-        return ws.loadKam(req);
+        return webAPI.loadKam(req);
     }
     
     /**
@@ -140,7 +140,7 @@ class DefaultKAMService implements KAMService {
         checkValid();
         final GetDialectRequest req = createGetDialectRequest();
         // nothing in the request
-        final GetDialectResponse res = ws.getDialect(req);
+        final GetDialectResponse res = webAPI.getDialect(req);
         return res.getDialect();
     }
 
@@ -159,7 +159,7 @@ class DefaultKAMService implements KAMService {
                 createGetSupportingTermsRequest();
         req.setKamNode(node);
 
-        final GetSupportingTermsResponse res = ws.getSupportingTerms(req);
+        final GetSupportingTermsResponse res = webAPI.getSupportingTerms(req);
 
         final List<BelTerm> terms = res.getTerms();
         for (final BelTerm term : terms) {
@@ -185,7 +185,7 @@ class DefaultKAMService implements KAMService {
         req.setKamEdge(edge);
 
         final GetSupportingEvidenceResponse res =
-                ws.getSupportingEvidence(req);
+                webAPI.getSupportingEvidence(req);
         final List<BelStatement> stmts = res.getStatements();
         for (final BelStatement stmt : stmts) {
             final BelTerm subject = stmt.getSubjectTerm();
@@ -244,7 +244,7 @@ class DefaultKAMService implements KAMService {
         nf.getFunctionTypeCriteria().add(ftfc);
         req.setFilter(nf);
 
-        final FindKamNodesByPatternsResponse res = ws
+        final FindKamNodesByPatternsResponse res = webAPI
                 .findKamNodesByPatterns(req);
         return res.getKamNodes();
     }
@@ -278,7 +278,7 @@ class DefaultKAMService implements KAMService {
             req.setFilter(nf);
         }
 
-        final FindKamNodesByPatternsResponse res = ws
+        final FindKamNodesByPatternsResponse res = webAPI
                 .findKamNodesByPatterns(req);
         return res.getKamNodes();
     }
@@ -312,7 +312,7 @@ class DefaultKAMService implements KAMService {
             req.setFilter(ef);
         }
 
-        final GetAdjacentKamEdgesResponse res = ws.getAdjacentKamEdges(req);
+        final GetAdjacentKamEdgesResponse res = webAPI.getAdjacentKamEdges(req);
         return res.getKamEdges();
     }
 
@@ -340,7 +340,7 @@ class DefaultKAMService implements KAMService {
         req.getSources().addAll(sources);
         req.setMaxDepth(maxDepth);
 
-        final InterconnectResponse res = ws.interconnect(req);
+        final InterconnectResponse res = webAPI.interconnect(req);
         return res.getPaths();
     }
 
@@ -350,13 +350,13 @@ class DefaultKAMService implements KAMService {
      * @throws RuntimeException Thrown to fail the existing request
      */
     protected void checkValid() {
-        if (ws == null || !wsClient.isValid()) {
+        if (webAPI == null || !clientConnector.isValid()) {
             // attempt to reconfigure to see if WSDL is now up
-            wsClient.reconfigure();
+            clientConnector.reconfigure();
         }
         
         // if all else fails
-        if (ws == null || !wsClient.isValid()) {
+        if (webAPI == null || !clientConnector.isValid()) {
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
                     "Error connecting to the BELFramework Web Services.\n" +
                             "Please check the BELFramework Web Services Configuration.",
