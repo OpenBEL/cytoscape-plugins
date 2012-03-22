@@ -29,7 +29,7 @@ public interface KAMService {
     /**
      * Reloads the {@link ClientConnector} in this {@link KAMService}
      */
-    public abstract void reloadClientConnector();
+    void reloadClientConnector();
     
 	/**
 	 * Retrieves the KAM catalog for the configured BELFramework.
@@ -37,12 +37,12 @@ public interface KAMService {
 	 * @return the {@link List} of {@link Kam kams} from the KAM catalog, which
 	 * will not be {@code null} but might be empty
 	 */
-	public abstract List<Kam> getCatalog();
+	List<Kam> getCatalog();
 
 	/**
 	 * TODO: still WIP, document after this stablizes
      */
-    public abstract DialectHandle getDialect();
+    DialectHandle getDialect();
     
 	/**
 	 * Fires a loads request for a {@link Kam kam} on the server end of the 
@@ -54,7 +54,7 @@ public interface KAMService {
 	 * {@code null}
 	 * @see DefaultKAMService#getCatalog()
 	 */
-	public abstract LoadKamResponse loadKam(final Kam kam);
+	LoadKamResponse loadKam(Kam kam);
 
 	/**
 	 * Retrieves the supporting {@link BelTerm BEL terms} for a specific
@@ -67,7 +67,7 @@ public interface KAMService {
 	 * @throws IllegalArgumentException Thrown if the {@code node} parameter is
 	 * {@code null}
 	 */
-	public abstract List<BelTerm> getSupportingTerms(final KamNode node);
+	List<BelTerm> getSupportingTerms(KamNode node);
 
 	/**
 	 * Retrieves the supporting {@link BelStatement statements} for a specific
@@ -80,7 +80,7 @@ public interface KAMService {
 	 * @throws IllegalArgumentException Thrown if the {@code kam} parameter is
 	 * {@code null}
 	 */
-	public abstract List<BelStatement> getSupportingEvidence(final KamEdge edge);
+	List<BelStatement> getSupportingEvidence(KamEdge edge);
 
 	/**
 	 * Finds {@link KamNode kam nodes} by {@link FunctionType BEL function} for
@@ -96,9 +96,9 @@ public interface KAMService {
 	 * @throws IllegalArgumentException Thrown if the {@code handle} or
 	 * {@code function} parameter is {@code null}
 	 */
-	public abstract List<KamNode> findKamNodesByFunction(
-			final KamHandle kamHandle, final DialectHandle dialectHandle, 
-			final FunctionType function);
+	List<KamNode> findKamNodesByFunction(
+			KamHandle kamHandle, DialectHandle dialectHandle, 
+			FunctionType function);
 
 	/**
 	 * Finds {@link KamNode kam nodes} by a regular expression pattern and
@@ -116,9 +116,9 @@ public interface KAMService {
 	 * @throws IllegalArgumentException Thrown if the {@code handle} or
 	 * {@code regex} parameter is {@code null}
 	 */
-	public abstract List<KamNode> findKamNodesByPatterns(
-			final KamHandle kamHandle, final DialectHandle dialectHandle, 
-			final String regex, final NodeFilter nf);
+	List<KamNode> findKamNodesByPatterns(
+			KamHandle kamHandle, DialectHandle dialectHandle, 
+			String regex, NodeFilter nf);
 
 	/**
 	 * Retrieves {@link KamEdge kam edges} that are adjacent to a
@@ -137,9 +137,9 @@ public interface KAMService {
 	 * @throws IllegalArgumentException Thrown if the {@code node} or
 	 * {@code direction} parameter is {@code null}
 	 */
-	public abstract List<KamEdge> getAdjacentKamEdges(
-	        final DialectHandle dialectHandle, final KamNode node, 
-	        final EdgeDirectionType direction, final EdgeFilter ef);
+	List<KamEdge> getAdjacentKamEdges(
+	        DialectHandle dialectHandle, KamNode node, 
+	        EdgeDirectionType direction, EdgeFilter ef);
 
     /**
      * Retrieves {@link SimplePath SimplePaths} between the given source nodes.
@@ -155,8 +155,8 @@ public interface KAMService {
      * @return the {@list List} of {@link SimplePath SimplePaths}, can be empty
      *         but never {@code null}.
      */
-    public abstract List<SimplePath> interconnect(
-            final DialectHandle dialectHandle, 
-            final Collection<KamNode> sources, final Integer maxDepth);
+    List<SimplePath> interconnect(
+            DialectHandle dialectHandle, 
+            Collection<KamNode> sources, Integer maxDepth);
 
 }
