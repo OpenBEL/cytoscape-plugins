@@ -56,20 +56,4 @@ public class ClientPlugin extends CytoscapePlugin {
             Configuration.resetToDefaults();
         }
     }
-
-    /**
-     * Saves webservice plugin configuration to a properties file.
-     * <p>
-     * Note: This method is called when cytoscape shuts down.
-     * </p>
-     */
-    @Override
-    public void onCytoscapeExit() {
-        try {
-            Configuration.getInstance().saveState();
-        } catch (IOException e) {
-            // bad, but what can I do?
-            e.printStackTrace();
-        }
-    }
 }
