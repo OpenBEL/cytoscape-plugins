@@ -75,7 +75,7 @@ import cytoscape.data.webservice.WebServiceClientManager;
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-class DefaultKAMService implements KAMService, ConfigurationListener {
+class DefaultKAMService implements KAMService {
     protected WebAPI ws;
     private ClientConnector wsClient;
 
@@ -85,8 +85,13 @@ class DefaultKAMService implements KAMService, ConfigurationListener {
      * the client stub.
      */
     DefaultKAMService() {
-        loadConfiguration();
-        Configuration.getInstance().addListener(this);
+        wsClient = (ClientConnector) WebServiceClientManager
+                .getClient("belframework");
+        if (wsClient == null) {
+            return;
+        }
+
+        ws = wsClient.getClientStub();
     }
 
     /**
@@ -333,24 +338,6 @@ class DefaultKAMService implements KAMService, ConfigurationListener {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void configurationChange() {
-        loadConfiguration();
-    }
-    
-    protected void loadConfiguration() {
-        wsClient = (ClientConnector) WebServiceClientManager
-                .getClient("belframework");
-        if (wsClient == null) {
-            return;
-        }
-
-        ws = wsClient.getClientStub();
-    }
-    
-    /**
      * Checks for a valid connection and errors out if not.
      *
      * @throws RuntimeException Thrown to fail the existing request
@@ -386,5 +373,4 @@ class DefaultKAMService implements KAMService, ConfigurationListener {
         String label = TermLabelFormatter.format(term.getLabel());
         term.setLabel(label);
     }
-
 }

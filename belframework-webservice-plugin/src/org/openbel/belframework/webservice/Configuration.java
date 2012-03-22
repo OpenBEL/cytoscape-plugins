@@ -23,9 +23,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 
 import cytoscape.CytoscapeInit;
 
@@ -52,7 +50,6 @@ public class Configuration {
     private String wsdlURL;
     private Integer timeout;
     private Boolean shortBelForm;
-    private final Set<ConfigurationListener> listeners = new HashSet<ConfigurationListener>();
 
     /**
      * Gets the singleton {@link Configuration} instance.  If the singleton
@@ -133,18 +130,15 @@ public class Configuration {
 
     /**
      * Saves the configuration state of the webservice client plugin to the
-     * plugin properties file {@code belframework-webservice.props} and notifies
-     * all {@link ConfigurationListener ConfigurationListeners}.
-     * 
+     * plugin properties file {@code belframework-webservice.props}.
+     *
      * <p>
      * This plugin properties file is held in the .cytoscape folder located in
      * the user's home folder.
      * </p>
-     * Configuration
-     * 
-     * @throws IOException
-     *             Thrown if an IO exception occurred while writing the
-     *             configuration settings to the properties file
+     *
+     * @throws IOException Thrown if an IO exception occurred while writing the
+     * configuration settings to the properties file
      */
     public void saveState() throws IOException {
         final File cfg = CytoscapeInit
@@ -155,7 +149,6 @@ public class Configuration {
         cfgprops.put(TIMEOUT_KEY, timeout.toString());
         cfgprops.put(SHORT_FORM_BEL_KEY, shortBelForm.toString());
         cfgprops.store(new FileWriter(cfg), COMMENTS);
-        notifyListeners();
     }
 
     /**
@@ -207,40 +200,6 @@ public class Configuration {
             }
         } else {
             Configuration.resetToDefaults();
-        }
-    }
-
-    /**
-     * Add a {@link ConfigurationListener} to this {@link Configuration}
-     * 
-     * @param listener
-     *            {@link ConfigurationListener} to notify from this
-     *            configuration, ignored if null
-     */
-    public void addListener(ConfigurationListener listener) {
-        if (listener != null) {
-            listeners.add(listener);
-        }
-    }
-
-    /**
-     * Remove a {@link ConfigurationListener} from this {@link Configuration}
-     * 
-     * @param listener
-     *            {@link ConfigurationListener} to no longer notify from this
-     *            configuration, ignored if null
-     */
-    public void removeListener(ConfigurationListener listener) {
-        if (listener != null) {
-            listeners.remove(listener);
-        }
-    }
-
-    private void notifyListeners() {
-        for (ConfigurationListener listener : listeners) {
-            if (listener != null) {
-                listener.configurationChange();
-            }
         }
     }
 }
