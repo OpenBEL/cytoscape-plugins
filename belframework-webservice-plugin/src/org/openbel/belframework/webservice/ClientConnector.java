@@ -22,14 +22,12 @@ package org.openbel.belframework.webservice;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.JOptionPane;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
 import com.selventa.belframework.ws.client.WebAPI;
 import com.selventa.belframework.ws.client.WebAPIService;
 
-import cytoscape.Cytoscape;
 import cytoscape.data.webservice.CyWebServiceEvent;
 import cytoscape.data.webservice.CyWebServiceException;
 import cytoscape.data.webservice.WebServiceClientImpl;
@@ -74,12 +72,6 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
      */
     public synchronized void reconfigure() {
         configure();
-        if (!valid) {
-            JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
-                    "Error connecting to the BEL Framework Web Services.\n" +
-                            "Please check the BEL Framework Web Services Configuration.",
-                    "Connection Error", JOptionPane.ERROR_MESSAGE);
-        }
         
         // reload client connector in kam service after reconfigure
         KAMServiceFactory.getInstance().getKAMService().reloadClientConnector();
