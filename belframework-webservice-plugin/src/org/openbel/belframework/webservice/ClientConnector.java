@@ -41,7 +41,8 @@ import cytoscape.data.webservice.WebServiceClientManager;
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public class ClientConnector extends WebServiceClientImpl<WebAPI> {
+public class ClientConnector extends WebServiceClientImpl<WebAPI> implements
+        ConfigurationListener {
     private static final long serialVersionUID = -6685554742203767122L;
     private static final String CLIENT = "belframework";
     private static final String DISPLAY_NAME = "BEL Framework Web Services Connection";
@@ -65,6 +66,7 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
     private ClientConnector() {
         super(CLIENT, DISPLAY_NAME);
         configure();
+        Configuration.getInstance().addListener(this);
     }
 
     /**
@@ -106,6 +108,14 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
         } catch (Throwable e) {
             valid = false;
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void configurationChange() {
+        reconfigure();
     }
 
     /**

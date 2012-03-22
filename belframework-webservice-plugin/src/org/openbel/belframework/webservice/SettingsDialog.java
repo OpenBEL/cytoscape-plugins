@@ -176,7 +176,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
 
             try {
                 cfg.saveState();
-                ClientConnector.getInstance().reconfigure();
                 this.dispose();
             } catch (IOException ex) {
                 ex.printStackTrace();
