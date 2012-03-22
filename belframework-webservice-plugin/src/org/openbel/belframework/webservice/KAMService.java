@@ -26,6 +26,11 @@ import com.selventa.belframework.ws.client.WebAPI;
  */
 public interface KAMService {
 
+    /**
+     * Reloads the {@link ClientConnector} in this {@link KAMService}
+     */
+    public abstract void reloadClientConnector();
+    
 	/**
 	 * Retrieves the KAM catalog for the configured BELFramework.
 	 *

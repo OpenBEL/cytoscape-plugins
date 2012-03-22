@@ -85,6 +85,13 @@ class DefaultKAMService implements KAMService {
      * the client stub.
      */
     DefaultKAMService() {
+        reloadClientConnector();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reloadClientConnector() {
         wsClient = (ClientConnector) WebServiceClientManager
                 .getClient("belframework");
         if (wsClient == null) {
@@ -346,11 +353,6 @@ class DefaultKAMService implements KAMService {
         if (ws == null || !wsClient.isValid()) {
             // attempt to reconfigure to see if WSDL is now up
             wsClient.reconfigure();
-        }
-        
-        if (ws == null && wsClient.isValid()) {
-            // reload client stub if client is now valid
-            ws = wsClient.getClientStub();
         }
         
         // if all else fails

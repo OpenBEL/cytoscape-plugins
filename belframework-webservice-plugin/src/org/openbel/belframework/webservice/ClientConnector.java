@@ -80,6 +80,9 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
                             "Please check the BEL Framework Web Services Configuration.",
                     "Connection Error", JOptionPane.ERROR_MESSAGE);
         }
+        
+        // reload client connector in kam service after reconfigure
+        KAMServiceFactory.getInstance().getKAMService().reloadClientConnector();
     }
 
     /**
