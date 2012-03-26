@@ -24,6 +24,9 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JMenu;
 
+import org.openbel.belframework.kam.dialog.KnowledgeNeighborhoodDialog;
+import org.openbel.belframework.kam.dialog.LoadKAMDialog;
+import org.openbel.belframework.kam.dialog.SearchKAMDialog;
 import org.openbel.belframework.webservice.SettingsDialog;
 
 import cytoscape.Cytoscape;
