@@ -167,24 +167,20 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         searchPanel.add(networkLbl, gridBagConstraints);
 
-        final Set<CyNetwork> networkSet = Cytoscape.getNetworkSet();
+        final Set<CyNetwork> networkSet = Utility.getKamNetworks();
         final Iterator<CyNetwork> networkIt = networkSet.iterator();
         final List<NetworkOption> networks = new ArrayList<NetworkOption>(networkSet.size());
         NetworkOption selectedNetwork = null;
-        final KAMSession session = KAMSession.getInstance();
 
         while (networkIt.hasNext()) {
             final CyNetwork cyn = networkIt.next();
 
-            // only add cytoscape network if it's KAM-backed
-            if (session.getKAMNetwork(cyn) != null) {
-                final NetworkOption networkOpt = new NetworkOption(cyn);
-                networks.add(networkOpt);
+            final NetworkOption networkOpt = new NetworkOption(cyn);
+            networks.add(networkOpt);
 
-                // trap this network option if this is the active cyn
-                if (Cytoscape.getCurrentNetwork() == cyn) {
-                    selectedNetwork = networkOpt;
-                }
+            // trap this network option if this is the active cyn
+            if (Cytoscape.getCurrentNetwork() == cyn) {
+                selectedNetwork = networkOpt;
             }
         }
 

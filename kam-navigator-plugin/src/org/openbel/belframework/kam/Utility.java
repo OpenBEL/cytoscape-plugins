@@ -20,10 +20,14 @@
 package org.openbel.belframework.kam;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.selventa.belframework.ws.client.FunctionType;
 
+import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
 import cytoscape.task.ui.JTaskConfig;
@@ -79,6 +83,27 @@ public class Utility {
      */
     public static FunctionType[] getFunctions() {
         return functionArray;
+    }
+    
+    /**
+     * Retrieve a set of all kam backed networks
+     * 
+     * @return kam backed networks
+     */
+    public static Set<CyNetwork> getKamNetworks() {
+        KAMSession session = KAMSession.getInstance();
+        Set<CyNetwork> allNetworks = Cytoscape.getNetworkSet();
+        Set<CyNetwork> kamNetworks = new HashSet<CyNetwork>();
+
+        for (Iterator<CyNetwork> it = allNetworks.iterator(); it.hasNext();) {
+            CyNetwork cyn = it.next();
+            // only add cytoscape network if it's KAM-backed
+            if (session.getKAMNetwork(cyn) != null) {
+                kamNetworks.add(cyn);
+            }
+        }
+
+        return kamNetworks;
     }
 
     private Utility() {
