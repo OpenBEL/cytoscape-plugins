@@ -320,7 +320,7 @@ public class KAMNetwork {
                     ObjectMapping.NODE_MAPPING);
             nlabels.setControllingAttributeName("ID", null, false);
             Calculator nlcalc = new BasicCalculator(
-                    "KAM Node Label",
+                    KAM_STYLE + " Node Label",
                     nlabels,
                     VisualPropertyType.NODE_LABEL);
             nac.setCalculator(nlcalc);
@@ -334,8 +334,9 @@ public class KAMNetwork {
             for (final RelationshipType rt : RelationshipType.values()) {
                 arrows.putMapValue(rt.name(), ArrowShape.ARROW);
             }
-            final Calculator eacalc = new BasicCalculator("Interaction",
-                    arrows, VisualPropertyType.EDGE_TGTARROW_SHAPE);
+            final Calculator eacalc = new BasicCalculator(
+                    KAM_STYLE + " Interaction", arrows, 
+                    VisualPropertyType.EDGE_TGTARROW_SHAPE);
             eac.setCalculator(eacalc);
 
             // edges: label
@@ -343,7 +344,7 @@ public class KAMNetwork {
                     ObjectMapping.EDGE_MAPPING);
             elabels.setControllingAttributeName("interaction", null, false);
             Calculator elcalc = new BasicCalculator(
-                    "KAM Edge Label",
+                    KAM_STYLE + " Edge Label",
                     elabels,
                     VisualPropertyType.EDGE_LABEL);
             eac.setCalculator(elcalc);
