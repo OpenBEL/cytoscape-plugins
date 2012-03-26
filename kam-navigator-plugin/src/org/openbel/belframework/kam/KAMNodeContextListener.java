@@ -76,7 +76,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         NodeContextMenuListener {
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
     private static final String INTERCONNECT_LABEL = "Interconnect";
-    private static final int DEFAULT_INTERCONNECT_DEPTH = 2;
+    private static final int DEFAULT_INTERCONNECT_DEPTH = 1;
 
     /**
      * {@inheritDoc}
