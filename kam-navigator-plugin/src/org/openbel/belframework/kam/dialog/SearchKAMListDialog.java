@@ -85,6 +85,7 @@ public final class SearchKAMListDialog extends JDialog implements
 
         FileFilter fileFilter = new FileNameExtensionFilter(
                 "CSV and TXT files", "csv", "txt");
+        // FIXME none CSV and TXT files are still selectable
         fileChooser.addChoosableFileFilter(fileFilter); // setFileFilter(fileFilter);
         
         // network options
