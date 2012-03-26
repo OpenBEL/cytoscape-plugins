@@ -311,44 +311,7 @@ public class KAMNetwork {
         final CalculatorCatalog ccat = vismanager.getCalculatorCatalog();
         VisualStyle visualStyle = ccat.getVisualStyle(KAM_STYLE);
         if (visualStyle == null) {
-            visualStyle = new VisualStyle(KAM_STYLE);
-
-            NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
-
-            // nodes: label
-            final PassThroughMapping nlabels = new PassThroughMapping("",
-                    ObjectMapping.NODE_MAPPING);
-            nlabels.setControllingAttributeName("ID", null, false);
-            Calculator nlcalc = new BasicCalculator(
-                    KAM_STYLE + " Node Label",
-                    nlabels,
-                    VisualPropertyType.NODE_LABEL);
-            nac.setCalculator(nlcalc);
-
-            EdgeAppearanceCalculator eac = visualStyle.getEdgeAppearanceCalculator();
-
-            // edges: target arrow shape
-            final DiscreteMapping arrows = new DiscreteMapping(ArrowShape.NONE,
-                    ObjectMapping.EDGE_MAPPING);
-            arrows.setControllingAttributeName("interaction", cyn, false);
-            for (final RelationshipType rt : RelationshipType.values()) {
-                arrows.putMapValue(rt.name(), ArrowShape.ARROW);
-            }
-            final Calculator eacalc = new BasicCalculator(
-                    KAM_STYLE + " Interaction", arrows, 
-                    VisualPropertyType.EDGE_TGTARROW_SHAPE);
-            eac.setCalculator(eacalc);
-
-            // edges: label
-            final PassThroughMapping elabels = new PassThroughMapping("",
-                    ObjectMapping.EDGE_MAPPING);
-            elabels.setControllingAttributeName("interaction", null, false);
-            Calculator elcalc = new BasicCalculator(
-                    KAM_STYLE + " Edge Label",
-                    elabels,
-                    VisualPropertyType.EDGE_LABEL);
-            eac.setCalculator(elcalc);
-
+            visualStyle = createKAMStyle();
             ccat.addVisualStyle(visualStyle);
         }
 
@@ -357,5 +320,47 @@ public class KAMNetwork {
 
         vismanager.setVisualStyle(visualStyle);
         view.redrawGraph(true, true);
+    }
+    
+    private VisualStyle createKAMStyle() {
+        VisualStyle visualStyle = new VisualStyle(KAM_STYLE);
+        
+        NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
+
+        // nodes: label
+        final PassThroughMapping nlabels = new PassThroughMapping("",
+                ObjectMapping.NODE_MAPPING);
+        nlabels.setControllingAttributeName("ID", null, false);
+        Calculator nlcalc = new BasicCalculator(
+                KAM_STYLE + " Node Label",
+                nlabels,
+                VisualPropertyType.NODE_LABEL);
+        nac.setCalculator(nlcalc);
+
+        EdgeAppearanceCalculator eac = visualStyle.getEdgeAppearanceCalculator();
+
+        // edges: target arrow shape
+        final DiscreteMapping arrows = new DiscreteMapping(ArrowShape.NONE,
+                ObjectMapping.EDGE_MAPPING);
+        arrows.setControllingAttributeName("interaction", cyn, false);
+        for (final RelationshipType rt : RelationshipType.values()) {
+            arrows.putMapValue(rt.name(), ArrowShape.ARROW);
+        }
+        final Calculator eacalc = new BasicCalculator(
+                KAM_STYLE + " Interaction", arrows, 
+                VisualPropertyType.EDGE_TGTARROW_SHAPE);
+        eac.setCalculator(eacalc);
+
+        // edges: label
+        final PassThroughMapping elabels = new PassThroughMapping("",
+                ObjectMapping.EDGE_MAPPING);
+        elabels.setControllingAttributeName("interaction", null, false);
+        Calculator elcalc = new BasicCalculator(
+                KAM_STYLE + " Edge Label",
+                elabels,
+                VisualPropertyType.EDGE_LABEL);
+        eac.setCalculator(elcalc);
+        
+        return visualStyle;
     }
 }
