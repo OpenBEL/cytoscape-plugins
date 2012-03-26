@@ -118,6 +118,8 @@ public final class SearchKAMListDialog extends JDialog implements
     }
 
     private void browseButtonActionPerformed(ActionEvent e) {
+        // FIXME according to cytoscape javadocs, should use
+        // FileUtil.getFile instead of jfile chooser
         int returnVal = fileChooser.showOpenDialog(this);
 
         switch (returnVal) {
