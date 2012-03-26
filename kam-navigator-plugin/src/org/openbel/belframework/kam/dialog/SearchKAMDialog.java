@@ -54,6 +54,7 @@ import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.NetworkOption;
 import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
@@ -61,7 +62,6 @@ import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamNode;
 
 import cytoscape.CyNetwork;
@@ -373,7 +373,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 model.fireTableDataChanged();
 
                 final NetworkOption networkOption = (NetworkOption) networkCmb.getSelectedItem();
-                Cytoscape.getDesktop().setFocus(networkOption.cyn.getIdentifier());
+                Cytoscape.getDesktop().setFocus(
+                        networkOption.getCyNetwork().getIdentifier());
             } else if (e.getSource() == cancelBtn) {
                 this.dispose();
             } else if (e.getSource() == searchBtn) {
@@ -382,7 +383,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
 
-                final SearchKAMNodesTask task = new SearchKAMNodesTask(networkOption.cyn, selfunc);
+                final SearchKAMNodesTask task = new SearchKAMNodesTask(
+                        networkOption.getCyNetwork(), selfunc);
                 Utility.executeTask(task);
             } else if (e.getSource() == addBtn) {
                 ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
@@ -403,7 +405,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
                 final KAMNetwork kamNetwork = KAMSession.getInstance()
-                        .getKAMNetwork(networkOption.cyn);
+                        .getKAMNetwork(networkOption.getCyNetwork());
 
                 // run add task, hook in edges based on selected option
                 EdgeOption eeo = (EdgeOption) edgeCmb.getSelectedItem();
@@ -631,28 +633,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
             final String lowerLabel = node.getLabel().toLowerCase();
 
             return lowerLabel.contains(filterTxt.getText().toLowerCase());
-        }
-    }
-
-    /**
-     * {@link NetworkOption} represents the combo-box option for currently
-     * loaded {@link Kam kam}-backed {@link CyNetwork cytoscape networks}.
-     *
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private final class NetworkOption {
-        private final CyNetwork cyn;
-
-        private NetworkOption(final CyNetwork cyn) {
-            this.cyn = cyn;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return cyn.getTitle();
         }
     }
 

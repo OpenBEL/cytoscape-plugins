@@ -4,7 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -24,6 +26,10 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import org.openbel.belframework.kam.NetworkOption;
+import org.openbel.belframework.kam.Utility;
+
+import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 
 public final class SearchKAMListDialog extends JDialog implements
@@ -79,7 +85,34 @@ public final class SearchKAMListDialog extends JDialog implements
 
         FileFilter fileFilter = new FileNameExtensionFilter(
                 "CSV and TXT files", "csv", "txt");
-        fileChooser.setFileFilter(fileFilter);
+        fileChooser.addChoosableFileFilter(fileFilter); // setFileFilter(fileFilter);
+        
+        // network options
+        final Set<CyNetwork> networkSet = Utility.getKamNetworks();
+        final List<NetworkOption> networks = new ArrayList<NetworkOption>(networkSet.size());
+        for (Iterator<CyNetwork> it = networkSet.iterator(); it.hasNext();) {
+            CyNetwork cyn = it.next();
+
+            NetworkOption networkOpt = new NetworkOption(cyn);
+            networks.add(networkOpt);
+
+            // trap this network option if this is the active cyn
+            if (Cytoscape.getCurrentNetwork() == cyn) {
+                networkComboBox.setSelectedItem(networkOpt);
+            };
+        }
+        networkComboBox.setModel(new DefaultComboBoxModel(networks
+                .toArray(new NetworkOption[networks.size()])));
+        networkComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                networkComboBoxActionPerformed(e);
+            }
+        });
+        
+        // file text field
+        fileTextField.setText("");
+        fileTextField.setEditable(false);
 
     }
 
@@ -89,6 +122,7 @@ public final class SearchKAMListDialog extends JDialog implements
         switch (returnVal) {
         case JFileChooser.APPROVE_OPTION:
             File file = fileChooser.getSelectedFile();
+            fileTextField.setText(file.getName());
             break;
         case JFileChooser.CANCEL_OPTION:
         case JFileChooser.ERROR_OPTION:
@@ -102,6 +136,11 @@ public final class SearchKAMListDialog extends JDialog implements
         this.dispose();
     }
 
+    protected void networkComboBoxActionPerformed(ActionEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+    
     protected void searchButtonActionPerformed(ActionEvent e) {
         // resultsPanel.setVisible(true);
     }
