@@ -664,6 +664,11 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      */
     private enum EdgeOption {
         /**
+         * Do not expand the selected nodes to include edges.  Only the
+         * selected nodes are added to the network.
+         */
+        NONE ("None"),
+        /**
          * Expand downstream and upstream of each node being added.  The nodes
          * and all adjacent edges will be added to the network.
          */
@@ -683,12 +688,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
          * them.  The selected nodes and any interconnected edges are added to
          * the network.
          */
-        INTERCONNECT ("Interconnect Nodes"),
-        /**
-         * Do not expand the selected nodes to include edges.  Only the
-         * selected nodes are added to the network.
-         */
-        NONE ("None");
+        INTERCONNECT ("Interconnect Nodes");
 
         private final String label;
 
