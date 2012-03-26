@@ -90,6 +90,8 @@ public class Utility {
      * 
      * @return kam backed networks
      */
+    // TODO this method would be unneeded if the KAMSession was updated when a 
+    // network was closed
     public static Set<CyNetwork> getKamNetworks() {
         KAMSession session = KAMSession.getInstance();
         Set<CyNetwork> allNetworks = Cytoscape.getNetworkSet();
