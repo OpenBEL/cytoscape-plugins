@@ -72,6 +72,7 @@ public class KAMNetwork {
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
     private static final CyAttributes edgeAtt = Cytoscape.getEdgeAttributes();
     private static final String NETWORK_SUFFIX = " (KAM)";
+    private static final String KAM_STYLE = "KAM Visualization";
     private final CyNetwork cyn;
     private final KamHandle kamHandle;
     private final DialectHandle dialectHandle;
@@ -308,9 +309,9 @@ public class KAMNetwork {
         final VisualMappingManager vismanager = Cytoscape.getVisualMappingManager();
 
         final CalculatorCatalog ccat = vismanager.getCalculatorCatalog();
-        VisualStyle visualStyle = ccat.getVisualStyle("KAM Visualization");
+        VisualStyle visualStyle = ccat.getVisualStyle(KAM_STYLE);
         if (visualStyle == null) {
-            visualStyle = new VisualStyle("KAM Visualization");
+            visualStyle = new VisualStyle(KAM_STYLE);
 
             NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
 
