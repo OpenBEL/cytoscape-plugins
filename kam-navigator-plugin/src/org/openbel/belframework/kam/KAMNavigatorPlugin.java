@@ -27,6 +27,7 @@ import javax.swing.JMenu;
 import org.openbel.belframework.kam.dialog.KnowledgeNeighborhoodDialog;
 import org.openbel.belframework.kam.dialog.LoadKAMDialog;
 import org.openbel.belframework.kam.dialog.SearchKAMDialog;
+import org.openbel.belframework.kam.dialog.SearchKAMListDialog;
 import org.openbel.belframework.webservice.SettingsDialog;
 
 import cytoscape.Cytoscape;
@@ -97,6 +98,9 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // add "Add Kam Nodes" action to submenu
         kiMenu.add(new SearchKAMDialogAction());
         
+        // add "Add Kam List" action to submenu
+        kiMenu.add(new SearchKAMListDialogAction());
+        
         // add "Knowledge Neighborhood" action to submenu
         kiMenu.add(new KnowledgeNeighborhoodDialogAction());
         
@@ -158,7 +162,29 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
             kcdialog.setVisible(true);
         }
     }
-    
+
+    /**
+     * The {@link CytoscapeAction action} to trigger the Add KAM List dialog.
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    public class SearchKAMListDialogAction extends CytoscapeAction {
+        private static final long serialVersionUID = -5051721582642478695L;
+
+        public SearchKAMListDialogAction() {
+            super("Add KAM List");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            SearchKAMListDialog dialog = new SearchKAMListDialog();
+            dialog.setVisible(true);
+        }
+    }
+
     /**
      * The {@link CytoscapeAction action} to trigger the Knowledge Neighborhood dialog.
      *
