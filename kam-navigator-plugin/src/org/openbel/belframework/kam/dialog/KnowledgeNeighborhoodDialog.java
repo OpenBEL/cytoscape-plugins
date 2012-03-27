@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -63,6 +65,7 @@ import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
+import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.KamEdge;
@@ -96,6 +99,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private final Set<CyNetwork> subjectNetworks = new HashSet<CyNetwork>();
     // network that nodes were last selected on
     private CyNetwork currentNetwork;
+    
+    // Executor for loading the knowledge neighborhood
+    private final ExecutorService loadExecutor = Executors.newSingleThreadExecutor();
+    private volatile boolean loading = false;
+    private volatile boolean haltLoading = false;
 
     // swing components
     private JButton addButton;
@@ -343,9 +351,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
      * Refreshes the table sort and filters
      */
     @SuppressWarnings("unchecked")
-    private void sort() {
+    private synchronized void sort() {
         ((TableRowSorter<EdgeTableModel>) resultsTable.getRowSorter()).sort();
-        // number of found should be constructed post filter
+        // number of found reflects the number of rows post filter
         resultsLabel.setText("Found " + resultsTable.getRowCount() + " edges");
     }
 
@@ -353,10 +361,16 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
      * Load (or reload) the edges around the selected nodes, update UI to match
      */
     private void loadNeighborhood() {
-        // TODO put this a thread so it doesn't slow down other UI actions
+        if (loading) {
+            // halt previous load
+            haltLoading = true;
+        }
 
         // clear previously selected
         selectedKamNodeIds.clear();
+        final EdgeTableModel model = (EdgeTableModel) this.resultsTable
+                .getModel();
+        model.clear();
         
         // register current network (will be used for add edges command)
         currentNetwork = Cytoscape.getCurrentNetwork();
@@ -365,9 +379,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         
         if (selected.isEmpty()) {
             // if empty no point in resolve edges
-            final EdgeTableModel model = (EdgeTableModel) this.resultsTable
-                    .getModel();
-            model.clear();
             resultsLabel.setText("Found 0 edges");
 
             // clear filters combo boxes
@@ -392,26 +403,46 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             selectedKamNodeIds.add(kamNode.getId());
         }
         
-        List<KamEdge> edges = new ArrayList<KamEdge>();
-        for (KamNode kamNode : kamNodes) {
-            edges.addAll(kamService.getAdjacentKamEdges(
-                    kamNetwork.getDialectHandle(), kamNode, 
-                    EdgeDirectionType.BOTH, null));
-        }
-
-        final EdgeTableModel model = (EdgeTableModel) this.resultsTable
-                .getModel();
-        model.addEdges(edges);
+        // put this a thread so it doesn't lock the UI
+        loadExecutor.execute(new Runnable() {
+            
+            @Override
+            public void run() {
+                // start loading
+                loading = true;
+                // reset halt on new load
+                haltLoading = false;
+                
+                List<KamEdge> edges = new ArrayList<KamEdge>();
+                for (KamNode kamNode : kamNodes) {
+                    if (haltLoading) {
+                        break;
+                    }
+                    
+                    edges.addAll(kamService.getAdjacentKamEdges(
+                            kamNetwork.getDialectHandle(), kamNode, 
+                            EdgeDirectionType.BOTH, null));
+                }
+                
+                if (!haltLoading) {
+                    model.addEdges(edges);
+                    // update filters combo boxes
+                    ((SourceFunctionComboBoxModel) sourceFunctionCombo.getModel())
+                    .updateEdges(edges);
+                    ((TargetFunctionComboBoxModel) targetFunctionCombo.getModel())
+                    .updateEdges(edges);
+                    ((RelationshipComboBoxModel) edgeRelationshipCombo.getModel())
+                    .updateEdges(edges);
+                    // resort filters after update
+                    sort();
+                }
+                
+                
+                // finished loading
+                loading = false;
+            }
+        });
         
-        // update filters combo boxes
-        ((SourceFunctionComboBoxModel) sourceFunctionCombo.getModel())
-                .updateEdges(edges);
-        ((TargetFunctionComboBoxModel) targetFunctionCombo.getModel())
-                .updateEdges(edges);
-        ((RelationshipComboBoxModel) edgeRelationshipCombo.getModel())
-                .updateEdges(edges);
-        // resort filters after update
-        sort();
     }
 
     /**
