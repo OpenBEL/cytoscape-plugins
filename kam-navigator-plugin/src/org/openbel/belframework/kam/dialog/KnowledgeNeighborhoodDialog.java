@@ -372,6 +372,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             // reset halt for new load
             haltLoading = false;
         }
+        
+        // Quick and dirty indication that the table is loading
+        resultsLabel.setText("Loading...");
 
         // clear previously selected
         selectedKamNodeIds.clear();
