@@ -386,7 +386,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         final Collection<KamNode> kamNodes = new HashSet<KamNode>();
         for (final CyNode cynode : selected) {
-            kamNodes.add(kamNetwork.getKAMNode(cynode));
+            KamNode kamNode = kamNetwork.getKAMNode(cynode);
+            kamNodes.add(kamNode);
+            // update selected kamNode ids
+            selectedKamNodeIds.add(kamNode.getId());
         }
         
         List<KamEdge> edges = new ArrayList<KamEdge>();
@@ -394,8 +397,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             edges.addAll(kamService.getAdjacentKamEdges(
                     kamNetwork.getDialectHandle(), kamNode, 
                     EdgeDirectionType.BOTH, null));
-            // update selected kamNodes
-            selectedKamNodeIds.add(kamNode.getId());
         }
 
         final EdgeTableModel model = (EdgeTableModel) this.resultsTable
