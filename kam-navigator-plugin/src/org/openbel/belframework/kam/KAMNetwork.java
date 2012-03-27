@@ -333,6 +333,7 @@ public class KAMNetwork {
         view.redrawGraph(true, true);
     }
     
+    // TODO better exception handling
     private void loadKAMStyle() {
         String name = "/org/openbel/belframework/kam/style.props";
         InputStream in = getClass().getResourceAsStream(name);
