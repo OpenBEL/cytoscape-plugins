@@ -467,8 +467,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     }
 
     /**
-     * Simple extension of {@link DefaultTableModel} to keep track of added
-     * edges
+     * {@link TableModel} to keep track of added edges and row strings
      * 
      * @author James McMahon &lt;jmcmahon@selventa.com&gt;
      */
