@@ -433,12 +433,17 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
                     if (!haltLoading) {
                         try {
+                            // Execute UI updates inside swing thread to prevent
+                            //  issues
                             SwingUtilities.invokeAndWait(new Runnable() {
                                 
                                 @Override
                                 public void run() {
                                     model.fireTableDataChanged();
                                     // update filters combo boxes
+                                    // TODO separate function box data update 
+                                    //  from UI events and move data update out
+                                    //  of UI thread to reduce time UI is locked
                                     ((SourceFunctionComboBoxModel) sourceFunctionCombo
                                             .getModel()).updateEdges(edges);
                                     ((TargetFunctionComboBoxModel) targetFunctionCombo
