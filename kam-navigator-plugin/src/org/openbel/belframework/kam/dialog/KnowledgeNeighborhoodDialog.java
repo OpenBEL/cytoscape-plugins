@@ -477,10 +477,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             return canEdit[columnIndex];
         }
 
-        public void addEdges(Collection<KamEdge> edges) {
-            // clear out previous edges
-            clear();
-
+        public synchronized void addEdges(Collection<KamEdge> edges) {
             for (KamEdge edge : edges) {
                 if (edge != null) {
                     addEdge(edge);
@@ -573,7 +570,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             DefaultComboBoxModel {
         private static final long serialVersionUID = -8049723723613055311L;
 
-        public void updateEdges(final Collection<KamEdge> edges) {
+        public synchronized void updateEdges(final Collection<KamEdge> edges) {
             String previousSelection = (String) getSelectedItem();
             removeAllElements();
 
