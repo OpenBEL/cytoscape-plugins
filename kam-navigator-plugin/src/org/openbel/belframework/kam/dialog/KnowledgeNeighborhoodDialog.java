@@ -363,6 +363,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         if (loading) {
             // halt previous load
             haltLoading = true;
+            while (loading) {
+                // wait until previous task finishes
+            }
+            // reset halt for new load
+            haltLoading = false;
         }
 
         // clear previously selected
@@ -409,8 +414,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             public void run() {
                 // start loading
                 loading = true;
-                // reset halt on new load
-                haltLoading = false;
                 
                 List<KamEdge> edges = new ArrayList<KamEdge>();
                 for (KamNode kamNode : kamNodes) {
