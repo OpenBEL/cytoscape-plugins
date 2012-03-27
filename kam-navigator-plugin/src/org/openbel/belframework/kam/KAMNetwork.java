@@ -24,6 +24,13 @@ import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_FUNCTION_
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 
+import java.io.BufferedInputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -311,8 +318,12 @@ public class KAMNetwork {
         final CalculatorCatalog ccat = vismanager.getCalculatorCatalog();
         VisualStyle visualStyle = ccat.getVisualStyle(KAM_STYLE);
         if (visualStyle == null) {
-            visualStyle = createKAMStyle();
-            ccat.addVisualStyle(visualStyle);
+            loadKAMStyle();
+            visualStyle = ccat.getVisualStyle(KAM_STYLE);
+        }
+        
+        if (visualStyle == null) {
+            return;
         }
 
         final CyNetworkView view = Cytoscape.getNetworkView(cyn.getIdentifier());
@@ -322,6 +333,31 @@ public class KAMNetwork {
         view.redrawGraph(true, true);
     }
     
+    private void loadKAMStyle() {
+        String name = "/org/openbel/belframework/kam/style.props";
+        InputStream in = getClass().getResourceAsStream(name);
+        File f = null;
+        try {
+            f = File.createTempFile("viz", null);
+            writeInputStreamIntoFile(in, f);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        } finally {
+            closeSilently(in);
+        }
+        
+        if (!f.exists() || !f.canRead()) {
+            return;
+        }
+        
+        // load style
+        Cytoscape.firePropertyChange(Cytoscape.VIZMAP_LOADED, null, f.getAbsolutePath());
+    }
+    
+    // TODO: remove unused method
+    // keeping around for reference for now
     private VisualStyle createKAMStyle() {
         VisualStyle visualStyle = new VisualStyle(KAM_STYLE);
         
@@ -362,5 +398,35 @@ public class KAMNetwork {
         eac.setCalculator(elcalc);
         
         return visualStyle;
+    }
+    
+    private static void writeInputStreamIntoFile(InputStream in, File f)
+            throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(in);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = bis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+        } finally {
+            closeSilently(bis);
+            closeSilently(fos);
+        }
+    }
+    
+    private static void closeSilently(Closeable closable) {
+        if (closable == null) {
+            return;
+        }
+        
+        try {
+            closable.close();
+        } catch (IOException e) {
+            // silently
+        }
     }
 }
