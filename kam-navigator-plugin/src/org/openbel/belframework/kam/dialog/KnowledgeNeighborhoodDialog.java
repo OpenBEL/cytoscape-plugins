@@ -59,7 +59,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.KAMNetwork;
@@ -429,6 +429,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                                 kamNetwork.getDialectHandle(), kamNode,
                                 EdgeDirectionType.BOTH, null));
                     }
+                    model.addEdges(edges);
 
                     if (!haltLoading) {
                         try {
@@ -436,7 +437,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                                 
                                 @Override
                                 public void run() {
-                                    model.addEdges(edges);
+                                    model.fireTableDataChanged();
                                     // update filters combo boxes
                                     ((SourceFunctionComboBoxModel) sourceFunctionCombo
                                             .getModel()).updateEdges(edges);
@@ -532,6 +533,14 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             String[] rowArray = rows.get(rowIndex);
             return rowArray[columnIndex];
         }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public synchronized void fireTableDataChanged() {
+            super.fireTableDataChanged();
+        }
 
         public synchronized void addEdges(Collection<KamEdge> edges) {
             for (KamEdge edge : edges) {
@@ -539,7 +548,6 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     addEdge(edge);
                 }
             }
-            fireTableDataChanged();
         }
 
         public void clear() {
