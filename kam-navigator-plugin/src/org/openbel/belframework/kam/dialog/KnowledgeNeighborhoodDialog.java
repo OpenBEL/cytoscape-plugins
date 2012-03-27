@@ -414,34 +414,35 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             public void run() {
                 // start loading
                 loading = true;
-                
-                List<KamEdge> edges = new ArrayList<KamEdge>();
-                for (KamNode kamNode : kamNodes) {
-                    if (haltLoading) {
-                        break;
+
+                try {
+                    List<KamEdge> edges = new ArrayList<KamEdge>();
+                    for (KamNode kamNode : kamNodes) {
+                        if (haltLoading) {
+                            break;
+                        }
+
+                        edges.addAll(kamService.getAdjacentKamEdges(
+                                kamNetwork.getDialectHandle(), kamNode,
+                                EdgeDirectionType.BOTH, null));
                     }
-                    
-                    edges.addAll(kamService.getAdjacentKamEdges(
-                            kamNetwork.getDialectHandle(), kamNode, 
-                            EdgeDirectionType.BOTH, null));
+
+                    if (!haltLoading) {
+                        model.addEdges(edges);
+                        // update filters combo boxes
+                        ((SourceFunctionComboBoxModel) sourceFunctionCombo
+                                .getModel()).updateEdges(edges);
+                        ((TargetFunctionComboBoxModel) targetFunctionCombo
+                                .getModel()).updateEdges(edges);
+                        ((RelationshipComboBoxModel) edgeRelationshipCombo
+                                .getModel()).updateEdges(edges);
+                        // resort filters after update
+                        sort();
+                    }
+                } finally {
+                    // finished loading
+                    loading = false;
                 }
-                
-                if (!haltLoading) {
-                    model.addEdges(edges);
-                    // update filters combo boxes
-                    ((SourceFunctionComboBoxModel) sourceFunctionCombo.getModel())
-                    .updateEdges(edges);
-                    ((TargetFunctionComboBoxModel) targetFunctionCombo.getModel())
-                    .updateEdges(edges);
-                    ((RelationshipComboBoxModel) edgeRelationshipCombo.getModel())
-                    .updateEdges(edges);
-                    // resort filters after update
-                    sort();
-                }
-                
-                
-                // finished loading
-                loading = false;
             }
         });
         
