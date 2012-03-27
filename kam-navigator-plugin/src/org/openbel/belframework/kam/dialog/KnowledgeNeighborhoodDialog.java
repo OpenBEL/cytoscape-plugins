@@ -26,6 +26,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,9 +54,11 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -416,7 +419,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 loading = true;
 
                 try {
-                    List<KamEdge> edges = new ArrayList<KamEdge>();
+                    final List<KamEdge> edges = new ArrayList<KamEdge>();
                     for (KamNode kamNode : kamNodes) {
                         if (haltLoading) {
                             break;
@@ -428,16 +431,31 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     }
 
                     if (!haltLoading) {
-                        model.addEdges(edges);
-                        // update filters combo boxes
-                        ((SourceFunctionComboBoxModel) sourceFunctionCombo
-                                .getModel()).updateEdges(edges);
-                        ((TargetFunctionComboBoxModel) targetFunctionCombo
-                                .getModel()).updateEdges(edges);
-                        ((RelationshipComboBoxModel) edgeRelationshipCombo
-                                .getModel()).updateEdges(edges);
-                        // resort filters after update
-                        sort();
+                        try {
+                            SwingUtilities.invokeAndWait(new Runnable() {
+                                
+                                @Override
+                                public void run() {
+                                    model.addEdges(edges);
+                                    // update filters combo boxes
+                                    ((SourceFunctionComboBoxModel) sourceFunctionCombo
+                                            .getModel()).updateEdges(edges);
+                                    ((TargetFunctionComboBoxModel) targetFunctionCombo
+                                            .getModel()).updateEdges(edges);
+                                    ((RelationshipComboBoxModel) edgeRelationshipCombo
+                                            .getModel()).updateEdges(edges);
+                                    // resort filters after update
+                                    sort();
+                                }
+                            });
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        
                     }
                 } finally {
                     // finished loading
@@ -454,27 +472,66 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
      * 
      * @author James McMahon &lt;jmcmahon@selventa.com&gt;
      */
-    private static final class EdgeTableModel extends DefaultTableModel {
+    private static final class EdgeTableModel extends AbstractTableModel {
         private static final long serialVersionUID = 56833762228520599L;
+        private static final String[] COLUMNS = new String[] { "Source",
+                "Relationship", "Target" };
         private final List<KamEdge> edges = new ArrayList<KamEdge>();
-
-        private EdgeTableModel() {
-            super(new Object[][] {
-
-            }, new String[] { "Source", "Relationship", "Target" });
-        }
+        private final List<String[]> rows = new ArrayList<String[]>();
 
         @SuppressWarnings("rawtypes")
-        Class[] types = new Class[] { String.class, String.class, String.class };
-        boolean[] canEdit = new boolean[] { false, false, false };
+        private Class[] types = new Class[] { String.class, String.class,
+                String.class };
+        private boolean[] canEdit = new boolean[] { false, false, false };
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
         @SuppressWarnings({ "rawtypes", "unchecked" })
         public Class getColumnClass(int columnIndex) {
             return types[columnIndex];
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
             return canEdit[columnIndex];
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int getRowCount() {
+            return rows.size();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getColumnName(int columnIndex) {
+            return COLUMNS[columnIndex];
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            String[] rowArray = rows.get(rowIndex);
+            return rowArray[columnIndex];
         }
 
         public synchronized void addEdges(Collection<KamEdge> edges) {
@@ -487,7 +544,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
 
         public void clear() {
-            dataVector.clear();
+            rows.clear();
             edges.clear();
             fireTableDataChanged();
         }
@@ -497,10 +554,14 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         }
 
         private void addEdge(KamEdge edge) {
-            super.addRow(new String[] { edge.getSource().getLabel(),
+            addRow(new String[] { edge.getSource().getLabel(),
                     edge.getRelationship().toString(),
                     edge.getTarget().getLabel() });
             edges.add(edge);
+        }
+
+        private void addRow(String[] rowArray) {
+            rows.add(rowArray);
         }
     }
 
