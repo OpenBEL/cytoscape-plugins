@@ -99,7 +99,8 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         kiMenu.add(new SearchKAMDialogAction());
         
         // add "Add Kam List" action to submenu
-        kiMenu.add(new SearchKAMListDialogAction());
+        // TODO uncomment when functionality is completed
+        // kiMenu.add(new SearchKAMListDialogAction());
         
         // add "Knowledge Neighborhood" action to submenu
         kiMenu.add(new KnowledgeNeighborhoodDialogAction());
