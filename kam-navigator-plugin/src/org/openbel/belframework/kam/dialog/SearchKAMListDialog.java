@@ -461,6 +461,10 @@ public final class SearchKAMListDialog extends JDialog implements
         public void clear() {
             nodes.clear();
         }
+        
+        public List<KamNode> getNodes() {
+            return nodes;
+        }
 
         /**
          * {@inheritDoc}

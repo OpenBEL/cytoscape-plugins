@@ -400,7 +400,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 Utility.executeTask(task);
             } else if (e.getSource() == addBtn) {
                 ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-                final List<KamNode> nodes = rtm.nodes;
+                final List<KamNode> nodes = rtm.getNodes();
 
                 // hold the selected KAM nodes we're interested in
                 final List<KamNode> selectedNodes = new ArrayList<KamNode>();
@@ -466,6 +466,10 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
         private void clear() {
             nodes.clear();
+        }
+        
+        public List<KamNode> getNodes() {
+            return nodes;
         }
 
         /**
@@ -544,7 +548,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 javax.swing.RowFilter.Entry<? extends ResultsTableModel, ? extends Integer> entry) {
 
             final ResultsTableModel rtm = entry.getModel();
-            KamNode node = rtm.nodes.get(entry.getIdentifier());
+            KamNode node = rtm.getNodes().get(entry.getIdentifier());
             final String lowerLabel = node.getLabel().toLowerCase();
 
             return lowerLabel.contains(filterTxt.getText().toLowerCase());
