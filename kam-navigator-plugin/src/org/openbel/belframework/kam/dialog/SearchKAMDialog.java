@@ -414,6 +414,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     selectedNodes.add(selectedNode);
                 }
 
+                // FIXME what if the network option changes between search and add?
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
                 final KAMNetwork kamNetwork = KAMSession.getInstance()
