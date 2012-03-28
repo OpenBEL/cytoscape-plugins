@@ -25,9 +25,7 @@ import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 
 import java.io.BufferedInputStream;
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -346,7 +344,7 @@ public class KAMNetwork {
             e.printStackTrace();
             return;
         } finally {
-            closeSilently(in);
+            Utility.closeSilently(in);
         }
         
         if (!f.exists() || !f.canRead()) {
@@ -414,20 +412,8 @@ public class KAMNetwork {
                 fos.write(buffer, 0, len);
             }
         } finally {
-            closeSilently(bis);
-            closeSilently(fos);
-        }
-    }
-    
-    private static void closeSilently(Closeable closable) {
-        if (closable == null) {
-            return;
-        }
-        
-        try {
-            closable.close();
-        } catch (IOException e) {
-            // silently
+            Utility.closeSilently(bis);
+            Utility.closeSilently(fos);
         }
     }
 }

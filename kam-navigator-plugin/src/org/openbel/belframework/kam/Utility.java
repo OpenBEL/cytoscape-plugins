@@ -19,6 +19,8 @@
  */
 package org.openbel.belframework.kam;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +36,7 @@ import cytoscape.task.ui.JTaskConfig;
 import cytoscape.task.util.TaskManager;
 
 /**
- * Static utility methods for working with cytoscape.
+ * Misc static utility methods.
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
@@ -107,7 +109,24 @@ public class Utility {
 
         return kamNetworks;
     }
-
+    
+    /**
+     * Closes a {@link Closeable} silently
+     * 
+     * @param closable
+     */
+    public static void closeSilently(final Closeable closable) {
+        if (closable == null) {
+            return;
+        }
+        
+        try {
+            closable.close();
+        } catch (IOException e) {
+            // silently
+        }
+    }
+    
     private Utility() {
         // prevent instantiation
     }
