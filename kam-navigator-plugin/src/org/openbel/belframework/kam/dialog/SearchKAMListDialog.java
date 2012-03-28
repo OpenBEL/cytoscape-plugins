@@ -2,10 +2,14 @@ package org.openbel.belframework.kam.dialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
@@ -37,8 +41,6 @@ public final class SearchKAMListDialog extends JDialog implements
     private static final long serialVersionUID = -2555610304142946995L;
 
     private static final String DIALOG_TITLE = "Add KAM List";
-
-    private final List<String> identifiers = new ArrayList<String>();
 
     // swing fields
     private JButton addButton;
@@ -126,6 +128,19 @@ public final class SearchKAMListDialog extends JDialog implements
         case JFileChooser.APPROVE_OPTION:
             File file = fileChooser.getSelectedFile();
             fileTextField.setText(file.getName());
+            
+            List<String> identifiers = null;
+            try {
+                identifiers = readIdentifiersFromFile(file);
+            } catch (IOException ex) {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+            }
+            
+            if (identifiers != null && !identifiers.isEmpty()) {
+                Map<String, Boolean> resolved = resolve(identifiers);
+                // load results into table model
+            }
             break;
         case JFileChooser.CANCEL_OPTION:
         case JFileChooser.ERROR_OPTION:
@@ -133,6 +148,11 @@ public final class SearchKAMListDialog extends JDialog implements
             break;
         }
 
+    }
+
+    private Map<String, Boolean> resolve(List<String> identifiers) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private void cancelButtonActionPerformed(ActionEvent e) {
@@ -286,5 +306,57 @@ public final class SearchKAMListDialog extends JDialog implements
 
         pack();
     }
+    
+    private static List<String> readIdentifiersFromFile(final File file)
+            throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
 
+        List<String> identifiers = new ArrayList<String>();
+        // this is null so it can be determined by the first iteration
+        Boolean csv = null;
+        try {
+            for (String line = null; (line = reader.readLine()) != null;) {
+                if (isBlank(line)) {
+                    // ignore blank lines
+                    continue;
+                }
+
+                if (csv == null) {
+                    csv = (line.indexOf(",") != -1);
+                }
+
+                if (csv) {
+                    // if csv take first column as identifier
+                    String[] split = line.split(",");
+                    String firstColumn = split[0];
+                    if (!isBlank(firstColumn)) { // don't add blank identifiers
+                        identifiers.add(firstColumn);
+                    }
+                } else {
+                    // else just take entire line as identifier
+                    identifiers.add(line);
+                }
+            }
+        } finally {
+            // FIXME close silently
+            reader.close();
+        }
+        return identifiers;
+    }
+    
+    /**
+     * Returns true if string is null, empty, or all whitespace
+     */
+    private static boolean isBlank(final String string) {
+        if (string == null || string.isEmpty()) {
+            return true;
+        }
+        
+        for (char c : string.toCharArray()) {
+            if (!Character.isWhitespace(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
