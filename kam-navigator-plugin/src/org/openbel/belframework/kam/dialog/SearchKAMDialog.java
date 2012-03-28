@@ -31,8 +31,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -77,7 +80,6 @@ import cytoscape.task.TaskMonitor;
 public class SearchKAMDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -8900235008972637257L;
     private static final String DIALOG_TITLE = "Add KAM Nodes";
-    private final KAMService kamService;
     private JTable resultsTable;
     private JComboBox networkCmb;
     private JComboBox functionCmb;
@@ -96,8 +98,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      */
     public SearchKAMDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
-
+        
         initUI();
     }
 
@@ -384,7 +385,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                         .getSelectedItem();
 
                 final SearchKAMNodesTask task = new SearchKAMNodesTask(
-                        networkOption.getCyNetwork(), selfunc);
+                        KAMSession.getInstance().getKAMNetwork(
+                                networkOption.getCyNetwork()), selfunc);
                 Utility.executeTask(task);
             } else if (e.getSource() == addBtn) {
                 ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
@@ -439,17 +441,20 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
     private class SearchKAMNodesTask implements Task {
-        private final CyNetwork cyn;
+        private final KAMNetwork kamNetwork;
         private final FunctionType function;
+        private final KAMService kamService;
+        
         private TaskMonitor m;
+        
         // marked as volatile in case halt is called by multiple threads
         private volatile boolean halt = false;
-        // keeps track of if threaded task is finished
-        private volatile boolean finished = false;
 
-        private SearchKAMNodesTask(final CyNetwork cyn, final FunctionType function) {
-            this.cyn = cyn;
+        private SearchKAMNodesTask(final KAMNetwork kamNetwork, final FunctionType function) {
+            this.kamNetwork = kamNetwork;
             this.function = function;
+            
+            this.kamService = KAMServiceFactory.getInstance().getKAMService();
         }
 
         @Override
@@ -465,7 +470,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
         @Override
         public void halt() {
-            halt = true;
+            this.halt = true;
         }
 
         @Override
@@ -473,57 +478,68 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
             m.setStatus("Searching for " + function + " functions.");
 
             m.setPercentCompleted(0);
-            searchKAMNodes();
+            List<KamNode> nodes = searchKAMNodes();
+            if (!halt && nodes != null) {
+                updateUI(nodes);
+            }
             m.setPercentCompleted(100);
         }
 
-        private void searchKAMNodes() {
+        private List<KamNode> searchKAMNodes() {
             ExecutorService e = Executors.newSingleThreadExecutor();
-            e.execute(new Runnable() {
+            Future<List<KamNode>> future = e.submit(new Callable<List<KamNode>>() {
                 
                 @Override
-                public void run() {
-                    final FunctionType selfunc = (FunctionType) functionCmb.getSelectedItem();
-        
-                    // get KAM Network for selected CyNetwork
-                    final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(cyn);
-        
+                public List<KamNode> call() {
                     // find kam nodes by function
-                    final List<KamNode> nodes = kamService.findKamNodesByFunction(
+                    return kamService.findKamNodesByFunction(
                             kamNetwork.getKAMHandle(), 
-                            kamNetwork.getDialectHandle(), selfunc);
-                    
-                    ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-                    if (halt) {
-                        // don't update ui if search is halted
-                        return;
-                    }
-                    
-                    rtm.setData(nodes);
-                    int nodeCount = nodes.size();
-                    filterTxt.setEnabled(nodeCount > 0);
-                    if (nodeCount == 1) {
-                        resultsCount.setText(nodes.size() + " node found.");
-                    } else {
-                        resultsCount.setText(nodes.size() + " nodes found.");
-                    }
-                    finished = true;
+                            kamNetwork.getDialectHandle(), function);
                 }
             });
             
-            while (!finished && !e.isShutdown()) {
+            while (!(future.isDone() || future.isCancelled()) && !e.isShutdown()) {
                 try {
                     if (halt) {
                         // this should not block
                         // but be aware that if the thread in the executor is
                         // blocked it will continue to live on
                         e.shutdownNow();
+                        
+                        future.cancel(true);
                     }
                     // sleep thread to enable interrupt
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     halt = true;
                 }
+            }
+            
+            if (future.isCancelled()) {
+                return null;
+            }
+            try {
+                return future.get();
+            } catch (InterruptedException ex) {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+                return null;
+            } catch (ExecutionException ex) {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+                return null;
+            }
+        }
+        
+        private void updateUI(final List<KamNode> nodes) {
+            ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
+            rtm.setData(nodes);
+            int nodeCount = nodes.size();
+            filterTxt.setEnabled(nodeCount > 0);
+            if (nodeCount == 1) {
+                resultsCount.setText(nodes.size() + " node found.");
+            } else {
+                resultsCount.setText(nodes.size() + " nodes found.");
             }
         }
     }
