@@ -28,14 +28,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -59,9 +55,8 @@ import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.NetworkOption;
 import org.openbel.belframework.kam.Utility;
+import org.openbel.belframework.kam.task.AbstractSearchKamTask;
 import org.openbel.belframework.kam.task.KAMTasks;
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.FunctionType;
@@ -70,7 +65,6 @@ import com.selventa.belframework.ws.client.KamNode;
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
-import cytoscape.task.TaskMonitor;
 
 /**
  * {@link SearchKAMDialog} represents the UI for the Add KAM Nodes dialog.
@@ -384,9 +378,25 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
 
-                final SearchKAMNodesTask task = new SearchKAMNodesTask(
-                        KAMSession.getInstance().getKAMNetwork(
-                                networkOption.getCyNetwork()), selfunc);
+                final KAMNetwork kamNetwork = KAMSession.getInstance()
+                        .getKAMNetwork(networkOption.getCyNetwork());
+                final Task task = new AbstractSearchKamTask(kamNetwork, selfunc) {
+
+                    @Override
+                    protected void updateUI(Collection<KamNode> nodes) {
+                        ResultsTableModel rtm = (ResultsTableModel) resultsTable
+                                .getModel();
+                        rtm.setData(nodes);
+                        int nodeCount = nodes.size();
+                        filterTxt.setEnabled(nodeCount > 0);
+                        if (nodeCount == 1) {
+                            resultsCount.setText(nodes.size() + " node found.");
+                        } else {
+                            resultsCount
+                                    .setText(nodes.size() + " nodes found.");
+                        }
+                    }
+                };
                 Utility.executeTask(task);
             } else if (e.getSource() == addBtn) {
                 ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
@@ -433,118 +443,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
     }
 
     /**
-     * The {@link Task cytoscape task} to handle searching for
-     * {@link KamNode kam nodes} using the Web API.
-     *
-     * @see KAMServices#findKamNodesByFunction(
-     * com.selventa.belframework.ws.client.KamHandle, FunctionType)
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private class SearchKAMNodesTask implements Task {
-        private final KAMNetwork kamNetwork;
-        private final FunctionType function;
-        private final KAMService kamService;
-        
-        private TaskMonitor m;
-        
-        // marked as volatile in case halt is called by multiple threads
-        private volatile boolean halt = false;
-
-        private SearchKAMNodesTask(final KAMNetwork kamNetwork, final FunctionType function) {
-            this.kamNetwork = kamNetwork;
-            this.function = function;
-            
-            this.kamService = KAMServiceFactory.getInstance().getKAMService();
-        }
-
-        @Override
-        public String getTitle() {
-            return "Searching KAM Nodes";
-        }
-
-        @Override
-        public void setTaskMonitor(TaskMonitor m)
-                throws IllegalThreadStateException {
-            this.m = m;
-        }
-
-        @Override
-        public void halt() {
-            this.halt = true;
-        }
-
-        @Override
-        public void run() {
-            m.setStatus("Searching for " + function + " functions.");
-
-            m.setPercentCompleted(0);
-            List<KamNode> nodes = searchKAMNodes();
-            if (!halt && nodes != null) {
-                updateUI(nodes);
-            }
-            m.setPercentCompleted(100);
-        }
-
-        private List<KamNode> searchKAMNodes() {
-            ExecutorService e = Executors.newSingleThreadExecutor();
-            Future<List<KamNode>> future = e.submit(new Callable<List<KamNode>>() {
-                
-                @Override
-                public List<KamNode> call() {
-                    // find kam nodes by function
-                    return kamService.findKamNodesByFunction(
-                            kamNetwork.getKAMHandle(), 
-                            kamNetwork.getDialectHandle(), function);
-                }
-            });
-            
-            while (!(future.isDone() || future.isCancelled()) && !e.isShutdown()) {
-                try {
-                    if (halt) {
-                        // this should not block
-                        // but be aware that if the thread in the executor is
-                        // blocked it will continue to live on
-                        e.shutdownNow();
-                        
-                        future.cancel(true);
-                    }
-                    // sleep thread to enable interrupt
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    halt = true;
-                }
-            }
-            
-            if (future.isCancelled()) {
-                return null;
-            }
-            try {
-                return future.get();
-            } catch (InterruptedException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-                return null;
-            } catch (ExecutionException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-                return null;
-            }
-        }
-        
-        private void updateUI(final List<KamNode> nodes) {
-            ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-            rtm.setData(nodes);
-            int nodeCount = nodes.size();
-            filterTxt.setEnabled(nodeCount > 0);
-            if (nodeCount == 1) {
-                resultsCount.setText(nodes.size() + " node found.");
-            } else {
-                resultsCount.setText(nodes.size() + " nodes found.");
-            }
-        }
-    }
-
-    /**
      * The {@link AbstractTableModel table model} for the
      * {@link KamNode kam node} search results.
      *
@@ -559,7 +457,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
             this.nodes = new ArrayList<KamNode>();
         }
 
-        private void setData(final List<KamNode> nodes) {
+        private void setData(final Collection<KamNode> nodes) {
             this.nodes.clear();
             this.nodes.addAll(nodes);
             fireTableDataChanged();
