@@ -8,8 +8,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
@@ -116,6 +118,10 @@ public final class SearchKAMListDialog extends JDialog implements
         // file text field
         fileTextField.setText("");
         fileTextField.setEditable(false);
+        
+        // model for results table
+        resultsTable.setModel(new DefaultTableModel(null,
+                new String[] { "Identifier", "Resolved" }));
 
     }
 
@@ -139,7 +145,12 @@ public final class SearchKAMListDialog extends JDialog implements
             
             if (identifiers != null && !identifiers.isEmpty()) {
                 Map<String, Boolean> resolved = resolve(identifiers);
-                // load results into table model
+                
+                DefaultTableModel model = (DefaultTableModel) resultsTable.getModel();
+                for (Entry<String, Boolean> entry : resolved.entrySet()) {
+                    model.addRow(new Object[] { entry.getKey(),
+                            entry.getValue() });
+                }
             }
             break;
         case JFileChooser.CANCEL_OPTION:
@@ -151,8 +162,12 @@ public final class SearchKAMListDialog extends JDialog implements
     }
 
     private Map<String, Boolean> resolve(List<String> identifiers) {
-        // TODO Auto-generated method stub
-        return null;
+        final Map<String, Boolean> results = new LinkedHashMap<String,Boolean>();
+        // final Namespace namespace = (Namespace) namespaceComboBox.getSelectedItem();
+        
+        // run task to resolve each identifiers
+        
+        return results;
     }
 
     private void cancelButtonActionPerformed(ActionEvent e) {
@@ -214,17 +229,6 @@ public final class SearchKAMListDialog extends JDialog implements
             }
         });
 
-        resultsTable.setModel(new DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
         tableScrollPane.setViewportView(resultsTable);
 
         GroupLayout resultsPanelLayout = new GroupLayout(resultsPanel);
