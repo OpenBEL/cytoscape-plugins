@@ -338,8 +338,7 @@ public final class SearchKAMListDialog extends JDialog implements
                 }
             }
         } finally {
-            // FIXME close silently
-            reader.close();
+            Utility.closeSilently(reader);
         }
         return identifiers;
     }
