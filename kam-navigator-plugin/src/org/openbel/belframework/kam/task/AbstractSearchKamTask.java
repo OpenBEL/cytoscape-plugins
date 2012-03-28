@@ -19,6 +19,7 @@
  */
 package org.openbel.belframework.kam.task;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -28,11 +29,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.FunctionType;
+import com.selventa.belframework.ws.client.FunctionTypeFilterCriteria;
 import com.selventa.belframework.ws.client.KamNode;
+import com.selventa.belframework.ws.client.Namespace;
+import com.selventa.belframework.ws.client.NamespaceValue;
+import com.selventa.belframework.ws.client.NodeFilter;
 
 import cytoscape.task.Task;
 import cytoscape.task.TaskMonitor;
@@ -49,7 +55,10 @@ public abstract class AbstractSearchKamTask implements Task {
 
     private final KAMNetwork kamNetwork;
     private final FunctionType function;
+    private final Namespace namespace;
+    private final Collection<String> identifiers;
     private final KAMService kamService;
+    private final boolean functionOnly;
 
     private TaskMonitor monitor;
 
@@ -58,16 +67,39 @@ public abstract class AbstractSearchKamTask implements Task {
 
     public AbstractSearchKamTask(final KAMNetwork kamNetwork,
             final FunctionType function) {
+        this(kamNetwork, function, null, null);
+    }
+
+    public AbstractSearchKamTask(final KAMNetwork kamNetwork,
+            final FunctionType function, final Namespace namespace,
+            final List<String> identifiers) {
+        if (namespace != null && Utility.isEmpty(identifiers)) {
+            throw new IllegalArgumentException(
+                    "Can't search namespace without identifiers");
+        }
+        if (namespace == null && !Utility.isEmpty(identifiers)) {
+            throw new IllegalArgumentException(
+                    "Can't search identifiers without namespace");
+        }
+
         this.kamNetwork = kamNetwork;
         this.function = function;
+        this.namespace = namespace;
+        this.identifiers = identifiers;
 
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        if (function != null && namespace == null) {
+            functionOnly = true;
+        } else {
+            functionOnly = false;
+        }
     }
 
     /**
      * Update any elements of the UI
      * 
-     * @param nodes nodes found from search
+     * @param nodes
+     *            nodes found from search
      */
     protected abstract void updateUI(Collection<KamNode> nodes);
 
@@ -101,28 +133,19 @@ public abstract class AbstractSearchKamTask implements Task {
      */
     @Override
     public void run() {
-        monitor.setStatus("Searching for " + function + " functions.");
+        monitor.setStatus("Searching for KAM Nodes");
 
         monitor.setPercentCompleted(0);
-        List<KamNode> nodes = searchKAMNodes();
+        Collection<KamNode> nodes = searchKAMNodes();
         if (!halt && nodes != null) {
             updateUI(nodes);
         }
         monitor.setPercentCompleted(100);
     }
 
-    private List<KamNode> searchKAMNodes() {
+    private Collection<KamNode> searchKAMNodes() {
         ExecutorService e = Executors.newSingleThreadExecutor();
-        Future<List<KamNode>> future = e.submit(new Callable<List<KamNode>>() {
-
-            @Override
-            public List<KamNode> call() {
-                // find kam nodes by function
-                return kamService.findKamNodesByFunction(
-                        kamNetwork.getKAMHandle(),
-                        kamNetwork.getDialectHandle(), function);
-            }
-        });
+        Future<List<KamNode>> future = e.submit(buildCallable());
 
         while (!(future.isDone() || future.isCancelled()) && !e.isShutdown()) {
             try {
@@ -154,6 +177,123 @@ public abstract class AbstractSearchKamTask implements Task {
             // TODO Auto-generated catch block
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    private Callable<List<KamNode>> buildCallable() {
+        if (functionOnly) {
+            return new SingleFunctionSearch(kamNetwork, function, kamService);
+        }
+
+        NodeFilter nodeFilter = null;
+        if (function != null) {
+            nodeFilter = buildFunctionFilter(function);
+        }
+
+        List<Namespace> namespaces = null;
+        if (namespace != null) {
+            namespaces = new ArrayList<Namespace>();
+            namespaces.add(namespace);
+        }
+
+        List<String> patterns = null;
+        if (!Utility.isEmpty(identifiers)) {
+            boolean rightOnlyWildcard = true;
+            // TODO implement logic for when to use right side only wildcards
+            patterns = buildRegexPatterns(identifiers, rightOnlyWildcard);
+        }
+
+        return new NamespaceSearch(kamNetwork, nodeFilter, namespaces,
+                patterns, kamService);
+    }
+
+    private static NodeFilter buildFunctionFilter(FunctionType function) {
+        final NodeFilter nf = new NodeFilter();
+        final FunctionTypeFilterCriteria ftfc = new FunctionTypeFilterCriteria();
+        ftfc.setIsInclude(true);
+        ftfc.getValueSet().add(function);
+        nf.getFunctionTypeCriteria().add(ftfc);
+        return nf;
+    }
+
+    private static List<String> buildRegexPatterns(
+            Collection<String> identifiers, boolean rightOnlyWildcard) {
+        final String wildCard = ".*";
+
+        List<String> patterns = new ArrayList<String>();
+        for (final String identifier : identifiers) {
+            String pattern = identifier + wildCard;
+
+            if (!rightOnlyWildcard) {
+                pattern = wildCard + identifier;
+            }
+
+            patterns.add(pattern);
+        }
+        return patterns;
+    }
+
+    private static class SingleFunctionSearch implements
+            Callable<List<KamNode>> {
+
+        private final KAMNetwork kamNetwork;
+        private final FunctionType function;
+        private final KAMService kamService;
+
+        public SingleFunctionSearch(KAMNetwork kamNetwork,
+                FunctionType function, KAMService kamService) {
+            if (kamNetwork == null || function == null || kamService == null) {
+                throw new IllegalArgumentException("Null parameter");
+            }
+
+            this.kamNetwork = kamNetwork;
+            this.function = function;
+            this.kamService = kamService;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public List<KamNode> call() throws Exception {
+            // find kam nodes by function
+            return kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(),
+                    kamNetwork.getDialectHandle(), function);
+        }
+    }
+
+    private class NamespaceSearch implements Callable<List<KamNode>> {
+
+        private final KAMNetwork kamNetwork;
+        private final NodeFilter nodeFilter;
+        private final Collection<Namespace> namespaces;
+        private final Collection<String> patterns;
+        private final KAMService kamService;
+
+        public NamespaceSearch(KAMNetwork kamNetwork, NodeFilter nodeFilter,
+                Collection<Namespace> namespaces, Collection<String> patterns,
+                KAMService kamService) {
+            this.kamNetwork = kamNetwork;
+            this.nodeFilter = nodeFilter;
+            this.namespaces = namespaces;
+            this.patterns = patterns;
+            this.kamService = kamService;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public List<KamNode> call() throws Exception {
+            List<NamespaceValue> namespaceValues = kamService
+                    .findNamespaceValues(patterns, namespaces);
+            if (halt) {
+                return null;
+            }
+
+            return kamService.findKamNodesByNamespaceValues(
+                    kamNetwork.getKAMHandle(), kamNetwork.getDialectHandle(),
+                    namespaceValues, nodeFilter);
         }
     }
 }
