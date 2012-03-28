@@ -56,6 +56,7 @@ import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.NetworkOption;
 import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.kam.task.AbstractSearchKamTask;
+import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -75,6 +76,8 @@ public final class SearchKAMListDialog extends JDialog implements
 
     private final KAMService kamService;
     private final List<String> identifiers = new ArrayList<String>();
+    
+    private KAMNetwork lastSearchedNetwork = null;
 
     // swing fields
     private JButton addButton;
@@ -117,6 +120,13 @@ public final class SearchKAMListDialog extends JDialog implements
                 searchButtonActionPerformed(e);
             }
         });
+        
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addButtonActionPerformed(e);
+            }
+        });
 
         // resultsPanel.setVisible(false);
 
@@ -157,6 +167,19 @@ public final class SearchKAMListDialog extends JDialog implements
 
     }
 
+    private void addButtonActionPerformed(ActionEvent e) {
+        if (lastSearchedNetwork == null) {
+            // FIXME this is a tempory fix for the add button not being disabled
+            // until search
+            return;
+        }
+        
+        ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
+        final List<KamNode> nodes = rtm.getNodes();
+        
+        KAMTasks.addNodes(lastSearchedNetwork, nodes);
+    }
+    
     private void browseButtonActionPerformed(ActionEvent e) {
         // FIXME according to cytoscape javadocs, should use
         // FileUtil.getFile instead of jfile chooser
@@ -207,6 +230,7 @@ public final class SearchKAMListDialog extends JDialog implements
                 .getSelectedItem();
         final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
                 networkOption.getCyNetwork());
+        this.lastSearchedNetwork = kamNetwork;
 
         final Task task = new AbstractSearchKamTask(kamNetwork, null,
                 namespace, identifiers) {
