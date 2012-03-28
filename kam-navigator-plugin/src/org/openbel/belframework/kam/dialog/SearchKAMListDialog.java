@@ -26,12 +26,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -49,19 +49,32 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
 
+import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.NetworkOption;
 import org.openbel.belframework.kam.Utility;
+import org.openbel.belframework.kam.task.AbstractSearchKamTask;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
+
+import com.selventa.belframework.ws.client.KamNode;
+import com.selventa.belframework.ws.client.Namespace;
+import com.selventa.belframework.ws.client.NamespaceDescriptor;
 
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
+import cytoscape.task.Task;
 
 public final class SearchKAMListDialog extends JDialog implements
         ActionListener {
     private static final long serialVersionUID = -2555610304142946995L;
 
     private static final String DIALOG_TITLE = "Add KAM List";
+
+    private final KAMService kamService;
+    private final List<String> identifiers = new ArrayList<String>();
 
     // swing fields
     private JButton addButton;
@@ -81,6 +94,7 @@ public final class SearchKAMListDialog extends JDialog implements
     public SearchKAMListDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
 
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         initUI();
     }
 
@@ -110,10 +124,11 @@ public final class SearchKAMListDialog extends JDialog implements
                 "CSV and TXT files", "csv", "txt");
         // FIXME none CSV and TXT files are still selectable
         fileChooser.addChoosableFileFilter(fileFilter); // setFileFilter(fileFilter);
-        
+
         // network options
         final Set<CyNetwork> networkSet = Utility.getKamNetworks();
-        final List<NetworkOption> networks = new ArrayList<NetworkOption>(networkSet.size());
+        final List<NetworkOption> networks = new ArrayList<NetworkOption>(
+                networkSet.size());
         for (Iterator<CyNetwork> it = networkSet.iterator(); it.hasNext();) {
             CyNetwork cyn = it.next();
 
@@ -123,24 +138,22 @@ public final class SearchKAMListDialog extends JDialog implements
             // trap this network option if this is the active cyn
             if (Cytoscape.getCurrentNetwork() == cyn) {
                 networkComboBox.setSelectedItem(networkOpt);
-            };
+            }
+            ;
         }
         networkComboBox.setModel(new DefaultComboBoxModel(networks
                 .toArray(new NetworkOption[networks.size()])));
-        networkComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                networkComboBoxActionPerformed(e);
-            }
-        });
-        
+
+        // namespace options
+        namespaceComboBox.setModel(new DefaultComboBoxModel(
+                new Vector<NamespaceOption>(getNamespaceOptions())));
+
         // file text field
         fileTextField.setText("");
         fileTextField.setEditable(false);
-        
+
         // model for results table
-        resultsTable.setModel(new DefaultTableModel(null,
-                new String[] { "Identifier", "Resolved" }));
+        resultsTable.setModel(new ResultsTableModel());
 
     }
 
@@ -153,23 +166,18 @@ public final class SearchKAMListDialog extends JDialog implements
         case JFileChooser.APPROVE_OPTION:
             File file = fileChooser.getSelectedFile();
             fileTextField.setText(file.getName());
-            
-            List<String> identifiers = null;
+
+            List<String> fileIdentifiers = null;
             try {
-                identifiers = readIdentifiersFromFile(file);
+                fileIdentifiers = readIdentifiersFromFile(file);
             } catch (IOException ex) {
                 // TODO Auto-generated catch block
                 ex.printStackTrace();
             }
-            
-            if (!Utility.isEmpty(identifiers)) {
-                Map<String, Boolean> resolved = resolve(identifiers);
-                
-                DefaultTableModel model = (DefaultTableModel) resultsTable.getModel();
-                for (Entry<String, Boolean> entry : resolved.entrySet()) {
-                    model.addRow(new Object[] { entry.getKey(),
-                            entry.getValue() });
-                }
+
+            this.identifiers.clear();
+            if (!Utility.isEmpty(fileIdentifiers)) {
+                this.identifiers.addAll(fileIdentifiers);
             }
             break;
         case JFileChooser.CANCEL_OPTION:
@@ -180,26 +188,44 @@ public final class SearchKAMListDialog extends JDialog implements
 
     }
 
-    private Map<String, Boolean> resolve(List<String> identifiers) {
-        final Map<String, Boolean> results = new LinkedHashMap<String,Boolean>();
-        // final Namespace namespace = (Namespace) namespaceComboBox.getSelectedItem();
-        
-        // run task to resolve each identifiers
-        
-        return results;
-    }
-
     private void cancelButtonActionPerformed(ActionEvent e) {
         this.dispose();
     }
 
-    protected void networkComboBoxActionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
-    
     protected void searchButtonActionPerformed(ActionEvent e) {
-        // resultsPanel.setVisible(true);
+        final ResultsTableModel model = (ResultsTableModel) resultsTable
+                .getModel();
+        model.clear();
+
+        if (Utility.isEmpty(identifiers)) {
+            return;
+        }
+
+        final Namespace namespace = ((NamespaceOption) namespaceComboBox
+                .getSelectedItem()).getDescriptor().getNamespace();
+        final NetworkOption networkOption = (NetworkOption) networkComboBox
+                .getSelectedItem();
+        final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
+                networkOption.getCyNetwork());
+
+        final Task task = new AbstractSearchKamTask(kamNetwork, null,
+                namespace, identifiers) {
+
+            @Override
+            protected void updateUI(Collection<KamNode> nodes) {
+                model.setData(nodes);
+            }
+        };
+        Utility.executeTask(task);
+    }
+
+    private List<NamespaceOption> getNamespaceOptions() {
+        List<NamespaceOption> options = new ArrayList<NamespaceOption>();
+        for (NamespaceDescriptor desc : kamService.getAllNamespaces()) {
+            options.add(new NamespaceOption(desc));
+        }
+        Collections.sort(options);
+        return options;
     }
 
     // taken from netbeans
@@ -329,7 +355,7 @@ public final class SearchKAMListDialog extends JDialog implements
 
         pack();
     }
-    
+
     private static List<String> readIdentifiersFromFile(final File file)
             throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -365,7 +391,7 @@ public final class SearchKAMListDialog extends JDialog implements
         }
         return identifiers;
     }
-    
+
     /**
      * Returns true if string is null, empty, or all whitespace
      */
@@ -373,12 +399,106 @@ public final class SearchKAMListDialog extends JDialog implements
         if (string == null || string.isEmpty()) {
             return true;
         }
-        
+
         for (char c : string.toCharArray()) {
             if (!Character.isWhitespace(c)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static final class NamespaceOption implements
+            Comparable<NamespaceOption> {
+        private final NamespaceDescriptor descriptor;
+
+        public NamespaceOption(NamespaceDescriptor descriptor) {
+            this.descriptor = descriptor;
+        }
+
+        public NamespaceDescriptor getDescriptor() {
+            return descriptor;
+        }
+
+        @Override
+        public String toString() {
+            return descriptor.getName();
+        }
+
+        @Override
+        public int compareTo(NamespaceOption o) {
+            if (o == null) {
+                return 1;
+            }
+            return this.toString().compareTo(o.toString());
+        }
+    }
+    
+
+    // FIXME this is taken straight from search KAM Dialog
+    // extract to common location?
+    /**
+     * The {@link AbstractTableModel table model} for the
+     * {@link KamNode kam node} search results.
+     *
+     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
+     */
+    private static final class ResultsTableModel extends AbstractTableModel {
+        private static final long serialVersionUID = -5744344001683506045L;
+        private final String[] headers = new String[] { "Label" };
+        private final List<KamNode> nodes;
+
+        public ResultsTableModel() {
+            this.nodes = new ArrayList<KamNode>();
+        }
+
+        public void setData(final Collection<KamNode> nodes) {
+            this.nodes.clear();
+            this.nodes.addAll(nodes);
+            fireTableDataChanged();
+        }
+
+        public void clear() {
+            nodes.clear();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int getColumnCount() {
+            return headers.length;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getColumnName(int ci) {
+            return headers[ci];
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int getRowCount() {
+            return nodes.size();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Object getValueAt(int ri, int ci) {
+            final KamNode node = nodes.get(ri);
+
+            switch (ci) {
+                case 0:
+                    return node.getLabel();
+            }
+
+            return null;
+        }
     }
 }
