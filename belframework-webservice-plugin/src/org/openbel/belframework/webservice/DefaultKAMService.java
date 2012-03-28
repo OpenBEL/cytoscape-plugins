@@ -27,7 +27,11 @@ import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupport
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingTermsRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createInterconnectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createLoadKamRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createGetAllNamespacesRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createFindNamespaceValuesRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByNamespaceValuesRequest;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,12 +41,18 @@ import com.selventa.belframework.ws.client.BelStatement;
 import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.EdgeFilter;
+import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesRequest;
+import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesResponse;
 import com.selventa.belframework.ws.client.FindKamNodesByPatternsRequest;
 import com.selventa.belframework.ws.client.FindKamNodesByPatternsResponse;
+import com.selventa.belframework.ws.client.FindNamespaceValuesRequest;
+import com.selventa.belframework.ws.client.FindNamespaceValuesResponse;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.FunctionTypeFilterCriteria;
 import com.selventa.belframework.ws.client.GetAdjacentKamEdgesRequest;
 import com.selventa.belframework.ws.client.GetAdjacentKamEdgesResponse;
+import com.selventa.belframework.ws.client.GetAllNamespacesRequest;
+import com.selventa.belframework.ws.client.GetAllNamespacesResponse;
 import com.selventa.belframework.ws.client.GetCatalogRequest;
 import com.selventa.belframework.ws.client.GetCatalogResponse;
 import com.selventa.belframework.ws.client.GetDialectRequest;
@@ -59,6 +69,9 @@ import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.LoadKamRequest;
 import com.selventa.belframework.ws.client.LoadKamResponse;
+import com.selventa.belframework.ws.client.Namespace;
+import com.selventa.belframework.ws.client.NamespaceDescriptor;
+import com.selventa.belframework.ws.client.NamespaceValue;
 import com.selventa.belframework.ws.client.NodeFilter;
 import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
@@ -99,6 +112,82 @@ class DefaultKAMService implements KAMService {
         }
 
         webAPI = clientConnector.getClientStub();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<NamespaceValue> findNamespaceValues(
+            final Collection<String> patterns,
+            final Collection<Namespace> namespaces) {
+        if (patterns == null || patterns.isEmpty()) {
+            throw new IllegalArgumentException("patterns parameter is invalid");
+        }
+        // namespaces can be null or empty
+
+        checkValid();
+
+        final FindNamespaceValuesRequest req = createFindNamespaceValuesRequest();
+        req.getPatterns().addAll(patterns);
+        if (namespaces != null) {
+            req.getNamespaces().addAll(namespaces);
+        }
+
+        final FindNamespaceValuesResponse res = webAPI.findNamespaceValues(req);
+        return res.getNamespaceValues();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<KamNode> findKamNodesByNamespaceValues(
+            final KamHandle kamHandle, final DialectHandle dialectHandle,
+            final List<NamespaceValue> namespaceValues,
+            final NodeFilter nodeFilter) {
+        if (kamHandle == null) {
+            throw new IllegalArgumentException("handle is null");
+        }
+
+        if (namespaceValues == null || namespaceValues.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "namespaceValues parameter is invalid");
+        }
+        // dialectHandle and nodeFilter can be null
+
+        checkValid();
+
+        final FindKamNodesByNamespaceValuesRequest req = createFindKamNodesByNamespaceValuesRequest();
+        req.setHandle(kamHandle);
+        req.getNamespaceValues().addAll(namespaceValues);
+
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
+        if (nodeFilter != null) {
+            req.setFilter(nodeFilter);
+        }
+
+        final FindKamNodesByNamespaceValuesResponse res = webAPI
+                .findKamNodesByNamespaceValues(req);
+        return res.getKamNodes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Namespace> getAllNamespaces() {
+        checkValid();
+        
+        final GetAllNamespacesRequest req = createGetAllNamespacesRequest();
+        final GetAllNamespacesResponse res = webAPI.getAllNamespaces(req);
+        
+        final List<Namespace> namespaces = new ArrayList<Namespace>();
+        for (NamespaceDescriptor desc : res.getNamespaceDescriptors()) {
+            namespaces.add(desc.getNamespace());
+        }
+        return namespaces;
     }
 
     /**

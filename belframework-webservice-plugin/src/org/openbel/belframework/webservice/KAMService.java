@@ -14,6 +14,8 @@ import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.LoadKamResponse;
+import com.selventa.belframework.ws.client.Namespace;
+import com.selventa.belframework.ws.client.NamespaceValue;
 import com.selventa.belframework.ws.client.NodeFilter;
 import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
@@ -30,7 +32,51 @@ public interface KAMService {
      * Reloads the {@link ClientConnector} in this {@link KAMService}
      */
     void reloadClientConnector();
-    
+
+    /**
+     * Finds {@link KamNode KamNodes} by a {@link List} of
+     * {@link NamespaceValue NamespaceValues} and optional {@link NodeFilter
+     * node filter}.
+     * 
+     * @param kamHandle
+     *            the {@link KamHandle kam handle} that identifies a loaded
+     *            {@link Kam kam}
+     * @param dialectHandle
+     *            the {@link DialectHandle dialect handle} that identifies a
+     *            loaded dialect, can be null
+     * @param namespaceValues
+     *            {@link List} of {@link NamespaceValue NamespaceValues}, can
+     *            not be empty or null
+     * @param nodeFilter
+     *            the optional {@link NodeFilter node filter} to further
+     *            restrict the results, can be null
+     * @return the {@link List} of {@link KamNode kam nodes}, which will not be
+     *         {@code null} but may be empty
+     */
+    List<KamNode> findKamNodesByNamespaceValues(KamHandle kamHandle,
+            DialectHandle dialectHandle, List<NamespaceValue> namespaceValues,
+            NodeFilter nodeFilter);
+
+    /**
+     * Find {@link NamespaceValue}s for a given {@link Collection} of java regex
+     * patterns and optional a {@link Collection} of {@link Namespace}s
+     * 
+     * @param patterns
+     *            java regex patterns, can not be null or empty
+     * @param namespaces
+     *            {@link Namespace}s, can be null or empty
+     * @return {@link List} of {@link NamespaceValue}s
+     */
+    List<NamespaceValue> findNamespaceValues(Collection<String> patterns,
+            Collection<Namespace> namespaces);
+
+    /**
+     * Retrieves all {@link Namespace}s recognized by the BEL Framework
+     * 
+     * @return a {@link List} of {@link Namespace}s
+     */
+    List<Namespace> getAllNamespaces();
+
 	/**
 	 * Retrieves the KAM catalog for the configured BELFramework.
 	 *
