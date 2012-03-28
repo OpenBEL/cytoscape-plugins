@@ -162,7 +162,7 @@ public final class SearchKAMListDialog extends JDialog implements
                 ex.printStackTrace();
             }
             
-            if (identifiers != null && !identifiers.isEmpty()) {
+            if (!Utility.isEmpty(identifiers)) {
                 Map<String, Boolean> resolved = resolve(identifiers);
                 
                 DefaultTableModel model = (DefaultTableModel) resultsTable.getModel();

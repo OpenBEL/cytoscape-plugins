@@ -22,6 +22,7 @@ package org.openbel.belframework.kam;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -125,6 +126,17 @@ public class Utility {
         } catch (IOException e) {
             // silently
         }
+    }
+
+    /**
+     * Check to see if the collection is null or empty
+     * 
+     * @param collection
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
     }
     
     private Utility() {
