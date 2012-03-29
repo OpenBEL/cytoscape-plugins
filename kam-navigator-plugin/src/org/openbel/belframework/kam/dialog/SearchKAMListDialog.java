@@ -69,8 +69,7 @@ import cytoscape.util.FileUtil;
 
 // TODO javadocs
 // TODO disable search button until KAMNetwork is selected
-public final class SearchKAMListDialog extends JDialog implements
-        ActionListener {
+public final class SearchKAMListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
     private static final String DIALOG_TITLE = "Add KAM List";
@@ -104,12 +103,6 @@ public final class SearchKAMListDialog extends JDialog implements
         // FIXME none CSV and TXT files are still selectable
         csvAndTxtFilter = new CyFileFilter(new String[] { "csv", "txt" },
                 "CSV and TXT files");
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-
     }
 
     private void initUI() {
