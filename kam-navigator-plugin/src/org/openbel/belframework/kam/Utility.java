@@ -71,7 +71,6 @@ public class Utility {
 
         JTaskConfig taskcfg = new JTaskConfig();
         taskcfg.setOwner(Cytoscape.getDesktop());
-        taskcfg.displayCloseButton(true);
         taskcfg.displayCancelButton(true);
         taskcfg.displayStatus(true);
         taskcfg.setAutoDispose(true);
