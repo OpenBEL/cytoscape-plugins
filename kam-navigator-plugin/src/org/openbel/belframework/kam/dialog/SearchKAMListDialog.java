@@ -149,7 +149,6 @@ public final class SearchKAMListDialog extends JDialog implements
             if (Cytoscape.getCurrentNetwork() == cyn) {
                 networkComboBox.setSelectedItem(networkOpt);
             }
-            ;
         }
         networkComboBox.setModel(new DefaultComboBoxModel(networks
                 .toArray(new NetworkOption[networks.size()])));
@@ -164,16 +163,13 @@ public final class SearchKAMListDialog extends JDialog implements
 
         // model for results table
         resultsTable.setModel(new ResultsTableModel());
-
+        
+        // disable buttons
+        searchButton.setEnabled(false);
+        addButton.setEnabled(false);
     }
 
     private void addButtonActionPerformed(ActionEvent e) {
-        if (lastSearchedNetwork == null) {
-            // FIXME this is a tempory fix for the add button not being disabled
-            // until search
-            return;
-        }
-        
         ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
         final List<KamNode> nodes = rtm.getNodes();
         
@@ -183,10 +179,14 @@ public final class SearchKAMListDialog extends JDialog implements
     private void browseButtonActionPerformed(ActionEvent e) {
         // FIXME according to cytoscape javadocs, should use
         // FileUtil.getFile instead of jfile chooser
+        
         int returnVal = fileChooser.showOpenDialog(this);
 
         switch (returnVal) {
         case JFileChooser.APPROVE_OPTION:
+            // clear previous identifiers whenever selecting a new file
+            this.identifiers.clear();
+            
             File file = fileChooser.getSelectedFile();
             fileTextField.setText(file.getName());
 
@@ -198,7 +198,6 @@ public final class SearchKAMListDialog extends JDialog implements
                 ex.printStackTrace();
             }
 
-            this.identifiers.clear();
             if (!Utility.isEmpty(fileIdentifiers)) {
                 this.identifiers.addAll(fileIdentifiers);
             }
@@ -209,6 +208,7 @@ public final class SearchKAMListDialog extends JDialog implements
             break;
         }
 
+        searchButton.setEnabled(!Utility.isEmpty(identifiers));
     }
 
     private void cancelButtonActionPerformed(ActionEvent e) {
@@ -238,6 +238,7 @@ public final class SearchKAMListDialog extends JDialog implements
             @Override
             protected void updateUI(Collection<KamNode> nodes) {
                 model.setData(nodes);
+                addButton.setEnabled(!Utility.isEmpty(nodes));
             }
         };
         Utility.executeTask(task);
