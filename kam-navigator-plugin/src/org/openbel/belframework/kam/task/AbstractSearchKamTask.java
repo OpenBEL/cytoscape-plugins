@@ -290,6 +290,11 @@ public abstract class AbstractSearchKamTask implements Task {
             if (halt) {
                 return null;
             }
+            
+            if (Utility.isEmpty(namespaceValues)) {
+                // nothing found, different from null being returned
+                return new ArrayList<KamNode>();
+            }
 
             return kamService.findKamNodesByNamespaceValues(
                     kamNetwork.getKAMHandle(), kamNetwork.getDialectHandle(),
