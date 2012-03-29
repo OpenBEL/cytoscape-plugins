@@ -39,7 +39,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -47,8 +46,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
 import org.openbel.belframework.kam.KAMNetwork;
@@ -67,7 +64,11 @@ import com.selventa.belframework.ws.client.NamespaceDescriptor;
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
+import cytoscape.util.CyFileFilter;
+import cytoscape.util.FileUtil;
 
+// TODO javadocs
+// TODO disable search button until KAMNetwork is selected
 public final class SearchKAMListDialog extends JDialog implements
         ActionListener {
     private static final long serialVersionUID = -2555610304142946995L;
@@ -76,6 +77,7 @@ public final class SearchKAMListDialog extends JDialog implements
 
     private final KAMService kamService;
     private final List<String> identifiers = new ArrayList<String>();
+    private final CyFileFilter csvAndTxtFilter;
     
     private KAMNetwork lastSearchedNetwork = null;
 
@@ -83,7 +85,6 @@ public final class SearchKAMListDialog extends JDialog implements
     private JButton addButton;
     private JButton browseButton;
     private JButton cancelButton;
-    private JFileChooser fileChooser;
     private JTextField fileTextField;
     private JComboBox namespaceComboBox;
     private JLabel namespaceLabel;
@@ -99,6 +100,10 @@ public final class SearchKAMListDialog extends JDialog implements
 
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         initUI();
+        
+        // FIXME none CSV and TXT files are still selectable
+        csvAndTxtFilter = new CyFileFilter(new String[] { "csv", "txt" },
+                "CSV and TXT files");
     }
 
     @Override
@@ -129,11 +134,6 @@ public final class SearchKAMListDialog extends JDialog implements
         });
 
         // resultsPanel.setVisible(false);
-
-        FileFilter fileFilter = new FileNameExtensionFilter(
-                "CSV and TXT files", "csv", "txt");
-        // FIXME none CSV and TXT files are still selectable
-        fileChooser.addChoosableFileFilter(fileFilter); // setFileFilter(fileFilter);
 
         // network options
         final Set<CyNetwork> networkSet = Utility.getKamNetworks();
@@ -177,35 +177,25 @@ public final class SearchKAMListDialog extends JDialog implements
     }
     
     private void browseButtonActionPerformed(ActionEvent e) {
-        // FIXME according to cytoscape javadocs, should use
-        // FileUtil.getFile instead of jfile chooser
         
-        int returnVal = fileChooser.showOpenDialog(this);
+        File file = FileUtil.getFile("Select file with identifiers",
+                FileUtil.LOAD, new CyFileFilter[] { csvAndTxtFilter });
+        
+        // clear previous identifiers whenever selecting a new file
+        this.identifiers.clear();
+        
+        fileTextField.setText(file.getName());
 
-        switch (returnVal) {
-        case JFileChooser.APPROVE_OPTION:
-            // clear previous identifiers whenever selecting a new file
-            this.identifiers.clear();
-            
-            File file = fileChooser.getSelectedFile();
-            fileTextField.setText(file.getName());
+        List<String> fileIdentifiers = null;
+        try {
+            fileIdentifiers = readIdentifiersFromFile(file);
+        } catch (IOException ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+        }
 
-            List<String> fileIdentifiers = null;
-            try {
-                fileIdentifiers = readIdentifiersFromFile(file);
-            } catch (IOException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-            }
-
-            if (!Utility.isEmpty(fileIdentifiers)) {
-                this.identifiers.addAll(fileIdentifiers);
-            }
-            break;
-        case JFileChooser.CANCEL_OPTION:
-        case JFileChooser.ERROR_OPTION:
-        default:
-            break;
+        if (!Utility.isEmpty(fileIdentifiers)) {
+            this.identifiers.addAll(fileIdentifiers);
         }
 
         searchButton.setEnabled(!Utility.isEmpty(identifiers));
@@ -257,7 +247,6 @@ public final class SearchKAMListDialog extends JDialog implements
     // this method was taken from auto generated code, apologies if it sucks
     private void initComponents() {
 
-        fileChooser = new JFileChooser();
         namespaceComboBox = new JComboBox();
         namespaceLabel = new JLabel();
         fileTextField = new JTextField();
