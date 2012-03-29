@@ -15,6 +15,7 @@ import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.LoadKamResponse;
 import com.selventa.belframework.ws.client.Namespace;
+import com.selventa.belframework.ws.client.NamespaceDescriptor;
 import com.selventa.belframework.ws.client.NamespaceValue;
 import com.selventa.belframework.ws.client.NodeFilter;
 import com.selventa.belframework.ws.client.SimplePath;
@@ -71,11 +72,12 @@ public interface KAMService {
             Collection<Namespace> namespaces);
 
     /**
-     * Retrieves all {@link Namespace}s recognized by the BEL Framework
+     * Retrieves all {@link NamespaceDescriptor NamespaceDescriptors} recognized
+     * by the BEL Framework
      * 
-     * @return a {@link List} of {@link Namespace}s
+     * @return a {@link List} of {@link NamespaceDescriptor}s
      */
-    List<Namespace> getAllNamespaces();
+    List<NamespaceDescriptor> getAllNamespaces();
 
     /**
      * Retrieves the KAM catalog for the configured BELFramework.

@@ -177,17 +177,12 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-    public List<Namespace> getAllNamespaces() {
+    public List<NamespaceDescriptor> getAllNamespaces() {
         checkValid();
         
         final GetAllNamespacesRequest req = createGetAllNamespacesRequest();
         final GetAllNamespacesResponse res = webAPI.getAllNamespaces(req);
-        
-        final List<Namespace> namespaces = new ArrayList<Namespace>();
-        for (NamespaceDescriptor desc : res.getNamespaceDescriptors()) {
-            namespaces.add(desc.getNamespace());
-        }
-        return namespaces;
+        return res.getNamespaceDescriptors();
     }
 
     /**
