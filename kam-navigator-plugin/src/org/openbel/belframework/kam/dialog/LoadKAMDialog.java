@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openbel.belframework.kam;
+package org.openbel.belframework.kam.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -42,17 +42,24 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
+import com.selventa.belframework.ws.client.DialectHandle;
+import com.selventa.belframework.ws.client.KAMLoadStatus;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamHandle;
+import com.selventa.belframework.ws.client.LoadKamResponse;
 
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
@@ -81,7 +88,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
      * @see #initUI()
      */
     public LoadKAMDialog() {
-        super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
+        super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm aaa");
 
@@ -94,13 +101,17 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
         getContentPane().add(createSelectKAMPanel(), BorderLayout.CENTER);
         getContentPane().add(createButtonPanel(), BorderLayout.SOUTH);
 
+        // init state
+        if (selectKAMCmb.getModel().getSize() > 0) {
+            selectKAMCmb.setSelectedIndex(0);
+        }
+        
         // Dialog settings
         final Dimension dialogDim = new Dimension(400, 300);
         setMinimumSize(dialogDim);
         setSize(dialogDim);
         setPreferredSize(dialogDim);
         setLocationRelativeTo(null);
-        setModal(false);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
     }
@@ -285,6 +296,9 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
     private class LoadKAMTask implements Task {
         private final Kam kam;
         private TaskMonitor m;
+        private final int SLEEP_TIME_MS = 1000;
+        // marked as volatile in case halt is called by multiple threads
+        private volatile boolean halt = false;
 
         private LoadKAMTask(final Kam kam) {
             this.kam = kam;
@@ -312,7 +326,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
          */
         @Override
         public void halt() {
-            // no-op
+            halt = true;
         }
 
         /**
@@ -334,16 +348,49 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
          * @see KAMServices#loadKam(Kam)
          */
         private void loadKAM() {
-            final KamHandle handle = kamService.loadKam(kam);
+            
+            LoadKamResponse res = kamService.loadKam(kam);
+            while (!halt && res.getLoadStatus() == KAMLoadStatus.IN_PROCESS) {
+                // sleep and then retry
+                try {
+                    Thread.sleep(SLEEP_TIME_MS);
+                } catch (InterruptedException e) {
+                    halt = true;
+                }
 
-            // Create KAM Network for this selected KAM.
-            final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), handle);
+                res = kamService.loadKam(kam);
+            }
+            KamHandle kamHandle = null;
+            if (res.getLoadStatus() == KAMLoadStatus.COMPLETE) {
+                kamHandle = res.getHandle();
+            } else if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
+                // dispose of kam select dialog
+                // otherwise user can't click on error dialogue
+                // TODO fix this, should just close progress bar but leave
+                // select dialog open for additional selections
+                LoadKAMDialog.this.dispose();
+                
+                JOptionPane.showMessageDialog(getContentPane(),
+                        "Error loading \"" + kam.getName() + "\" KAM.\n",
+                        "Kam Load Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            // else still in progress and was canceled
 
-            // Store session data for KAM and CyNetwork.
-            KAMSession session = KAMSession.getInstance();
-            session.getKAMNetworks().add(kamNetwork);
+            if (kamHandle != null) {
+                // load default dialect handle
+                DialectHandle dialectHandle = kamService.getDialect();
+                
+                // Create KAM Network for this selected KAM.
+                final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), 
+                        kamHandle, dialectHandle);
+    
+                // Store session data for KAM and CyNetwork.
+                KAMSession session = KAMSession.getInstance();
+                session.getKAMNetworks().add(kamNetwork);
+            }
 
-            // dispose of dialog.
+            // dispose of kam select dialog
             LoadKAMDialog.this.dispose();
         }
     }

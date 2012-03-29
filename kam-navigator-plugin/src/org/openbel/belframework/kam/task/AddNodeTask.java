@@ -59,6 +59,7 @@ class AddNodeTask implements Task {
     private static final String TITLE = "Adding Nodes";
     protected TaskMonitor m;
     protected Set<CyNode> cynodes;
+    protected boolean halt = false;
     protected final KAMNetwork kamNetwork;
     private final List<KamNode> kamNodes;
 
@@ -77,6 +78,10 @@ class AddNodeTask implements Task {
     public void run() {
         addNodes();
 
+        if (halt) {
+            return;
+        }
+        
         final CyNetwork cyn = kamNetwork.getCyNetwork();
 
         cyn.unselectAllNodes();
@@ -105,9 +110,26 @@ class AddNodeTask implements Task {
 
         // Add the KAM nodes and keep track
         cynodes = new HashSet<CyNode>();
+        // use current percentage to keep track of values less then 1
+        double currentPercentage = 0.0;
+        double nodePercent = (1.0 / kamNodes.size()) * 100;
         for (final KamNode node : kamNodes) {
+            if (halt) {
+                // stop if halted
+                break;
+            }
+            
             CyNode cyn = kamNetwork.addNode(node);
             cynodes.add(cyn);
+            currentPercentage += nodePercent;
+            if (currentPercentage >= 1.0) {
+                // only add to the percent complete if can be rounded to 1 or greater
+                int round = (int) Math.round(currentPercentage);
+                percentage += round;
+                m.setPercentCompleted(percentage);
+                // set to remainder to even out percentages
+                currentPercentage = currentPercentage - round;
+            }
         }
     }
 
@@ -124,6 +146,6 @@ class AddNodeTask implements Task {
 
     @Override
     public void halt() {
-        // no-op
+        halt = true;
     }
 }

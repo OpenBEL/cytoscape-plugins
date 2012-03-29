@@ -19,16 +19,10 @@
  */
 package org.openbel.belframework.webservice;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 
-import javax.swing.JMenu;
-
-import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
 import cytoscape.plugin.CytoscapePlugin;
-import cytoscape.util.CytoscapeAction;
 
 /**
  * The {@link CytoscapePlugin cytoscape plugin} class for the BELFramework
@@ -41,39 +35,11 @@ public class ClientPlugin extends CytoscapePlugin {
     public static final String KAM_PLUGIN_SUBMENU = "KAM Navigator";
 
     /**
-     * Default no-arg plugin construtor to initialize this plugin.  This plugin
-     * contributes the <em>BELFramework Configuration</em> item to the
-     * <em>Plugins</em> menu.
+     * Default no-arg plugin construtor to initialize this plugin.
      */
     public ClientPlugin() {
         onCytoscapeStart();
-
         WebServiceClientManager.registerClient(ClientConnector.getInstance());
-
-        final JMenu pluginMenu = Cytoscape.getDesktop().getCyMenus()
-                .getOperationsMenu();
-
-        JMenu kiMenu = null;
-        for (final Component menu : pluginMenu.getMenuComponents()) {
-            if (menu == null) {
-                continue;
-            }
-
-            if (menu instanceof JMenu
-                    && KAM_PLUGIN_SUBMENU.equals(((JMenu) menu).getText())) {
-                kiMenu = (JMenu) menu;
-                break;
-            }
-        }
-
-        if (kiMenu == null) {
-            kiMenu = new JMenu(KAM_PLUGIN_SUBMENU);
-            pluginMenu.add(kiMenu);
-        }
-
-        // add to "KAM Navigator" menu if KAM Plugin is available
-        final SettingsDialogAction settingsAction = new SettingsDialogAction();
-        kiMenu.add(settingsAction);
     }
 
     /**
@@ -88,46 +54,6 @@ public class ClientPlugin extends CytoscapePlugin {
         } catch (IOException e) {
             // bad, so reset to defaults
             Configuration.resetToDefaults();
-        }
-    }
-
-    /**
-     * Saves webservice plugin configuration to a properties file.
-     * <p>
-     * Note: This method is called when cytoscape shuts down.
-     * </p>
-     */
-    @Override
-    public void onCytoscapeExit() {
-        try {
-            Configuration.getInstance().saveState();
-        } catch (IOException e) {
-            // bad, but what can I do?
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Defines a {@link CytoscapeAction cytoscape action} to launch the
-     * <em>BELFramework Configuration</em> dialog.  This allows the cytoscape
-     * user to configure their access to the BELFramework Web API.
-     *
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private class SettingsDialogAction extends CytoscapeAction {
-        private static final long serialVersionUID = 5424095704897475438L;
-
-        public SettingsDialogAction() {
-            super("BELFramework Configuration");
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void actionPerformed(ActionEvent event) {
-            SettingsDialog settingsDialog = new SettingsDialog();
-            settingsDialog.setVisible(true);
         }
     }
 }

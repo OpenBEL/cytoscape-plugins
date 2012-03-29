@@ -29,6 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -74,7 +75,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
         setSize(dialogDim);
         setPreferredSize(dialogDim);
         setLocationRelativeTo(null);
-        setModal(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
     }
@@ -174,14 +174,29 @@ public class SettingsDialog extends JDialog implements ActionListener {
             cfg.setWSDLURL(wsdlURLTxt.getText());
             cfg.setTimeout((Integer) timeoutSpn.getValue());
             cfg.setShortBelForm(shortFormChk.isSelected());
-
+            
+            // write configuration to file
             try {
                 cfg.saveState();
-                ClientConnector.getInstance().reconfigure();
-                this.dispose();
             } catch (IOException ex) {
+                JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
+                        "Error writing to configuration file",
+                        "IO Error", JOptionPane.ERROR_MESSAGE);
+                // TODO use cytoscape log for errors
                 ex.printStackTrace();
             }
+
+            // reload connector
+            ClientConnector client = ClientConnector.getInstance();
+            client.reconfigure();
+            if (!client.isValid()) {
+                JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
+                        "Error connecting to the BEL Framework Web Services.\n" +
+                                "Please check the BEL Framework Web Services Configuration.",
+                                "Connection Error", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            this.dispose();
         }
     }
 }

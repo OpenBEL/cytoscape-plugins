@@ -19,18 +19,25 @@
  */
 package org.openbel.belframework.kam;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.selventa.belframework.ws.client.FunctionType;
 
+import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
 import cytoscape.task.ui.JTaskConfig;
 import cytoscape.task.util.TaskManager;
 
 /**
- * Static utility methods for working with cytoscape.
+ * Misc static utility methods.
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
@@ -80,7 +87,58 @@ public class Utility {
     public static FunctionType[] getFunctions() {
         return functionArray;
     }
+    
+    /**
+     * Retrieve a set of all kam backed networks
+     * 
+     * @return kam backed networks
+     */
+    // TODO this method would be unneeded if the KAMSession was updated when a 
+    // network was closed
+    public static Set<CyNetwork> getKamNetworks() {
+        KAMSession session = KAMSession.getInstance();
+        Set<CyNetwork> allNetworks = Cytoscape.getNetworkSet();
+        Set<CyNetwork> kamNetworks = new HashSet<CyNetwork>();
 
+        for (Iterator<CyNetwork> it = allNetworks.iterator(); it.hasNext();) {
+            CyNetwork cyn = it.next();
+            // only add cytoscape network if it's KAM-backed
+            if (session.getKAMNetwork(cyn) != null) {
+                kamNetworks.add(cyn);
+            }
+        }
+
+        return kamNetworks;
+    }
+    
+    /**
+     * Closes a {@link Closeable} silently
+     * 
+     * @param closable
+     */
+    public static void closeSilently(final Closeable closable) {
+        if (closable == null) {
+            return;
+        }
+        
+        try {
+            closable.close();
+        } catch (IOException e) {
+            // silently
+        }
+    }
+
+    /**
+     * Check to see if the collection is null or empty
+     * 
+     * @param collection
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
+    }
+    
     private Utility() {
         // prevent instantiation
     }

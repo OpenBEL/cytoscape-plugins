@@ -30,6 +30,8 @@ import giny.view.NodeView;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +47,7 @@ import org.openbel.belframework.webservice.KAMServiceFactory;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
+import com.selventa.belframework.ws.client.SimplePath;
 
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;
@@ -72,6 +75,8 @@ import ding.view.NodeContextMenuListener;
 public class KAMNodeContextListener implements PropertyChangeListener,
         NodeContextMenuListener {
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
+    private static final String INTERCONNECT_LABEL = "Interconnect";
+    private static final int DEFAULT_INTERCONNECT_DEPTH = 1;
 
     /**
      * {@inheritDoc}
@@ -96,31 +101,57 @@ public class KAMNodeContextListener implements PropertyChangeListener,
      */
     @Override
     public void addNodeContextMenuItems(NodeView nv, JPopupMenu menu) {
-        // return if cynode does not reference kam node
-        final CyNode cynode = (CyNode) nv.getNode();
-        String cyid = cynode.getIdentifier();
-        final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
-        final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
-        final String lbl = nodeAtt.getStringAttribute(cyid, KAM_NODE_LABEL_ATTR);
-        if (id == null || func == null || lbl == null) {
+        if (!(nv.getGraphView() instanceof CyNetworkView)) {
+            // this shouldn't happen, but if it does return gracefully
             return;
+        }
+        
+        CyNetworkView view = (CyNetworkView) nv.getGraphView();
+        // documentation doesn't specify that selected nodes are CyNodes 
+        //  but they should be 
+        @SuppressWarnings("unchecked")
+        Set<CyNode> selected = view.getNetwork().getSelectedNodes();
+        for (CyNode cynode : selected) {
+            // check to see if node is KAM backed
+            String cyid = cynode.getIdentifier();
+            final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
+            final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
+            final String lbl = nodeAtt.getStringAttribute(cyid, KAM_NODE_LABEL_ATTR);
+            if (id == null || func == null || lbl == null) {
+                // return if cynode does not reference kam node
+                return;
+            }
         }
 
         if (menu == null) {
             menu = new JPopupMenu();
         }
-
+        
         // construct node menu and add to context popup
         final JMenu kamNodeItem = new JMenu("KAM Node");
         final JMenuItem downstream = new JMenuItem(new ExpandAction(FORWARD,
-                cynode, (CyNetworkView) nv.getGraphView()));
+                selected, view));
         kamNodeItem.add(downstream);
         final JMenuItem upstream = new JMenuItem(new ExpandAction(REVERSE,
-                cynode, (CyNetworkView) nv.getGraphView()));
+                selected, view));
         kamNodeItem.add(upstream);
-        final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, cynode,
-                (CyNetworkView) nv.getGraphView()));
+        final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, selected,
+                view));
         kamNodeItem.add(both);
+        
+        if (selected.size() > 1) {
+            // interconnect added only if more then one nodes are selected
+            final JMenuItem interconnect = new JMenuItem(new InterconnectAction(
+                    selected, view));
+            kamNodeItem.add(interconnect);
+        } else {
+            // create placeholder disabled item for interconnect to keep menu 
+            // size consistent
+            final JMenuItem placeholder = new JMenuItem(INTERCONNECT_LABEL);
+            placeholder.setEnabled(false);
+            kamNodeItem.add(placeholder);
+        }
+        
         menu.add(kamNodeItem);
     }
 
@@ -131,20 +162,18 @@ public class KAMNodeContextListener implements PropertyChangeListener,
      * @see #actionPerformed(ActionEvent)
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
-    private static class ExpandAction extends AbstractAction {
+    private static final class ExpandAction extends EdgeAddAction {
         private static final long serialVersionUID = -8467637028387407708L;
         private final EdgeDirectionType direction;
         private final KAMService kamService;
-        private final CyNode cynode;
-        private final CyNetworkView view;
+        private final Set<CyNode> cynodes;
 
         private ExpandAction(final EdgeDirectionType direction,
-                final CyNode cynode, final CyNetworkView view) {
-            super("Expand " + getLabel(direction));
+                final Set<CyNode> cynodes, final CyNetworkView view) {
+            super("Expand " + getLabel(direction), view);
             this.direction = direction;
             this.kamService = KAMServiceFactory.getInstance().getKAMService();
-            this.cynode = cynode;
-            this.view = view;
+            this.cynodes = cynodes;
         }
 
         private static String getLabel(final EdgeDirectionType direction) {
@@ -164,27 +193,103 @@ public class KAMNodeContextListener implements PropertyChangeListener,
          * {@inheritDoc}
          */
         @Override
-        public void actionPerformed(ActionEvent e) {
+        Collection<KamEdge> getEdgesToAdd(KAMNetwork kamNetwork) {
+            final Collection<KamNode> kamNodes = new HashSet<KamNode>();
+            for (final CyNode cynode : cynodes) {
+                kamNodes.add(kamNetwork.getKAMNode(cynode));
+            }
+
+            List<KamEdge> edges = new ArrayList<KamEdge>();
+            for (KamNode kamNode : kamNodes) {
+                edges.addAll(kamService.getAdjacentKamEdges(
+                        kamNetwork.getDialectHandle(), kamNode, direction, 
+                        null));
+            }
+            return edges;
+        }
+    }
+
+    /**
+     * A menu {@link AbstractAction action} that drives the interconnect of the
+     * selected {@link KamNode kam nodes}.
+     * 
+     * @see #actionPerformed(ActionEvent)
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static final class InterconnectAction extends EdgeAddAction {
+        private static final long serialVersionUID = 8540857606052921412L;
+        private final KAMService kamService;
+        private final Set<CyNode> cynodes;
+
+        private InterconnectAction(final Set<CyNode> cynodes, 
+                final CyNetworkView view) {
+            super(INTERCONNECT_LABEL, view);
+            this.kamService = KAMServiceFactory.getInstance().getKAMService();
+            this.cynodes = cynodes;
+            
+            if (cynodes == null || cynodes.size() < 2) {
+                throw new IllegalArgumentException("Can't interconnect less then two nodes");
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        Collection<KamEdge> getEdgesToAdd(KAMNetwork kamNetwork) {
+            final Collection<KamNode> kamNodes = new HashSet<KamNode>();
+            for (final CyNode cynode : cynodes) {
+                kamNodes.add(kamNetwork.getKAMNode(cynode));
+            }
+
+            final List<SimplePath> paths = kamService.interconnect(
+                    kamNetwork.getDialectHandle(), kamNodes, 
+                    DEFAULT_INTERCONNECT_DEPTH);
+            final List<KamEdge> edges = new ArrayList<KamEdge>();
+            for (final SimplePath path : paths) {
+                edges.addAll(path.getEdges());
+            }
+            return edges;
+        }
+    }
+
+    /**
+     * Abstract action for edge addition
+     * 
+     * @see #actionPerformed(ActionEvent)
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    private static abstract class EdgeAddAction extends AbstractAction {
+        // TODO review how serial version ids work on abstract classes
+        // is this needed?
+        private static final long serialVersionUID = 8091837614372980023L;
+        protected final CyNetworkView view;
+
+        protected EdgeAddAction(String label, CyNetworkView view) {
+            super(label);
+            this.view = view;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public final void actionPerformed(ActionEvent e) {
             // FIXME If a cytoscape session is restored the KAMNetwork
-            // will not exist.  We will have to reconnect to the KAM.
+            // will not exist. We will have to reconnect to the KAM.
 
             final CyNetwork network = view.getNetwork();
             final KAMNetwork kamNetwork = KAMSession.getInstance()
                     .getKAMNetwork(network);
-            final KamNode kamNode = kamNetwork.getKAMNode(cynode);
+            final Collection<KamEdge> edges = getEdgesToAdd(kamNetwork);
 
             final Set<CyNode> nn = new HashSet<CyNode>();
-            final List<KamEdge> edges = kamService.getAdjacentKamEdges(
-                    kamNode, direction, null);
             for (final KamEdge edge : edges) {
                 CyEdge cye = kamNetwork.addEdge(edge);
 
                 nn.add((CyNode) cye.getSource());
                 nn.add((CyNode) cye.getTarget());
             }
-
-            // do not track the node to expand; we don't want it to re-layout
-            //nn.remove(cynode);
 
             network.unselectAllNodes();
             network.setSelectedNodeState(nn, true);
@@ -195,5 +300,15 @@ public class KAMNodeContextListener implements PropertyChangeListener,
 
             view.redrawGraph(true, true);
         }
+
+        /**
+         * Generate all edges to be added to to the network
+         * 
+         * @param kamNetwork
+         *            for node translation
+         * @return {@link Collection} of {@link KamEdge KamEdges} to add, can be
+         *         empty but not null
+         */
+        abstract Collection<KamEdge> getEdgesToAdd(KAMNetwork kamNetwork);
     }
 }

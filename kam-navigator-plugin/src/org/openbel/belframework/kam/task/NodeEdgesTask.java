@@ -78,14 +78,6 @@ class NodeEdgesTask extends AddNodeTask {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public void halt() {
-        // no-op
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * Adds {@link KamNode kam nodes}, expands to adjacent
      * {@link KamEdge kam edges}, adds them all to the
@@ -99,12 +91,22 @@ class NodeEdgesTask extends AddNodeTask {
         setStatus();
 
         for (final KamNode selectedNode : kamNodes) {
+            if (halt) {
+                // stop if halted
+                break;
+            }
+            
             final List<KamEdge> edges = kamService.getAdjacentKamEdges(
-                    selectedNode, direction, null);
+                    kamNetwork.getDialectHandle(), selectedNode, direction,
+                    null);
 
             for (final KamEdge edge : edges) {
                 kamNetwork.addEdge(edge);
             }
+        }
+        
+        if (halt) {
+            return;
         }
 
         final CyNetwork cyn = kamNetwork.getCyNetwork();

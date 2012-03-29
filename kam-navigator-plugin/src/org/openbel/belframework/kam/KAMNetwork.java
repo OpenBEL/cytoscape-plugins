@@ -24,13 +24,15 @@ import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_FUNCTION_
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
 import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
-
-import com.selventa.belframework.ws.client.BelTerm;
+import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
@@ -75,9 +77,10 @@ public class KAMNetwork {
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
     private static final CyAttributes edgeAtt = Cytoscape.getEdgeAttributes();
     private static final String NETWORK_SUFFIX = " (KAM)";
+    private static final String KAM_STYLE = "KAM Visualization";
     private final CyNetwork cyn;
-    private final KAMService kamService;
     private final KamHandle kamHandle;
+    private final DialectHandle dialectHandle;
 
     /**
      * Create the {@link KAMNetwork} with the {@link String kam name} and
@@ -87,10 +90,11 @@ public class KAMNetwork {
      * @param kamHandle the {@link String kam handle} that identifies the
      * loaded {@link Kam kam} in the Web API
      */
-    public KAMNetwork(final String kamName, final KamHandle kamHandle) {
+    public KAMNetwork(final String kamName, final KamHandle kamHandle, 
+            final DialectHandle dialectHandle) {
         this.kamHandle = kamHandle;
+        this.dialectHandle = dialectHandle;
         this.cyn = Cytoscape.createNetwork(kamName + NETWORK_SUFFIX, true);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.cyn.addSelectEventListener(new NetworkDetailsListener(this));
 
         loadNetworkStyle();
@@ -114,6 +118,17 @@ public class KAMNetwork {
      */
     public KamHandle getKAMHandle() {
         return kamHandle;
+    }
+    
+    /**
+     * Retrieve the {@link DialectHandle} associated with the loaded {@link Kam}
+     * which identifies the dialect on the Web API. If no handle is present,
+     * returns <code>null</code>
+     * 
+     * @return the {@link DialectHandle}, can be null
+     */
+    public DialectHandle getDialectHandle() {
+        return dialectHandle;
     }
 
     /**
@@ -145,6 +160,7 @@ public class KAMNetwork {
      * {@link CyNode cytoscape node}
      */
     public KamNode getKAMNode(final CyNode cynode) {
+        // TODO do we want a check here to see if the cynode is kam backed?
         final KamNode kamNode = new KamNode();
 
         final String id = cynode.getIdentifier();
@@ -209,17 +225,14 @@ public class KAMNetwork {
      * {@link KamNode kam node}
      */
     public CyNode addNode(final KamNode node) {
-        final List<BelTerm> terms = kamService.getSupportingTerms(node);
-        final BelTerm firstTerm = terms.get(0);
-
         // create cytoscape node and attach KAM node id as hidden attribute
-        CyNode cynode = Cytoscape.getCyNode(firstTerm.getLabel(), true);
+        CyNode cynode = Cytoscape.getCyNode(node.getLabel(), true);
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_ID_ATTR,
                 node.getId());
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_FUNCTION_ATTR,
                 node.getFunction().name());
         nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_LABEL_ATTR,
-                firstTerm.getLabel());
+                node.getLabel());
 
         cyn.addNode(cynode);
         return cynode;
@@ -301,46 +314,14 @@ public class KAMNetwork {
         final VisualMappingManager vismanager = Cytoscape.getVisualMappingManager();
 
         final CalculatorCatalog ccat = vismanager.getCalculatorCatalog();
-        VisualStyle visualStyle = ccat.getVisualStyle("KAM Visualization");
+        VisualStyle visualStyle = ccat.getVisualStyle(KAM_STYLE);
         if (visualStyle == null) {
-            visualStyle = new VisualStyle("KAM Visualization");
-
-            NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
-
-            // nodes: label
-            final PassThroughMapping nlabels = new PassThroughMapping("",
-                    ObjectMapping.NODE_MAPPING);
-            nlabels.setControllingAttributeName("ID", null, false);
-            Calculator nlcalc = new BasicCalculator(
-                    "KAM Node Label",
-                    nlabels,
-                    VisualPropertyType.NODE_LABEL);
-            nac.setCalculator(nlcalc);
-
-            EdgeAppearanceCalculator eac = visualStyle.getEdgeAppearanceCalculator();
-
-            // edges: target arrow shape
-            final DiscreteMapping arrows = new DiscreteMapping(ArrowShape.NONE,
-                    ObjectMapping.EDGE_MAPPING);
-            arrows.setControllingAttributeName("interaction", cyn, false);
-            for (final RelationshipType rt : RelationshipType.values()) {
-                arrows.putMapValue(rt.name(), ArrowShape.ARROW);
-            }
-            final Calculator eacalc = new BasicCalculator("Interaction",
-                    arrows, VisualPropertyType.EDGE_TGTARROW_SHAPE);
-            eac.setCalculator(eacalc);
-
-            // edges: label
-            final PassThroughMapping elabels = new PassThroughMapping("",
-                    ObjectMapping.EDGE_MAPPING);
-            elabels.setControllingAttributeName("interaction", null, false);
-            Calculator elcalc = new BasicCalculator(
-                    "KAM Edge Label",
-                    elabels,
-                    VisualPropertyType.EDGE_LABEL);
-            eac.setCalculator(elcalc);
-
-            ccat.addVisualStyle(visualStyle);
+            loadKAMStyle();
+            visualStyle = ccat.getVisualStyle(KAM_STYLE);
+        }
+        
+        if (visualStyle == null) {
+            return;
         }
 
         final CyNetworkView view = Cytoscape.getNetworkView(cyn.getIdentifier());
@@ -348,5 +329,91 @@ public class KAMNetwork {
 
         vismanager.setVisualStyle(visualStyle);
         view.redrawGraph(true, true);
+    }
+    
+    // TODO better exception handling
+    private void loadKAMStyle() {
+        String name = "/org/openbel/belframework/kam/style.props";
+        InputStream in = getClass().getResourceAsStream(name);
+        File f = null;
+        try {
+            f = File.createTempFile("viz", null);
+            writeInputStreamIntoFile(in, f);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        } finally {
+            Utility.closeSilently(in);
+        }
+        
+        if (!f.exists() || !f.canRead()) {
+            return;
+        }
+        
+        // load style
+        Cytoscape.firePropertyChange(Cytoscape.VIZMAP_LOADED, null, f.getAbsolutePath());
+    }
+    
+    // TODO: remove unused method
+    // keeping around for reference for now
+    private VisualStyle createKAMStyle() {
+        VisualStyle visualStyle = new VisualStyle(KAM_STYLE);
+        
+        NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
+
+        // nodes: label
+        final PassThroughMapping nlabels = new PassThroughMapping("",
+                ObjectMapping.NODE_MAPPING);
+        nlabels.setControllingAttributeName("ID", null, false);
+        Calculator nlcalc = new BasicCalculator(
+                KAM_STYLE + " Node Label",
+                nlabels,
+                VisualPropertyType.NODE_LABEL);
+        nac.setCalculator(nlcalc);
+
+        EdgeAppearanceCalculator eac = visualStyle.getEdgeAppearanceCalculator();
+
+        // edges: target arrow shape
+        final DiscreteMapping arrows = new DiscreteMapping(ArrowShape.NONE,
+                ObjectMapping.EDGE_MAPPING);
+        arrows.setControllingAttributeName("interaction", cyn, false);
+        for (final RelationshipType rt : RelationshipType.values()) {
+            arrows.putMapValue(rt.name(), ArrowShape.ARROW);
+        }
+        final Calculator eacalc = new BasicCalculator(
+                KAM_STYLE + " Interaction", arrows, 
+                VisualPropertyType.EDGE_TGTARROW_SHAPE);
+        eac.setCalculator(eacalc);
+
+        // edges: label
+        final PassThroughMapping elabels = new PassThroughMapping("",
+                ObjectMapping.EDGE_MAPPING);
+        elabels.setControllingAttributeName("interaction", null, false);
+        Calculator elcalc = new BasicCalculator(
+                KAM_STYLE + " Edge Label",
+                elabels,
+                VisualPropertyType.EDGE_LABEL);
+        eac.setCalculator(elcalc);
+        
+        return visualStyle;
+    }
+    
+    private static void writeInputStreamIntoFile(InputStream in, File f)
+            throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(in);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = bis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+        } finally {
+            Utility.closeSilently(bis);
+            Utility.closeSilently(fos);
+        }
     }
 }

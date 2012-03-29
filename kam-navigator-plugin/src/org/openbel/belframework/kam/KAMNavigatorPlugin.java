@@ -24,6 +24,12 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JMenu;
 
+import org.openbel.belframework.kam.dialog.KnowledgeNeighborhoodDialog;
+import org.openbel.belframework.kam.dialog.LoadKAMDialog;
+import org.openbel.belframework.kam.dialog.SearchKAMDialog;
+import org.openbel.belframework.kam.dialog.SearchKAMListDialog;
+import org.openbel.belframework.webservice.SettingsDialog;
+
 import cytoscape.Cytoscape;
 import cytoscape.plugin.CytoscapePlugin;
 import cytoscape.util.CytoscapeAction;
@@ -89,8 +95,21 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // add "Select KAM" action to submenu
         kiMenu.add(new SelectKAMDialogAction());
 
-        // add "Search KAM" action to submenu
+        // add "Add Kam Nodes" action to submenu
         kiMenu.add(new SearchKAMDialogAction());
+        
+        // add "Add Kam List" action to submenu
+        // TODO uncomment when functionality is completed
+        // kiMenu.add(new SearchKAMListDialogAction());
+        
+        // add "Knowledge Neighborhood" action to submenu
+        kiMenu.add(new KnowledgeNeighborhoodDialogAction());
+        
+        // add separtor before bel configuration entry
+        kiMenu.addSeparator();
+
+        // add to "KAM Navigator" menu if KAM Plugin is available
+        kiMenu.add(new SettingsDialogAction());
 
         // hook up propery change listeners
         final KAMNodeContextListener nctx = new KAMNodeContextListener();
@@ -142,6 +161,74 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         public void actionPerformed(ActionEvent event) {
             SearchKAMDialog kcdialog = new SearchKAMDialog();
             kcdialog.setVisible(true);
+        }
+    }
+
+    /**
+     * The {@link CytoscapeAction action} to trigger the Add KAM List dialog.
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    public class SearchKAMListDialogAction extends CytoscapeAction {
+        private static final long serialVersionUID = -5051721582642478695L;
+
+        public SearchKAMListDialogAction() {
+            super("Add KAM List");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            SearchKAMListDialog dialog = new SearchKAMListDialog();
+            dialog.setVisible(true);
+        }
+    }
+
+    /**
+     * The {@link CytoscapeAction action} to trigger the Knowledge Neighborhood dialog.
+     *
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    public class KnowledgeNeighborhoodDialogAction extends CytoscapeAction {
+        private static final long serialVersionUID = 2243171495622023060L;
+
+        public KnowledgeNeighborhoodDialogAction() {
+            super("Knowledge Neighborhood");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            KnowledgeNeighborhoodDialog dialog = new KnowledgeNeighborhoodDialog();
+            dialog.setVisible(true);
+        }
+    }
+
+    /**
+     * Defines a {@link CytoscapeAction cytoscape action} to launch the
+     * <em>BELFramework Configuration</em> dialog.  This allows the cytoscape
+     * user to configure their access to the BELFramework Web API.
+     *
+     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
+     */
+    private class SettingsDialogAction extends CytoscapeAction {
+        private static final long serialVersionUID = 5424095704897475438L;
+
+        public SettingsDialogAction() {
+            super("BELFramework Configuration");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            SettingsDialog settingsDialog = new SettingsDialog();
+            settingsDialog.setVisible(true);
         }
     }
 }

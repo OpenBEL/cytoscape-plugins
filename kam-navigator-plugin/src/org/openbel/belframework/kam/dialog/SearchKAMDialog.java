@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openbel.belframework.kam;
+package org.openbel.belframework.kam.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -28,11 +28,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
@@ -53,20 +51,20 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.NetworkOption;
+import org.openbel.belframework.kam.Utility;
+import org.openbel.belframework.kam.task.AbstractSearchKamTask;
 import org.openbel.belframework.kam.task.KAMTasks;
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamNode;
 
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;
-import cytoscape.task.TaskMonitor;
 
 /**
  * {@link SearchKAMDialog} represents the UI for the Add KAM Nodes dialog.
@@ -76,7 +74,6 @@ import cytoscape.task.TaskMonitor;
 public class SearchKAMDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -8900235008972637257L;
     private static final String DIALOG_TITLE = "Add KAM Nodes";
-    private final KAMService kamService;
     private JTable resultsTable;
     private JComboBox networkCmb;
     private JComboBox functionCmb;
@@ -86,6 +83,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
     private TableRowSorter<ResultsTableModel> rowSorter;
     private JTextField filterTxt;
     private JComboBox edgeCmb;
+    private JLabel resultsCount;
 
     /**
      * Construct the {@link JDialog dialog} and initialize the UI.
@@ -93,9 +91,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      * @see #initUI()
      */
     public SearchKAMDialog() {
-        super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
-
+        super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
+        
         initUI();
     }
 
@@ -123,17 +120,20 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         getContentPane().add(createButtonPanel(), BorderLayout.SOUTH);
 
         // init state
-        functionCmb.setSelectedIndex(-1);
-        searchBtn.setEnabled(false);
+        if (functionCmb.getModel().getSize() > 0) {
+            functionCmb.setSelectedIndex(0);
+            searchBtn.setEnabled(true);
+        } else {
+            searchBtn.setEnabled(false);
+        }
         addBtn.setEnabled(false);
 
         // Dialog settings
-        final Dimension dialogDim = new Dimension(400, 300);
+        final Dimension dialogDim = new Dimension(400, 600);
         setMinimumSize(dialogDim);
         setSize(dialogDim);
         setPreferredSize(dialogDim);
         setLocationRelativeTo(null);
-        setModal(false);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
     }
@@ -149,6 +149,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         functionCmb = new JComboBox();
         networkCmb = new JComboBox();
         resultsTable = new JTable();
+        resultsCount = new JLabel();
 
         searchPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -161,24 +162,20 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         searchPanel.add(networkLbl, gridBagConstraints);
 
-        final Set<CyNetwork> networkSet = Cytoscape.getNetworkSet();
+        final Set<CyNetwork> networkSet = Utility.getKamNetworks();
         final Iterator<CyNetwork> networkIt = networkSet.iterator();
         final List<NetworkOption> networks = new ArrayList<NetworkOption>(networkSet.size());
         NetworkOption selectedNetwork = null;
-        final KAMSession session = KAMSession.getInstance();
 
         while (networkIt.hasNext()) {
             final CyNetwork cyn = networkIt.next();
 
-            // only add cytoscape network if it's KAM-backed
-            if (session.getKAMNetwork(cyn) != null) {
-                final NetworkOption networkOpt = new NetworkOption(cyn);
-                networks.add(networkOpt);
+            final NetworkOption networkOpt = new NetworkOption(cyn);
+            networks.add(networkOpt);
 
-                // trap this network option if this is the active cyn
-                if (Cytoscape.getCurrentNetwork() == cyn) {
-                    selectedNetwork = networkOpt;
-                }
+            // trap this network option if this is the active cyn
+            if (Cytoscape.getCurrentNetwork() == cyn) {
+                selectedNetwork = networkOpt;
             }
         }
 
@@ -236,7 +233,12 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         resultsTable.setRowSorter(rowSorter);
         resultsPane.setViewportView(resultsTable);
         resultsPanel.add(resultsPane, java.awt.BorderLayout.CENTER);
-
+        
+        resultsCount.setText(""); // empty until search
+        JPanel countPanel = new JPanel(new BorderLayout(5, 0));
+        countPanel.add(resultsCount, BorderLayout.WEST);
+        resultsPanel.add(countPanel, BorderLayout.SOUTH);
+        
         JPanel filterPanel = new JPanel(new BorderLayout(5, 0));
         filterPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
 
@@ -261,7 +263,11 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         filterTxt.setEnabled(false);
         filterPanel.add(filterTxt, BorderLayout.CENTER);
 
-        resultsPanel.add(filterPanel, BorderLayout.SOUTH);
+        JPanel bottomPanel = new JPanel(new BorderLayout(0, 0));
+        bottomPanel.add(countPanel, BorderLayout.WEST);
+        bottomPanel.add(filterPanel, BorderLayout.SOUTH);
+        
+        resultsPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -362,7 +368,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 model.fireTableDataChanged();
 
                 final NetworkOption networkOption = (NetworkOption) networkCmb.getSelectedItem();
-                Cytoscape.getDesktop().setFocus(networkOption.cyn.getIdentifier());
+                Cytoscape.getDesktop().setFocus(
+                        networkOption.getCyNetwork().getIdentifier());
             } else if (e.getSource() == cancelBtn) {
                 this.dispose();
             } else if (e.getSource() == searchBtn) {
@@ -371,17 +378,32 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
 
-                final SearchKAMNodes task = new SearchKAMNodes(networkOption.cyn, selfunc);
+                final KAMNetwork kamNetwork = KAMSession.getInstance()
+                        .getKAMNetwork(networkOption.getCyNetwork());
+                final Task task = new AbstractSearchKamTask(kamNetwork, selfunc) {
+
+                    @Override
+                    protected void updateUI(Collection<KamNode> nodes) {
+                        ResultsTableModel rtm = (ResultsTableModel) resultsTable
+                                .getModel();
+                        rtm.setData(nodes);
+                        int nodeCount = nodes.size();
+                        filterTxt.setEnabled(nodeCount > 0);
+                        if (nodeCount == 1) {
+                            resultsCount.setText(nodes.size() + " node found.");
+                        } else {
+                            resultsCount
+                                    .setText(nodes.size() + " nodes found.");
+                        }
+                    }
+                };
                 Utility.executeTask(task);
             } else if (e.getSource() == addBtn) {
                 ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-                final List<KamNode> nodes = rtm.nodes;
+                final List<KamNode> nodes = rtm.getNodes();
 
                 // hold the selected KAM nodes we're interested in
                 final List<KamNode> selectedNodes = new ArrayList<KamNode>();
-
-                // track selected KAM node ids to efficiently filter edges
-                final Set<String> selectedNodeIds = new HashSet<String>();
 
                 // determine selected rows from the filtered view
                 int[] viewIndices = resultsTable.getSelectedRows();
@@ -390,13 +412,13 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
                     KamNode selectedNode = nodes.get(modelIndex);
                     selectedNodes.add(selectedNode);
-                    selectedNodeIds.add(selectedNode.getId());
                 }
 
+                // FIXME what if the network option changes between search and add?
                 final NetworkOption networkOption = (NetworkOption) networkCmb
                         .getSelectedItem();
                 final KAMNetwork kamNetwork = KAMSession.getInstance()
-                        .getKAMNetwork(networkOption.cyn);
+                        .getKAMNetwork(networkOption.getCyNetwork());
 
                 // run add task, hook in edges based on selected option
                 EdgeOption eeo = (EdgeOption) edgeCmb.getSelectedItem();
@@ -422,65 +444,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
     }
 
     /**
-     * The {@link Task cytoscape task} to handle searching for
-     * {@link KamNode kam nodes} using the Web API.
-     *
-     * @see KAMServices#findKamNodesByFunction(
-     * com.selventa.belframework.ws.client.KamHandle, FunctionType)
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private class SearchKAMNodes implements Task {
-        private final CyNetwork cyn;
-        private final FunctionType function;
-        private TaskMonitor m;
-
-        private SearchKAMNodes(final CyNetwork cyn, final FunctionType function) {
-            this.cyn = cyn;
-            this.function = function;
-        }
-
-        @Override
-        public String getTitle() {
-            return "Searching KAM Nodes";
-        }
-
-        @Override
-        public void setTaskMonitor(TaskMonitor m)
-                throws IllegalThreadStateException {
-            this.m = m;
-        }
-
-        @Override
-        public void halt() {
-            // no-op
-        }
-
-        @Override
-        public void run() {
-            m.setStatus("Searching for " + function + " functions.");
-
-            m.setPercentCompleted(0);
-            searchKAMNodes();
-            m.setPercentCompleted(100);
-        }
-
-        private void searchKAMNodes() {
-            final FunctionType selfunc = (FunctionType) functionCmb.getSelectedItem();
-
-            // get KAM Network for selected CyNetwork
-            final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(cyn);
-
-            // find kam nodes by function
-            final List<KamNode> nodes = kamService.findKamNodesByFunction(kamNetwork.getKAMHandle(), selfunc);
-
-            ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
-            rtm.setNodes(nodes);
-
-            filterTxt.setEnabled(nodes.size() > 0);
-        }
-    }
-
-    /**
      * The {@link AbstractTableModel table model} for the
      * {@link KamNode kam node} search results.
      *
@@ -490,26 +453,12 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         private static final long serialVersionUID = -5744344001683506045L;
         private final String[] headers = new String[] { "Label" };
         private final List<KamNode> nodes;
-        private final Map<KamNode, BelTerm> termMap;
 
         private ResultsTableModel() {
             this.nodes = new ArrayList<KamNode>();
-            this.termMap = new HashMap<KamNode, BelTerm>();
         }
 
-        private ResultsTableModel(final List<KamNode> nodes) {
-            this.nodes = nodes;
-            this.termMap = new HashMap<KamNode, BelTerm>(nodes.size());
-            setNodes(nodes);
-        }
-
-        private void setNodes(final List<KamNode> nodes) {
-            for (final KamNode node : nodes) {
-                final List<BelTerm> terms = kamService.getSupportingTerms(node);
-                final BelTerm firstTerm = terms.get(0);
-                termMap.put(node, firstTerm);
-            }
-
+        private void setData(final Collection<KamNode> nodes) {
             this.nodes.clear();
             this.nodes.addAll(nodes);
             fireTableDataChanged();
@@ -517,7 +466,10 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
         private void clear() {
             nodes.clear();
-            termMap.clear();
+        }
+        
+        public List<KamNode> getNodes() {
+            return nodes;
         }
 
         /**
@@ -553,7 +505,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
             switch (ci) {
                 case 0:
-                    return termMap.get(node).getLabel();
+                    return node.getLabel();
             }
 
             return null;
@@ -596,33 +548,10 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 javax.swing.RowFilter.Entry<? extends ResultsTableModel, ? extends Integer> entry) {
 
             final ResultsTableModel rtm = entry.getModel();
-            KamNode node = rtm.nodes.get(entry.getIdentifier());
-            final BelTerm term = rtm.termMap.get(node);
-            final String lowerLabel = term.getLabel().toLowerCase();
+            KamNode node = rtm.getNodes().get(entry.getIdentifier());
+            final String lowerLabel = node.getLabel().toLowerCase();
 
             return lowerLabel.contains(filterTxt.getText().toLowerCase());
-        }
-    }
-
-    /**
-     * {@link NetworkOption} represents the combo-box option for currently
-     * loaded {@link Kam kam}-backed {@link CyNetwork cytoscape networks}.
-     *
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private final class NetworkOption {
-        private final CyNetwork cyn;
-
-        private NetworkOption(final CyNetwork cyn) {
-            this.cyn = cyn;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return cyn.getTitle();
         }
     }
 
@@ -632,6 +561,11 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
     private enum EdgeOption {
+        /**
+         * Do not expand the selected nodes to include edges.  Only the
+         * selected nodes are added to the network.
+         */
+        NONE ("None"),
         /**
          * Expand downstream and upstream of each node being added.  The nodes
          * and all adjacent edges will be added to the network.
@@ -652,12 +586,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
          * them.  The selected nodes and any interconnected edges are added to
          * the network.
          */
-        INTERCONNECT ("Interconnect Nodes"),
-        /**
-         * Do not expand the selected nodes to include edges.  Only the
-         * selected nodes are added to the network.
-         */
-        NONE ("None");
+        INTERCONNECT ("Interconnect Nodes");
 
         private final String label;
 

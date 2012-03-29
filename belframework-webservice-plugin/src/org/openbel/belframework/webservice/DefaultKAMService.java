@@ -22,10 +22,17 @@ package org.openbel.belframework.webservice;
 import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByPatternsRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetAdjacentKamEdgesRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetCatalogRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createGetDialectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingEvidenceRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingTermsRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createInterconnectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createLoadKamRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createGetAllNamespacesRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createFindNamespaceValuesRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByNamespaceValuesRequest;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -34,27 +41,41 @@ import com.selventa.belframework.ws.client.BelStatement;
 import com.selventa.belframework.ws.client.BelTerm;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.EdgeFilter;
+import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesRequest;
+import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesResponse;
 import com.selventa.belframework.ws.client.FindKamNodesByPatternsRequest;
 import com.selventa.belframework.ws.client.FindKamNodesByPatternsResponse;
+import com.selventa.belframework.ws.client.FindNamespaceValuesRequest;
+import com.selventa.belframework.ws.client.FindNamespaceValuesResponse;
 import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.FunctionTypeFilterCriteria;
 import com.selventa.belframework.ws.client.GetAdjacentKamEdgesRequest;
 import com.selventa.belframework.ws.client.GetAdjacentKamEdgesResponse;
+import com.selventa.belframework.ws.client.GetAllNamespacesRequest;
+import com.selventa.belframework.ws.client.GetAllNamespacesResponse;
 import com.selventa.belframework.ws.client.GetCatalogRequest;
 import com.selventa.belframework.ws.client.GetCatalogResponse;
+import com.selventa.belframework.ws.client.GetDialectRequest;
+import com.selventa.belframework.ws.client.GetDialectResponse;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
 import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
 import com.selventa.belframework.ws.client.GetSupportingTermsResponse;
-import com.selventa.belframework.ws.client.KAMLoadStatus;
+import com.selventa.belframework.ws.client.InterconnectRequest;
+import com.selventa.belframework.ws.client.InterconnectResponse;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.LoadKamRequest;
 import com.selventa.belframework.ws.client.LoadKamResponse;
+import com.selventa.belframework.ws.client.Namespace;
+import com.selventa.belframework.ws.client.NamespaceDescriptor;
+import com.selventa.belframework.ws.client.NamespaceValue;
 import com.selventa.belframework.ws.client.NodeFilter;
+import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
+import com.selventa.belframework.ws.client.DialectHandle;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
@@ -68,9 +89,8 @@ import cytoscape.data.webservice.WebServiceClientManager;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
-    protected WebAPI ws;
-    private static final int SLEEP_TIME_MS = 1000;
-    private ClientConnector wsClient;
+    protected WebAPI webAPI;
+    private ClientConnector clientConnector;
 
     /**
      * Retrieves the webservice client from the
@@ -78,13 +98,91 @@ class DefaultKAMService implements KAMService {
      * the client stub.
      */
     DefaultKAMService() {
-        wsClient = (ClientConnector) WebServiceClientManager
+        reloadClientConnector();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reloadClientConnector() {
+        clientConnector = (ClientConnector) WebServiceClientManager
                 .getClient("belframework");
-        if (wsClient == null) {
+        if (clientConnector == null) {
             return;
         }
 
-        ws = wsClient.getClientStub();
+        webAPI = clientConnector.getClientStub();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<NamespaceValue> findNamespaceValues(
+            final Collection<String> patterns,
+            final Collection<Namespace> namespaces) {
+        if (patterns == null || patterns.isEmpty()) {
+            throw new IllegalArgumentException("patterns parameter is invalid");
+        }
+        // namespaces can be null or empty
+
+        checkValid();
+
+        final FindNamespaceValuesRequest req = createFindNamespaceValuesRequest();
+        req.getPatterns().addAll(patterns);
+        if (namespaces != null) {
+            req.getNamespaces().addAll(namespaces);
+        }
+
+        final FindNamespaceValuesResponse res = webAPI.findNamespaceValues(req);
+        return res.getNamespaceValues();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<KamNode> findKamNodesByNamespaceValues(
+            final KamHandle kamHandle, final DialectHandle dialectHandle,
+            final List<NamespaceValue> namespaceValues,
+            final NodeFilter nodeFilter) {
+        if (kamHandle == null) {
+            throw new IllegalArgumentException("handle is null");
+        }
+
+        if (namespaceValues == null || namespaceValues.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "namespaceValues parameter is invalid");
+        }
+        // dialectHandle and nodeFilter can be null
+
+        checkValid();
+
+        final FindKamNodesByNamespaceValuesRequest req = createFindKamNodesByNamespaceValuesRequest();
+        req.setHandle(kamHandle);
+        req.getNamespaceValues().addAll(namespaceValues);
+
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
+        if (nodeFilter != null) {
+            req.setFilter(nodeFilter);
+        }
+
+        final FindKamNodesByNamespaceValuesResponse res = webAPI
+                .findKamNodesByNamespaceValues(req);
+        return res.getKamNodes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<NamespaceDescriptor> getAllNamespaces() {
+        checkValid();
+        
+        final GetAllNamespacesRequest req = createGetAllNamespacesRequest();
+        final GetAllNamespacesResponse res = webAPI.getAllNamespaces(req);
+        return res.getNamespaceDescriptors();
     }
 
     /**
@@ -96,7 +194,7 @@ class DefaultKAMService implements KAMService {
 
         final GetCatalogRequest req = createGetCatalogRequest();
 
-        final GetCatalogResponse res = ws.getCatalog(req);
+        final GetCatalogResponse res = webAPI.getCatalog(req);
         return res.getKams();
     }
 
@@ -104,7 +202,7 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-    public KamHandle loadKam(Kam kam) {
+    public LoadKamResponse loadKam(Kam kam) {
         if (kam == null || kam.getName() == null) {
             throw new IllegalArgumentException("kam parameter is invalid");
         }
@@ -113,24 +211,21 @@ class DefaultKAMService implements KAMService {
 
         final LoadKamRequest req = createLoadKamRequest();
         req.setKam(kam);
-
-        LoadKamResponse res = ws.loadKam(req);
-        while (res.getLoadStatus() == KAMLoadStatus.IN_PROCESS) {
-            // sleep and then retry
-            try {
-                Thread.sleep(SLEEP_TIME_MS);
-            } catch (InterruptedException e) {
-                // no-op
-            }
-
-            res = ws.loadKam(req);
-        }
-
-        if (res.getLoadStatus() == KAMLoadStatus.FAILED) {
-            return null;
-        }
-
-        return res.getHandle();
+        return webAPI.loadKam(req);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DialectHandle getDialect() {
+        // no parameters yet
+        
+        checkValid();
+        final GetDialectRequest req = createGetDialectRequest();
+        // nothing in the request
+        final GetDialectResponse res = webAPI.getDialect(req);
+        return res.getDialect();
     }
 
     /**
@@ -148,7 +243,7 @@ class DefaultKAMService implements KAMService {
                 createGetSupportingTermsRequest();
         req.setKamNode(node);
 
-        final GetSupportingTermsResponse res = ws.getSupportingTerms(req);
+        final GetSupportingTermsResponse res = webAPI.getSupportingTerms(req);
 
         final List<BelTerm> terms = res.getTerms();
         for (final BelTerm term : terms) {
@@ -174,7 +269,7 @@ class DefaultKAMService implements KAMService {
         req.setKamEdge(edge);
 
         final GetSupportingEvidenceResponse res =
-                ws.getSupportingEvidence(req);
+                webAPI.getSupportingEvidence(req);
         final List<BelStatement> stmts = res.getStatements();
         for (final BelStatement stmt : stmts) {
             final BelTerm subject = stmt.getSubjectTerm();
@@ -205,8 +300,8 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-	public List<KamNode> findKamNodesByFunction(final KamHandle handle,
-            final FunctionType function) {
+	public List<KamNode> findKamNodesByFunction(final KamHandle handle, 
+	        final DialectHandle dialectHandle, final FunctionType function) {
         if (handle == null) {
             throw new IllegalArgumentException("handle is null");
         }
@@ -220,6 +315,9 @@ class DefaultKAMService implements KAMService {
         final FindKamNodesByPatternsRequest req =
                 createFindKamNodesByPatternsRequest();
         req.setHandle(handle);
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
         req.getPatterns().add(".*");
 
         final NodeFilter nf = new NodeFilter();
@@ -230,7 +328,7 @@ class DefaultKAMService implements KAMService {
         nf.getFunctionTypeCriteria().add(ftfc);
         req.setFilter(nf);
 
-        final FindKamNodesByPatternsResponse res = ws
+        final FindKamNodesByPatternsResponse res = webAPI
                 .findKamNodesByPatterns(req);
         return res.getKamNodes();
     }
@@ -240,7 +338,8 @@ class DefaultKAMService implements KAMService {
      */
     @Override
 	public List<KamNode> findKamNodesByPatterns(final KamHandle handle,
-            final String regex, final NodeFilter nf) {
+	        final DialectHandle dialectHandle, final String regex, 
+	        final NodeFilter nf) {
         if (handle == null) {
             throw new IllegalArgumentException("handle is null");
         }
@@ -254,13 +353,16 @@ class DefaultKAMService implements KAMService {
         final FindKamNodesByPatternsRequest req =
                 createFindKamNodesByPatternsRequest();
         req.setHandle(handle);
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
 
         req.getPatterns().add(regex);
         if (nf != null) {
             req.setFilter(nf);
         }
 
-        final FindKamNodesByPatternsResponse res = ws
+        final FindKamNodesByPatternsResponse res = webAPI
                 .findKamNodesByPatterns(req);
         return res.getKamNodes();
     }
@@ -269,8 +371,9 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-	public List<KamEdge> getAdjacentKamEdges(final KamNode node,
-            final EdgeDirectionType direction, final EdgeFilter ef) {
+	public List<KamEdge> getAdjacentKamEdges(final DialectHandle dialectHandle, 
+	        final KamNode node, final EdgeDirectionType direction, 
+	        final EdgeFilter ef) {
         if (node == null) {
             throw new IllegalArgumentException("node is null");
         }
@@ -283,6 +386,9 @@ class DefaultKAMService implements KAMService {
 
         final GetAdjacentKamEdgesRequest req =
                 createGetAdjacentKamEdgesRequest();
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
         req.setKamNode(node);
         req.setDirection(direction);
 
@@ -290,8 +396,36 @@ class DefaultKAMService implements KAMService {
             req.setFilter(ef);
         }
 
-        final GetAdjacentKamEdgesResponse res = ws.getAdjacentKamEdges(req);
+        final GetAdjacentKamEdgesResponse res = webAPI.getAdjacentKamEdges(req);
         return res.getKamEdges();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SimplePath> interconnect(final DialectHandle dialectHandle, 
+            final Collection<KamNode> sources,
+            final Integer maxDepth) {
+        if (sources == null) {
+            throw new IllegalArgumentException("sources is null");
+        }
+        if (sources.isEmpty()) {
+            throw new IllegalArgumentException("sources is empty");
+        }
+        // maxDepth is nullable, so no null check
+
+        checkValid();
+
+        final InterconnectRequest req = createInterconnectRequest();
+        if (dialectHandle != null) {
+            req.setDialect(dialectHandle);
+        }
+        req.getSources().addAll(sources);
+        req.setMaxDepth(maxDepth);
+
+        final InterconnectResponse res = webAPI.interconnect(req);
+        return res.getPaths();
     }
 
     /**
@@ -300,11 +434,21 @@ class DefaultKAMService implements KAMService {
      * @throws RuntimeException Thrown to fail the existing request
      */
     protected void checkValid() {
-        if (!wsClient.isValid() || ws == null) {
+        if (webAPI == null || !clientConnector.isValid()) {
+            // attempt to reconfigure to see if WSDL is now up
+            clientConnector.reconfigure();
+        }
+        
+        // if reconfigure fails
+        if (webAPI == null || !clientConnector.isValid()) {
+            // FIXME move this message dialog out of the Kam service, UI
+            // has no place here
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
                     "Error connecting to the BELFramework Web Services.\n" +
                             "Please check the BELFramework Web Services Configuration.",
                     "Connection Error", JOptionPane.ERROR_MESSAGE);
+            // FIXME make this in a checked(?) exception so that layers using
+            // the kam service can create their own UI errors
             throw new RuntimeException("Connection error.");
         }
     }

@@ -17,7 +17,7 @@
 
 pluginName=KAMNavigator
 pluginDescription=KAM Navigator plugin for the BEL Framework.
-pluginVersion=1.0
+pluginVersion=1.2
 cytoscapeVersion=2.7,2.8
 pluginCategory=Communication/Scripting
 projectURL=http://www.openbel.org
