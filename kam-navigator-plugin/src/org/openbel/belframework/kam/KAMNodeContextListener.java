@@ -166,7 +166,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
      * 
      * @author James McMahon &lt;jmcmahon@selventa.com&gt;
      */
-    public static final class KnowledgeNeighborhoodDialogAction extends
+    private static final class KnowledgeNeighborhoodDialogAction extends
             CytoscapeAction {
         private static final long serialVersionUID = 2243171495622023060L;
 

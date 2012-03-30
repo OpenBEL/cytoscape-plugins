@@ -120,7 +120,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
      * @see LoadKAMDialog
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
-    public static final class SelectKAMDialogAction extends CytoscapeAction {
+    private static final class SelectKAMDialogAction extends CytoscapeAction {
         private static final long serialVersionUID = 2243171495622023060L;
 
         public SelectKAMDialogAction() {
@@ -142,7 +142,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
      *
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
-    public static final class SearchKAMDialogAction extends CytoscapeAction {
+    private static final class SearchKAMDialogAction extends CytoscapeAction {
         private static final long serialVersionUID = 2243171495622023060L;
 
         public SearchKAMDialogAction() {
@@ -164,7 +164,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
      * 
      * @author James McMahon &lt;jmcmahon@selventa.com&gt;
      */
-    public static final class SearchKAMListDialogAction extends CytoscapeAction {
+    private static final class SearchKAMListDialogAction extends CytoscapeAction {
         private static final long serialVersionUID = -5051721582642478695L;
 
         public SearchKAMListDialogAction() {
