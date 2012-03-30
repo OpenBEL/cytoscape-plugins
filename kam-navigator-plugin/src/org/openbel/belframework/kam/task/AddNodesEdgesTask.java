@@ -39,26 +39,30 @@ import cytoscape.task.Task;
 import cytoscape.view.CyNetworkView;
 
 /**
- * Package-protected {@link Task task} to interconnect
- * {@link KamNode kam nodes} and add to a {@link CyNetwork cytoscape network}.
- *
+ * Package-protected {@link Task task} to add {@link KamNode kam nodes} and then
+ * expand {@link KamEdge adjacent kam edges} to a {@link CyNetwork cytoscape
+ * network}.
+ * 
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#interconnect(KAMNetwork, List)}.
+ * {@link KAMTasks#addNodesAndExpand(KAMNetwork, List, EdgeDirectionType)}.
  * </p>
- *
+ * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-class InterconnectNodesTask extends AddNodeTask {
-    private static final String TITLE = "Interconnecting Nodes";
+final class AddNodesEdgesTask extends AddNodesTask {
+    private static final String TITLE = "Expanding Edges";
     private final KAMService kamService;
     private final List<KamNode> kamNodes;
+    private final EdgeDirectionType direction;
     private final Set<String> kamNodeIds;
 
-    InterconnectNodesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
+    AddNodesEdgesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes,
+            final EdgeDirectionType direction) {
         super(kamNetwork, kamNodes);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
+        this.direction = direction;
         this.kamNodeIds = new HashSet<String>(kamNodes.size());
         for (final KamNode kamNode : kamNodes) {
             this.kamNodeIds.add(kamNode.getId());
@@ -76,7 +80,7 @@ class InterconnectNodesTask extends AddNodeTask {
     /**
      * {@inheritDoc}
      *
-     * Adds {@link KamNode kam nodes}, interconnects them adding
+     * Adds {@link KamNode kam nodes}, expands to adjacent
      * {@link KamEdge kam edges}, adds them all to the
      * {@link CyNetwork cytoscape network}, and re-renders the view.
      */
@@ -85,34 +89,20 @@ class InterconnectNodesTask extends AddNodeTask {
         // run AddNodes (super) task
         super.addNodes();
 
-        m.setStatus("Interconnecting network for " + kamNodes.size() + " selected nodes.");
+        setStatus();
 
-        // Add existing KAM nodes to selected
-        kamNodes.addAll(kamNetwork.getKAMNodes());
+        for (final KamNode selectedNode : kamNodes) {
+            if (halt) {
+                // stop if halted
+                break;
+            }
+            
+            final List<KamEdge> edges = kamService.getAdjacentKamEdges(
+                    kamNetwork.getDialectHandle(), selectedNode, direction,
+                    null);
 
-        // If more than one node selected, link up shared edges
-        int numNodes = kamNodes.size();
-        if (numNodes > 1) {
-            for (final KamNode selectedNode : kamNodes) {
-                if (halt) {
-                    // stop if halted
-                    break;
-                }
-                
-                final List<KamEdge> edges = kamService
-                        .getAdjacentKamEdges(kamNetwork.getDialectHandle(), 
-                                selectedNode, EdgeDirectionType.BOTH, null);
-
-                for (final KamEdge edge : edges) {
-                    final KamNode esrc = (KamNode) edge.getSource();
-                    final KamNode etgt = (KamNode) edge.getTarget();
-
-                    // filter out adjacent edges not between selected nodes
-                    if (kamNodeIds.contains(esrc.getId())
-                            && kamNodeIds.contains(etgt.getId())) {
-                        kamNetwork.addEdge(edge);
-                    }
-                }
+            for (final KamEdge edge : edges) {
+                kamNetwork.addEdge(edge);
             }
         }
         
@@ -131,10 +121,25 @@ class InterconnectNodesTask extends AddNodeTask {
 
         final CyNetworkView view = Cytoscape.getNetworkView(cyn.getIdentifier());
         view.redrawGraph(true, true);
-
-        Cytoscape.setCurrentNetwork(cyn.getIdentifier());
-        Cytoscape.setCurrentNetworkView(cyn.getIdentifier());
+        Cytoscape.getDesktop().setFocus(cyn.getIdentifier());
 
         m.setPercentCompleted(100);
+    }
+
+    private void setStatus() {
+        final String edgeType;
+        switch (direction) {
+            case FORWARD:
+                edgeType = "downstream";
+                break;
+            case REVERSE:
+                edgeType = "upstream";
+                break;
+            default:
+                edgeType = "downstream and upstream";
+                break;
+        }
+        m.setStatus("Expanding " + edgeType + " edges for " + kamNodes.size()
+                + " selected nodes.");
     }
 }

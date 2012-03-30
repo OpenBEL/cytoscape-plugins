@@ -39,19 +39,19 @@ import cytoscape.task.Task;
 public class KAMTasks {
 
     /**
-     * Call the {@link AddNodeTask add node task}.
+     * Call the {@link AddNodesTask}.
      *
-     * @see AddNodeTask#run()
+     * @see AddNodesTask#run()
      * @param kamNetwork the {@link KAMNetwork kam network} to add to
      * @param kamNodes the {@link KamNode kam nodes} to add
      */
     public static void addNodes(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
-        final AddNodeTask task = new AddNodeTask(kamNetwork, kamNodes);
+        final AddNodesTask task = new AddNodesTask(kamNetwork, kamNodes);
         Utility.executeTask(task);
     }
     
     /**
-     * Call the {@link AddEdgeTask add edge task}.
+     * Call the {@link AddEdgeTask}.
      *
      * @see AddEdgeTask#run()
      * @param kamNetwork the {@link KAMNetwork kam network} to add to
@@ -64,27 +64,27 @@ public class KAMTasks {
     
 
     /**
-     * Call the {@link NodeEdgesTask node edges task}.
+     * Call the {@link AddNodesEdgesTask}.
      *
-     * @see NodeEdgesTask#run()
+     * @see AddNodesEdgesTask#run()
      * @param kamNetwork the {@link KAMNetwork kam network} to add to
      * @param kamNodes the {@link KamNode kam nodes} to expand
      */
-    public static void expandNodes(final KAMNetwork kamNetwork, final List<KamNode> kamNodes,
+    public static void addNodesAndExpand(final KAMNetwork kamNetwork, final List<KamNode> kamNodes,
             final EdgeDirectionType direction) {
-        final NodeEdgesTask task = new NodeEdgesTask(kamNetwork, kamNodes, direction);
+        final AddNodesEdgesTask task = new AddNodesEdgesTask(kamNetwork, kamNodes, direction);
         Utility.executeTask(task);
     }
 
     /**
-     * Call the {@link InterconnectNodesTask interconnect nodes task}.
+     * Call the {@link AddNodesInterconnectTask}.
      *
-     * @see InterconnectNodesTask#run()
+     * @see AddNodesInterconnectTask#run()
      * @param kamNetwork the {@link KAMNetwork kam network} to add to
      * @param kamNodes the {@link KamNode kam nodes} to interconnect
      */
-    public static void interconnect(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
-        final InterconnectNodesTask task = new InterconnectNodesTask(kamNetwork, kamNodes);
+    public static void addNodesAndInterconnect(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
+        final AddNodesInterconnectTask task = new AddNodesInterconnectTask(kamNetwork, kamNodes);
         Utility.executeTask(task);
     }
 

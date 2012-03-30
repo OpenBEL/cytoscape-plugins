@@ -49,13 +49,13 @@ import cytoscape.view.CyNetworkView;
  * The {@link #addNodes()} function is protected to allow subclassing tasks to
  * add nodes.
  *
- * @see NodeEdgesTask#run()
- * @see InterconnectNodesTask#run()
+ * @see AddNodesEdgesTask#run()
+ * @see AddNodesInterconnectTask#run()
  * </p>
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-class AddNodeTask implements Task {
+class AddNodesTask implements Task {
     private static final String TITLE = "Adding Nodes";
     protected TaskMonitor m;
     protected Set<CyNode> cynodes;
@@ -63,7 +63,7 @@ class AddNodeTask implements Task {
     protected final KAMNetwork kamNetwork;
     private final List<KamNode> kamNodes;
 
-    AddNodeTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
+    AddNodesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
         this.kamNodes = kamNodes;
         this.kamNetwork = kamNetwork;
     }

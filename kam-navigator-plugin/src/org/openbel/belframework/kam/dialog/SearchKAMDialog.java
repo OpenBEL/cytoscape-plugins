@@ -424,19 +424,19 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 EdgeOption eeo = (EdgeOption) edgeCmb.getSelectedItem();
                 switch (eeo) {
                     case ALL_EDGES:
-                        KAMTasks.expandNodes(kamNetwork, selectedNodes, EdgeDirectionType.BOTH);
+                        KAMTasks.addNodesAndExpand(kamNetwork, selectedNodes, EdgeDirectionType.BOTH);
                         break;
                     case DOWNSTREAM:
-                        KAMTasks.expandNodes(kamNetwork, selectedNodes, EdgeDirectionType.FORWARD);
+                        KAMTasks.addNodesAndExpand(kamNetwork, selectedNodes, EdgeDirectionType.FORWARD);
                         break;
                     case INTERCONNECT:
-                        KAMTasks.interconnect(kamNetwork, selectedNodes);
+                        KAMTasks.addNodesAndInterconnect(kamNetwork, selectedNodes);
                         break;
                     case NONE:
                         KAMTasks.addNodes(kamNetwork, selectedNodes);
                         break;
                     case UPSTREAM:
-                        KAMTasks.expandNodes(kamNetwork, selectedNodes, EdgeDirectionType.REVERSE);
+                        KAMTasks.addNodesAndExpand(kamNetwork, selectedNodes, EdgeDirectionType.REVERSE);
                         break;
                 }
             }
