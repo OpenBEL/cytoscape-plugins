@@ -47,14 +47,14 @@ import cytoscape.view.CyNetworkView;
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
-final class AddEdgeTask implements Task {
+final class AddEdgesTask implements Task {
     private static final String TITLE = "Adding Edges";
     protected TaskMonitor m;
     protected boolean halt = false;
     protected final KAMNetwork kamNetwork;
     private final List<KamEdge> kamEdges;
 
-    AddEdgeTask(KAMNetwork kamNetwork, List<KamEdge> kamEdges) {
+    AddEdgesTask(KAMNetwork kamNetwork, List<KamEdge> kamEdges) {
         this.kamEdges = kamEdges;
         this.kamNetwork = kamNetwork;
     }

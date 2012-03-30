@@ -51,14 +51,14 @@ public class KAMTasks {
     }
     
     /**
-     * Call the {@link AddEdgeTask}.
+     * Call the {@link AddEdgesTask}.
      *
-     * @see AddEdgeTask#run()
+     * @see AddEdgesTask#run()
      * @param kamNetwork the {@link KAMNetwork kam network} to add to
      * @param kamNodes the {@link KamEdge kam edges} to add
      */
     public static void addEdges(final KAMNetwork kamNetwork, final List<KamEdge> kamEdges) {
-        final AddEdgeTask task = new AddEdgeTask(kamNetwork, kamEdges);
+        final AddEdgesTask task = new AddEdgesTask(kamNetwork, kamEdges);
         Utility.executeTask(task);
     }
     
