@@ -41,6 +41,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.openbel.belframework.kam.dialog.KnowledgeNeighborhoodDialog;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -56,6 +57,7 @@ import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.layout.CyLayoutAlgorithm;
 import cytoscape.layout.CyLayouts;
+import cytoscape.util.CytoscapeAction;
 import cytoscape.view.CyNetworkView;
 import cytoscape.view.CytoscapeDesktop;
 import ding.view.NodeContextMenuListener;
@@ -152,7 +154,34 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             kamNodeItem.add(placeholder);
         }
         
+        // add "Knowledge Neighborhood" action to context menu
+        kamNodeItem.add(new KnowledgeNeighborhoodDialogAction());
+        
         menu.add(kamNodeItem);
+    }
+
+    /**
+     * The {@link CytoscapeAction action} to trigger the Knowledge Neighborhood
+     * dialog.
+     * 
+     * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+     */
+    public static final class KnowledgeNeighborhoodDialogAction extends
+            CytoscapeAction {
+        private static final long serialVersionUID = 2243171495622023060L;
+
+        public KnowledgeNeighborhoodDialogAction() {
+            super("Knowledge Neighborhood");
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            KnowledgeNeighborhoodDialog dialog = new KnowledgeNeighborhoodDialog();
+            dialog.setVisible(true);
+        }
     }
 
     /**
