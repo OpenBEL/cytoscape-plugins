@@ -77,7 +77,7 @@ import cytoscape.util.FileUtil;
 public final class SearchKAMListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
-    private static final String DIALOG_TITLE = "Add KAM List";
+    public static final String TITLE = "Add KAM Nodes From List";
 
     private final KAMService kamService;
     private final List<String> identifiers = new ArrayList<String>();
@@ -100,7 +100,7 @@ public final class SearchKAMListDialog extends JDialog {
     private JScrollPane tableScrollPane;
 
     public SearchKAMListDialog() {
-        super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
+        super(Cytoscape.getDesktop(), TITLE, false);
 
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         initUI();

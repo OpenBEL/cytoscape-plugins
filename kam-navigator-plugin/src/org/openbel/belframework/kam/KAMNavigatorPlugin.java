@@ -168,7 +168,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         private static final long serialVersionUID = -5051721582642478695L;
 
         public SearchKAMListDialogAction() {
-            super("Add KAM List");
+            super(SearchKAMListDialog.TITLE);
         }
 
         /**
