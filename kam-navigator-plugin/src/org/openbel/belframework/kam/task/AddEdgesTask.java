@@ -73,6 +73,8 @@ class AddEdgesTask implements Task {
         
         monitor.setStatus("Adding " + edgesToAdd.size() + " edges");
         int percentage = 0;
+        // TODO percentages should take into account previous operations
+        // used by getEdgesToAdd
         monitor.setPercentCompleted(percentage);
 
         Set<CyEdge> addedEdges = new HashSet<CyEdge>();
