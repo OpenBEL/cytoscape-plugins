@@ -58,13 +58,18 @@ public class Utility {
     }
 
     /**
-     * Executes the {@link Task task} using the cytoscape
-     * {@link TaskManager task manager}.
-     *
-     * @param task the {@link Task task} to execute, which cannot be null
-     * @throws IllegalArgumentException Thrown if {@code task} is {@code null}
+     * Executes the {@link Task task} using the cytoscape {@link TaskManager
+     * task manager}.
+     * 
+     * @param task
+     *            the {@link Task task} to execute, which cannot be null
+     * @return true value indicates that task completed successfully. false
+     *         value indicates that task was halted by user or task encountered
+     *         an error.
+     * @throws IllegalArgumentException
+     *             Thrown if {@code task} is {@code null}
      */
-    public static void executeTask(final Task task) {
+    public static boolean executeTask(final Task task) {
         if (task == null) {
             throw new IllegalArgumentException("task cannot be null");
         }
@@ -74,7 +79,7 @@ public class Utility {
         taskcfg.displayCancelButton(true);
         taskcfg.displayStatus(true);
         taskcfg.setAutoDispose(true);
-        TaskManager.executeTask(task, taskcfg);
+        return TaskManager.executeTask(task, taskcfg);
     }
 
     /**
