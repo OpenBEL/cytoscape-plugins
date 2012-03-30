@@ -47,6 +47,7 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
@@ -160,7 +161,11 @@ public final class SearchKAMListDialog extends JDialog {
         fileTextField.setEditable(false);
 
         // model for results table
-        resultsTable.setModel(new ResultsTableModel());
+        ResultsTableModel model = new ResultsTableModel();
+        resultsTable.setModel(model);
+        resultsTable.setRowSorter(new TableRowSorter<ResultsTableModel>(model));
+        // disable selection as selection currently has no effect on whats added
+        resultsTable.setCellSelectionEnabled(false);
         
         // disable buttons
         searchButton.setEnabled(false);
