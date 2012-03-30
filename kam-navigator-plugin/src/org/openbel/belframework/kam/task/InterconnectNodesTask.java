@@ -30,7 +30,9 @@ import cytoscape.task.Task;
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 final class InterconnectNodesTask extends AddEdgesTask {
-    private static final int DEFAULT_INTERCONNECT_DEPTH = 1;
+    // interconnect should always have a max depth of 1, otherwise it is a 
+    // pathfind
+    private static final int INTERCONNECT_DEPTH = 1;
 
     private final Set<CyNode> cynodes;
     private final KAMService kamService;
@@ -62,7 +64,7 @@ final class InterconnectNodesTask extends AddEdgesTask {
         // or alternatively, put this in a thread?
         final List<SimplePath> paths = kamService.interconnect(
                 kamNetwork.getDialectHandle(), kamNodes,
-                DEFAULT_INTERCONNECT_DEPTH);
+                INTERCONNECT_DEPTH);
         final List<KamEdge> edges = new ArrayList<KamEdge>();
         for (final SimplePath path : paths) {
             if (halt) {
