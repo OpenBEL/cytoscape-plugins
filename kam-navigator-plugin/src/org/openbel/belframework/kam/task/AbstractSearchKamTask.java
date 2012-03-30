@@ -21,6 +21,8 @@ package org.openbel.belframework.kam.task;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -136,14 +138,29 @@ public abstract class AbstractSearchKamTask implements Task {
         monitor.setStatus("Searching for KAM Nodes");
 
         monitor.setPercentCompleted(0);
-        Collection<KamNode> nodes = searchKAMNodes();
+        List<KamNode> nodes = searchKAMNodes();
         if (!halt && nodes != null) {
+            // sort nodes by label
+            Collections.sort(nodes, new Comparator<KamNode>() {
+                @Override
+                public int compare(KamNode o1, KamNode o2) {
+                    if (o1 == null ^ o2 == null) {
+                        return (o1 == null) ? -1 : 1;
+                    }
+                    if (o1 == null && o2 == null) {
+                        return 0;
+                    }
+
+                    return o1.getLabel().compareTo(o2.getLabel());
+                }
+            });
+            
             updateUI(nodes);
         }
         monitor.setPercentCompleted(100);
     }
 
-    private Collection<KamNode> searchKAMNodes() {
+    private List<KamNode> searchKAMNodes() {
         ExecutorService e = Executors.newSingleThreadExecutor();
         Future<List<KamNode>> future = e.submit(buildCallable());
 
