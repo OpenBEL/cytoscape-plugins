@@ -67,8 +67,13 @@ import cytoscape.task.Task;
 import cytoscape.util.CyFileFilter;
 import cytoscape.util.FileUtil;
 
-// TODO javadocs
-// TODO disable search button until KAMNetwork is selected
+/**
+ * {@link SearchKAMListDialog} represents the UI for the Add KAM Nodes from list
+ * dialog.
+ * 
+ * @author James McMahon &lt;jmcmahon@selventa.com&gt;
+ */
+// FIXME disable search button until KAMNetwork is selected
 public final class SearchKAMListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
