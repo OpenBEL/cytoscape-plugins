@@ -19,11 +19,13 @@
  */
 package org.openbel.belframework.kam.task;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.Utility;
 
 import com.selventa.belframework.ws.client.KamEdge;
 
@@ -47,16 +49,16 @@ import cytoscape.view.CyNetworkView;
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
-final class AddEdgesTask implements Task {
+class AddEdgesTask implements Task {
     private static final String TITLE = "Adding Edges";
-    protected TaskMonitor m;
+    private TaskMonitor monitor;
     protected boolean halt = false;
     protected final KAMNetwork kamNetwork;
-    private final List<KamEdge> kamEdges;
+    protected final Collection<KamEdge> kamEdges;
 
-    AddEdgesTask(KAMNetwork kamNetwork, List<KamEdge> kamEdges) {
-        this.kamEdges = kamEdges;
+    AddEdgesTask(KAMNetwork kamNetwork, Collection<KamEdge> kamEdges) {
         this.kamNetwork = kamNetwork;
+        this.kamEdges = kamEdges;
     }
 
     /**
@@ -64,15 +66,20 @@ final class AddEdgesTask implements Task {
      */
     @Override
     public void run() {
-        m.setStatus("Adding " + kamEdges.size() + " edges");
+        Collection<KamEdge> edgesToAdd = getEdgesToAdd();
+        if (Utility.isEmpty(edgesToAdd) || halt) {
+            return;
+        }
+        
+        monitor.setStatus("Adding " + edgesToAdd.size() + " edges");
         int percentage = 0;
-        m.setPercentCompleted(percentage);
+        monitor.setPercentCompleted(percentage);
 
         Set<CyEdge> addedEdges = new HashSet<CyEdge>();
         // use current percentage to keep track of values less then 1
         double currentPercentage = 0.0;
-        double nodePercent = (1.0 / kamEdges.size()) * 100;
-        for (final KamEdge edge : kamEdges) {
+        double nodePercent = (1.0 / edgesToAdd.size()) * 100;
+        for (final KamEdge edge : edgesToAdd) {
             if (halt) {
                 // stop if halted
                 break;
@@ -80,6 +87,7 @@ final class AddEdgesTask implements Task {
 
             CyEdge cyEdge = kamNetwork.addEdge(edge);
             addedEdges.add(cyEdge);
+            
             // TODO move percentage code (used by this and add nodes)
             // to some shared location
             currentPercentage += nodePercent;
@@ -88,7 +96,7 @@ final class AddEdgesTask implements Task {
                 // greater
                 int round = (int) Math.round(currentPercentage);
                 percentage += round;
-                m.setPercentCompleted(percentage);
+                monitor.setPercentCompleted(percentage);
                 // set to remainder to even out percentages
                 currentPercentage = currentPercentage - round;
             }
@@ -102,6 +110,7 @@ final class AddEdgesTask implements Task {
 
         cyn.unselectAllEdges();
         cyn.setSelectedEdgeState(addedEdges, true);
+        // do we want to keep track of added nodes and select those as well?
 
         // TODO push this default layout up somewhere
         CyLayoutAlgorithm dcl = CyLayouts.getLayout("degree-circle");
@@ -115,7 +124,7 @@ final class AddEdgesTask implements Task {
         Cytoscape.setCurrentNetwork(cyn.getIdentifier());
         Cytoscape.setCurrentNetworkView(cyn.getIdentifier());
 
-        m.setPercentCompleted(100);
+        monitor.setPercentCompleted(100);
     }
 
     /**
@@ -130,9 +139,9 @@ final class AddEdgesTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public void setTaskMonitor(TaskMonitor m)
+    public void setTaskMonitor(TaskMonitor monitor)
             throws IllegalThreadStateException {
-        this.m = m;
+        this.monitor = monitor;
     }
 
     /**
@@ -141,6 +150,17 @@ final class AddEdgesTask implements Task {
     @Override
     public String getTitle() {
         return TITLE;
+    }
+    
+    /**
+     * Get or retrieve edges to be added to the network.
+     * 
+     * Override this to implement different methods of retrieving edges
+     * 
+     * @return {@link Collection} of {@link KamEdge KamEdges}
+     */
+    protected Collection<KamEdge> getEdgesToAdd() {
+        return kamEdges;
     }
 
 }

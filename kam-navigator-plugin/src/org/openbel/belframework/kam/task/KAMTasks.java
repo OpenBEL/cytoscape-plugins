@@ -20,6 +20,7 @@
 package org.openbel.belframework.kam.task;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.Utility;
@@ -28,6 +29,7 @@ import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
 
+import cytoscape.CyNode;
 import cytoscape.task.Task;
 
 /**
@@ -97,6 +99,39 @@ public class KAMTasks {
             final List<KamNode> kamNodes) {
         final AddNodesInterconnectTask task = new AddNodesInterconnectTask(
                 kamNetwork, kamNodes);
+        Utility.executeTask(task);
+    }
+
+    /**
+     * Call the {@link ExpandNodesTask}.
+     * 
+     * @param kamNetwork
+     *            the {@link KAMNetwork kam network} to add to
+     * @param cynodes
+     *            the {@link CyNode CyNodes} to expand
+     * @param direction
+     *            the {@link EdgeDirectionType} to expand in
+     */
+    public static void expandNodes(final KAMNetwork kamNetwork,
+            final Set<CyNode> cynodes, final EdgeDirectionType direction) {
+        final ExpandNodesTask task = new ExpandNodesTask(kamNetwork, cynodes,
+                direction);
+        Utility.executeTask(task);
+    }
+
+    /**
+     * Call the {@link InterconnectNodesTask}.
+     * 
+     * 
+     * @param kamNetwork
+     *            the {@link KAMNetwork kam network} to add to
+     * @param cynodes
+     *            the {@link CyNode CyNodes} to interconnect, must be 2 or more
+     */
+    public static void interconnectNodes(final KAMNetwork kamNetwork,
+            final Set<CyNode> cynodes) {
+        final InterconnectNodesTask task = new InterconnectNodesTask(
+                kamNetwork, cynodes);
         Utility.executeTask(task);
     }
 
