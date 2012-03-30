@@ -33,58 +33,70 @@ import cytoscape.task.Task;
 /**
  * {@link KAMTasks} defines a wrapper to call supported, long-running
  * {@link Task cytoscape tasks}.
- *
+ * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 public class KAMTasks {
 
     /**
      * Call the {@link AddNodesTask}.
-     *
+     * 
      * @see AddNodesTask#run()
-     * @param kamNetwork the {@link KAMNetwork kam network} to add to
-     * @param kamNodes the {@link KamNode kam nodes} to add
+     * @param kamNetwork
+     *            the {@link KAMNetwork kam network} to add to
+     * @param kamNodes
+     *            the {@link KamNode kam nodes} to add
      */
-    public static void addNodes(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
+    public static void addNodes(final KAMNetwork kamNetwork,
+            final List<KamNode> kamNodes) {
         final AddNodesTask task = new AddNodesTask(kamNetwork, kamNodes);
         Utility.executeTask(task);
     }
-    
+
     /**
      * Call the {@link AddEdgesTask}.
-     *
+     * 
      * @see AddEdgesTask#run()
-     * @param kamNetwork the {@link KAMNetwork kam network} to add to
-     * @param kamNodes the {@link KamEdge kam edges} to add
+     * @param kamNetwork
+     *            the {@link KAMNetwork kam network} to add to
+     * @param kamNodes
+     *            the {@link KamEdge kam edges} to add
      */
-    public static void addEdges(final KAMNetwork kamNetwork, final List<KamEdge> kamEdges) {
+    public static void addEdges(final KAMNetwork kamNetwork,
+            final List<KamEdge> kamEdges) {
         final AddEdgesTask task = new AddEdgesTask(kamNetwork, kamEdges);
         Utility.executeTask(task);
     }
-    
 
     /**
      * Call the {@link AddNodesEdgesTask}.
-     *
+     * 
      * @see AddNodesEdgesTask#run()
-     * @param kamNetwork the {@link KAMNetwork kam network} to add to
-     * @param kamNodes the {@link KamNode kam nodes} to expand
+     * @param kamNetwork
+     *            the {@link KAMNetwork kam network} to add to
+     * @param kamNodes
+     *            the {@link KamNode kam nodes} to expand
      */
-    public static void addNodesAndExpand(final KAMNetwork kamNetwork, final List<KamNode> kamNodes,
-            final EdgeDirectionType direction) {
-        final AddNodesEdgesTask task = new AddNodesEdgesTask(kamNetwork, kamNodes, direction);
+    public static void addNodesAndExpand(final KAMNetwork kamNetwork,
+            final List<KamNode> kamNodes, final EdgeDirectionType direction) {
+        final AddNodesEdgesTask task = new AddNodesEdgesTask(kamNetwork,
+                kamNodes, direction);
         Utility.executeTask(task);
     }
 
     /**
      * Call the {@link AddNodesInterconnectTask}.
-     *
+     * 
      * @see AddNodesInterconnectTask#run()
-     * @param kamNetwork the {@link KAMNetwork kam network} to add to
-     * @param kamNodes the {@link KamNode kam nodes} to interconnect
+     * @param kamNetwork
+     *            the {@link KAMNetwork kam network} to add to
+     * @param kamNodes
+     *            the {@link KamNode kam nodes} to interconnect
      */
-    public static void addNodesAndInterconnect(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
-        final AddNodesInterconnectTask task = new AddNodesInterconnectTask(kamNetwork, kamNodes);
+    public static void addNodesAndInterconnect(final KAMNetwork kamNetwork,
+            final List<KamNode> kamNodes) {
+        final AddNodesInterconnectTask task = new AddNodesInterconnectTask(
+                kamNetwork, kamNodes);
         Utility.executeTask(task);
     }
 
