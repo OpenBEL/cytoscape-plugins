@@ -31,7 +31,6 @@ import static com.selventa.belframework.ws.client.ObjectFactory.createGetAllName
 import static com.selventa.belframework.ws.client.ObjectFactory.createFindNamespaceValuesRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByNamespaceValuesRequest;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
