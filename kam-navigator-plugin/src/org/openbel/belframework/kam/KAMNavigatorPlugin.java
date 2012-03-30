@@ -98,8 +98,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         kiMenu.add(new SearchKAMDialogAction());
         
         // add "Add Kam List" action to submenu
-        // TODO uncomment when functionality is completed
-        // kiMenu.add(new SearchKAMListDialogAction());
+        kiMenu.add(new SearchKAMListDialogAction());
         
         // add separtor before bel configuration entry
         kiMenu.addSeparator();
