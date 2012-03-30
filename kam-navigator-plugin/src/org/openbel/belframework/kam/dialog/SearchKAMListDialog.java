@@ -89,12 +89,14 @@ public final class SearchKAMListDialog extends JDialog {
     // swing fields
     private JButton addButton;
     private JButton browseButton;
+    private JLabel browseResultsLabel;
     private JButton cancelButton;
     private JTextField fileTextField;
     private JComboBox namespaceComboBox;
     private JLabel namespaceLabel;
     private JComboBox networkComboBox;
     private JLabel networkLabel;
+    private JLabel resultsFoundLabel;
     private JPanel resultsPanel;
     private JTable resultsTable;
     private JButton searchButton;
@@ -167,6 +169,11 @@ public final class SearchKAMListDialog extends JDialog {
         // disable selection as selection currently has no effect on whats added
         resultsTable.setCellSelectionEnabled(false);
         
+        // results label
+        browseResultsLabel.setText("No file loaded");
+        // resultsFoundLabel.setText("0 found");
+        resultsFoundLabel.setVisible(false);
+        
         // disable buttons
         searchButton.setEnabled(false);
         addButton.setEnabled(false);
@@ -202,6 +209,12 @@ public final class SearchKAMListDialog extends JDialog {
         }
 
         searchButton.setEnabled(!Utility.isEmpty(identifiers));
+        
+        int results = 0;
+        if (identifiers != null) {
+            results = identifiers.size();
+        }
+        browseResultsLabel.setText(results + " identifiers in file");
     }
 
     private void cancelButtonActionPerformed(ActionEvent e) {
@@ -232,6 +245,9 @@ public final class SearchKAMListDialog extends JDialog {
             protected void updateUI(Collection<KamNode> nodes) {
                 model.setData(nodes);
                 addButton.setEnabled(!Utility.isEmpty(nodes));
+            
+                resultsFoundLabel.setText(nodes.size() + " found");
+                resultsFoundLabel.setVisible(true);
             }
         };
         Utility.executeTask(task);
@@ -254,14 +270,16 @@ public final class SearchKAMListDialog extends JDialog {
         namespaceLabel = new JLabel();
         fileTextField = new JTextField();
         browseButton = new JButton();
-        searchButton = new JButton();
         resultsPanel = new JPanel();
         addButton = new JButton();
         cancelButton = new JButton();
         tableScrollPane = new JScrollPane();
         resultsTable = new JTable();
+        resultsFoundLabel = new JLabel();
+        searchButton = new JButton();
         networkLabel = new JLabel();
         networkComboBox = new JComboBox();
+        browseResultsLabel = new JLabel();
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Add KAM List");
@@ -280,8 +298,6 @@ public final class SearchKAMListDialog extends JDialog {
             }
         });
 
-        searchButton.setText("Search");
-
         addButton.setText("Add");
 
         cancelButton.setText("Cancel");
@@ -292,6 +308,10 @@ public final class SearchKAMListDialog extends JDialog {
         });
 
         tableScrollPane.setViewportView(resultsTable);
+
+        resultsFoundLabel.setText("n found");
+
+        searchButton.setText("Search");
 
         GroupLayout resultsPanelLayout = new GroupLayout(resultsPanel);
         resultsPanel.setLayout(resultsPanelLayout);
@@ -304,25 +324,34 @@ public final class SearchKAMListDialog extends JDialog {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(cancelButton)
                         .addGap(18, 18, 18)
+                        .addComponent(searchButton)
+                        .addGap(18, 18, 18)
                         .addComponent(addButton))
-                    .addComponent(tableScrollPane, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(tableScrollPane, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
+                    .addGroup(resultsPanelLayout.createSequentialGroup()
+                        .addComponent(resultsFoundLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         resultsPanelLayout.setVerticalGroup(
             resultsPanelLayout.createParallelGroup(Alignment.LEADING)
             .addGroup(resultsPanelLayout.createSequentialGroup()
-                .addContainerGap(17, Short.MAX_VALUE)
-                .addComponent(tableScrollPane, GroupLayout.PREFERRED_SIZE, 269, GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(tableScrollPane, GroupLayout.PREFERRED_SIZE, 316, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(ComponentPlacement.RELATED)
+                .addComponent(resultsFoundLabel)
+                .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(resultsPanelLayout.createParallelGroup(Alignment.BASELINE)
                     .addComponent(addButton)
-                    .addComponent(cancelButton))
+                    .addComponent(cancelButton)
+                    .addComponent(searchButton))
                 .addContainerGap())
         );
 
         networkLabel.setText("Network:");
 
         networkComboBox.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        browseResultsLabel.setText("n identifiers in file");
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -337,15 +366,15 @@ public final class SearchKAMListDialog extends JDialog {
                         .addGap(18, 18, 18)
                         .addComponent(browseButton))
                     .addGroup(Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(searchButton))
+                        .addComponent(browseResultsLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(Alignment.TRAILING)
                             .addComponent(namespaceLabel)
                             .addComponent(networkLabel))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(Alignment.LEADING)
-                            .addComponent(namespaceComboBox, 0, 260, Short.MAX_VALUE)
+                            .addComponent(namespaceComboBox, 0, 336, Short.MAX_VALUE)
                             .addComponent(networkComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -364,9 +393,9 @@ public final class SearchKAMListDialog extends JDialog {
                 .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                     .addComponent(fileTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addComponent(browseButton))
-                .addGap(18, 18, 18)
-                .addComponent(searchButton)
                 .addPreferredGap(ComponentPlacement.RELATED)
+                .addComponent(browseResultsLabel)
+                .addGap(18, 18, 18)
                 .addComponent(resultsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
