@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.openbel.belframework.kam.EdgeOption;
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.NetworkOption;
@@ -553,54 +554,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
             final String lowerLabel = node.getLabel().toLowerCase();
 
             return lowerLabel.contains(filterTxt.getText().toLowerCase());
-        }
-    }
-
-    /**
-     * {@link EdgeOption} enum for the different types of expansion rules.
-     *
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private enum EdgeOption {
-        /**
-         * Expand downstream and upstream of each node being added.  The nodes
-         * and all adjacent edges will be added to the network.
-         */
-        ALL_EDGES ("All Edges"),
-        /**
-         * Expand downstream of each node being added.  The nodes and all
-         * downstream edges will be added to the network.
-         */
-        DOWNSTREAM ("Downstream Edges"),
-        /**
-         * Expand upstream of each node being added.  The nodes and all
-         * upstream edges will be added to the network.
-         */
-        UPSTREAM ("Upstream Edges"),
-        /**
-         * Expand the selected nodes with only edges that interconnect between
-         * them.  The selected nodes and any interconnected edges are added to
-         * the network.
-         */
-        INTERCONNECT ("Interconnect Nodes"),
-        /**
-         * Do not expand the selected nodes to include edges.  Only the
-         * selected nodes are added to the network.
-         */
-        NONE ("None");
-
-        private final String label;
-
-        private EdgeOption(final String label) {
-            this.label = label;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return label;
         }
     }
 }

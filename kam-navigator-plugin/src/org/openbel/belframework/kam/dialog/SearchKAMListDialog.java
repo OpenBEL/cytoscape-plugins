@@ -49,6 +49,7 @@ import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.openbel.belframework.kam.EdgeOption;
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.NetworkOption;
@@ -58,6 +59,8 @@ import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
+import com.selventa.belframework.ws.client.EdgeDirectionType;
+import com.selventa.belframework.ws.client.FunctionType;
 import com.selventa.belframework.ws.client.KamNode;
 import com.selventa.belframework.ws.client.Namespace;
 import com.selventa.belframework.ws.client.NamespaceDescriptor;
@@ -79,6 +82,7 @@ public final class SearchKAMListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
     public static final String TITLE = "Add KAM Nodes From List";
+    private static final String ALL_SELECTION = "ALL";
 
     private final KAMService kamService;
     private final List<String> identifiers = new ArrayList<String>();
@@ -91,7 +95,11 @@ public final class SearchKAMListDialog extends JDialog {
     private JButton browseButton;
     private JLabel browseResultsLabel;
     private JButton cancelButton;
+    private JComboBox edgeComboBox;
+    private JLabel edgeLabel;
     private JTextField fileTextField;
+    private JComboBox functionComboBox;
+    private JLabel functionLabel;
     private JComboBox namespaceComboBox;
     private JLabel namespaceLabel;
     private JComboBox networkComboBox;
@@ -168,7 +176,21 @@ public final class SearchKAMListDialog extends JDialog {
         resultsTable.setRowSorter(new TableRowSorter<ResultsTableModel>(model));
         // disable selection as selection currently has no effect on whats added
         resultsTable.setCellSelectionEnabled(false);
-        
+
+        // edge model
+        edgeComboBox.setModel(new DefaultComboBoxModel(EdgeOption.values()));
+        edgeComboBox.getModel().setSelectedItem(EdgeOption.INTERCONNECT);
+
+        // function model
+        FunctionType[] functions = Utility.getFunctions();
+        String[] funcStrings = new String[functions.length + 1];
+        funcStrings[0] = ALL_SELECTION;
+        for (int i = 0; i < functions.length; i++) {
+            funcStrings[i + 1] = functions[i].name();
+        }
+        functionComboBox.setModel(new DefaultComboBoxModel(funcStrings));
+        functionComboBox.getModel().setSelectedItem(ALL_SELECTION);
+
         // results label
         browseResultsLabel.setText("No file loaded");
         // resultsFoundLabel.setText("0 found");
@@ -182,8 +204,29 @@ public final class SearchKAMListDialog extends JDialog {
     private void addButtonActionPerformed(ActionEvent e) {
         ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
         final List<KamNode> nodes = rtm.getNodes();
-        
-        KAMTasks.addNodes(lastSearchedNetwork, nodes);
+
+        // run add task, hook in edges based on selected option
+        EdgeOption eeo = (EdgeOption) edgeComboBox.getSelectedItem();
+        switch (eeo) {
+        case ALL_EDGES:
+            KAMTasks.addNodesAndExpand(lastSearchedNetwork, nodes,
+                    EdgeDirectionType.BOTH);
+            break;
+        case DOWNSTREAM:
+            KAMTasks.addNodesAndExpand(lastSearchedNetwork, nodes,
+                    EdgeDirectionType.FORWARD);
+            break;
+        case INTERCONNECT:
+            KAMTasks.addNodesAndInterconnect(lastSearchedNetwork, nodes);
+            break;
+        case NONE:
+            KAMTasks.addNodes(lastSearchedNetwork, nodes);
+            break;
+        case UPSTREAM:
+            KAMTasks.addNodesAndExpand(lastSearchedNetwork, nodes,
+                    EdgeDirectionType.REVERSE);
+            break;
+        }
     }
     
     private void browseButtonActionPerformed(ActionEvent e) {
@@ -238,7 +281,13 @@ public final class SearchKAMListDialog extends JDialog {
                 networkOption.getCyNetwork());
         this.lastSearchedNetwork = kamNetwork;
 
-        final Task task = new AbstractSearchKamTask(kamNetwork, null,
+        FunctionType functionType = null;
+        if (!functionComboBox.getSelectedItem().equals(ALL_SELECTION)) {
+            functionType = FunctionType.valueOf((String) functionComboBox
+                    .getSelectedItem());
+        }
+        
+        final Task task = new AbstractSearchKamTask(kamNetwork, functionType,
                 namespace, identifiers) {
 
             @Override
@@ -277,14 +326,17 @@ public final class SearchKAMListDialog extends JDialog {
         resultsTable = new JTable();
         resultsFoundLabel = new JLabel();
         searchButton = new JButton();
+        edgeComboBox = new JComboBox();
+        edgeLabel = new JLabel();
         networkLabel = new JLabel();
         networkComboBox = new JComboBox();
         browseResultsLabel = new JLabel();
+        functionComboBox = new JComboBox();
+        functionLabel = new JLabel();
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        namespaceComboBox.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
+        namespaceLabel.setLabelFor(namespaceComboBox);
         namespaceLabel.setText("Namespace:");
 
         fileTextField.setText("jTextField1");
@@ -311,6 +363,9 @@ public final class SearchKAMListDialog extends JDialog {
 
         searchButton.setText("Search");
 
+        edgeLabel.setLabelFor(edgeComboBox);
+        edgeLabel.setText("Expand Edges:");
+
         GroupLayout resultsPanelLayout = new GroupLayout(resultsPanel);
         resultsPanel.setLayout(resultsPanelLayout);
         resultsPanelLayout.setHorizontalGroup(
@@ -318,14 +373,18 @@ public final class SearchKAMListDialog extends JDialog {
             .addGroup(resultsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(resultsPanelLayout.createParallelGroup(Alignment.LEADING)
+                    .addComponent(tableScrollPane, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
                     .addGroup(resultsPanelLayout.createSequentialGroup()
+                        .addComponent(edgeLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(edgeComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(Alignment.TRAILING, resultsPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(cancelButton)
                         .addGap(18, 18, 18)
                         .addComponent(searchButton)
                         .addGap(18, 18, 18)
                         .addComponent(addButton))
-                    .addComponent(tableScrollPane, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
                     .addGroup(resultsPanelLayout.createSequentialGroup()
                         .addComponent(resultsFoundLabel)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -334,10 +393,15 @@ public final class SearchKAMListDialog extends JDialog {
         resultsPanelLayout.setVerticalGroup(
             resultsPanelLayout.createParallelGroup(Alignment.LEADING)
             .addGroup(resultsPanelLayout.createSequentialGroup()
+                .addContainerGap(18, Short.MAX_VALUE)
                 .addComponent(tableScrollPane, GroupLayout.PREFERRED_SIZE, 316, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(ComponentPlacement.RELATED)
                 .addComponent(resultsFoundLabel)
-                .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(ComponentPlacement.UNRELATED)
+                .addGroup(resultsPanelLayout.createParallelGroup(Alignment.BASELINE)
+                    .addComponent(edgeComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(edgeLabel))
+                .addGap(18, 18, 18)
                 .addGroup(resultsPanelLayout.createParallelGroup(Alignment.BASELINE)
                     .addComponent(addButton)
                     .addComponent(cancelButton)
@@ -345,11 +409,15 @@ public final class SearchKAMListDialog extends JDialog {
                 .addContainerGap())
         );
 
+        networkLabel.setLabelFor(namespaceComboBox);
         networkLabel.setText("Network:");
 
         networkComboBox.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         browseResultsLabel.setText("n identifiers in file");
+
+        functionLabel.setLabelFor(functionComboBox);
+        functionLabel.setText("Function Type:");
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -369,11 +437,13 @@ public final class SearchKAMListDialog extends JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(Alignment.TRAILING)
                             .addComponent(namespaceLabel)
-                            .addComponent(networkLabel))
+                            .addComponent(networkLabel)
+                            .addComponent(functionLabel))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(Alignment.LEADING)
-                            .addComponent(namespaceComboBox, 0, 336, Short.MAX_VALUE)
-                            .addComponent(networkComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(namespaceComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(networkComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(functionComboBox, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -383,7 +453,11 @@ public final class SearchKAMListDialog extends JDialog {
                 .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                     .addComponent(networkComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addComponent(networkLabel))
-                .addGap(16, 16, 16)
+                .addPreferredGap(ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(Alignment.BASELINE)
+                    .addComponent(functionComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(functionLabel))
+                .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                     .addComponent(namespaceLabel)
                     .addComponent(namespaceComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
@@ -393,7 +467,7 @@ public final class SearchKAMListDialog extends JDialog {
                     .addComponent(browseButton))
                 .addPreferredGap(ComponentPlacement.RELATED)
                 .addComponent(browseResultsLabel)
-                .addGap(18, 18, 18)
+                .addPreferredGap(ComponentPlacement.RELATED)
                 .addComponent(resultsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
