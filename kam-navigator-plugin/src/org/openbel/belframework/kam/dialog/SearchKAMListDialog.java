@@ -127,6 +127,7 @@ public final class SearchKAMListDialog extends JDialog {
         // additional stuff (kept separate for future UI work)
         // adjust position to default, keeps dialog from appearing offscreen
         setLocationRelativeTo(null);
+        setResizable(false);
 
         searchButton.addActionListener(new ActionListener() {
             @Override
