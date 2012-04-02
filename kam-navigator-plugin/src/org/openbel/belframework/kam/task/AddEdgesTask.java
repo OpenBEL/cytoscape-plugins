@@ -67,7 +67,7 @@ class AddEdgesTask implements Task {
     @Override
     public void run() {
         Collection<KamEdge> edgesToAdd = getEdgesToAdd();
-        if (Utility.isEmpty(edgesToAdd) || halt) {
+        if (halt || Utility.isEmpty(edgesToAdd)) {
             return;
         }
         
