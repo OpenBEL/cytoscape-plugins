@@ -146,8 +146,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
         initUI();
 
-        
-        // register property change listener for this instace
+        // register property change listener for this instance
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_CREATED, this);
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
