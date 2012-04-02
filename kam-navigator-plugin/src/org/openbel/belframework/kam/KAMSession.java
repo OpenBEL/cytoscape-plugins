@@ -54,10 +54,6 @@ public class KAMSession {
         return kamNetworks;
     }
 
-    public void setKAMNetworks(Set<KAMNetwork> kamNetworks) {
-        this.kamNetworks = kamNetworks;
-    }
-
     public KAMNetwork getKAMNetwork(final CyNetwork cyn) {
         for (final KAMNetwork kamNetwork : kamNetworks) {
             if (kamNetwork.getCyNetwork() == cyn) {
