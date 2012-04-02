@@ -24,7 +24,6 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 
 import org.openbel.belframework.kam.dialog.LoadKAMDialog;
 import org.openbel.belframework.kam.dialog.SearchKAMDialog;
