@@ -179,6 +179,14 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 network.removeSelectEventListener(this);
             }
         }
+
+        if (loading) {
+            haltLoading = true;
+            while (loading) {
+                // wait until previous task finishes
+            }
+        }
+        loadExecutor.shutdown();
     }
 
     /**
