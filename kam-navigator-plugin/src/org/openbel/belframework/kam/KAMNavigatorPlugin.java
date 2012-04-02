@@ -21,8 +21,10 @@ package org.openbel.belframework.kam;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 import org.openbel.belframework.kam.dialog.LoadKAMDialog;
 import org.openbel.belframework.kam.dialog.SearchKAMDialog;
@@ -32,6 +34,7 @@ import org.openbel.belframework.webservice.SettingsDialog;
 import cytoscape.Cytoscape;
 import cytoscape.plugin.CytoscapePlugin;
 import cytoscape.util.CytoscapeAction;
+import cytoscape.view.CyNetworkView;
 import cytoscape.view.CytoscapeDesktop;
 
 /**
@@ -69,6 +72,63 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         Cytoscape.getEdgeAttributes().setUserEditable(KAM_EDGE_ID_ATTR, false);
         Cytoscape.getEdgeAttributes().setUserVisible(KAM_EDGE_ID_ATTR, false);
 
+        // hook up propery change listeners
+        final KAMNodeContextListener nctx = new KAMNodeContextListener();
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_CREATED, nctx);
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, nctx);
+
+        // register property change listener for this instance
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
+
+        // build menu
+        final JMenu pluginMenu = Cytoscape.getDesktop().getCyMenus()
+                .getOperationsMenu();
+        JMenu kiMenu = getKamPluginMenu();
+
+        // add to "KAM Navigator" menu if it doesn't exist
+        if (kiMenu == null) {
+            kiMenu = new JMenu(KAM_PLUGIN_SUBMENU);
+            pluginMenu.add(kiMenu);
+        }
+
+        // add "Select KAM" action to submenu
+        kiMenu.add(new SelectKAMDialogAction());
+
+        // add "Add Kam Nodes" action to submenu
+        kiMenu.add(new SearchKAMDialogAction());
+
+        // add "Add Kam List" action to submenu
+        kiMenu.add(new SearchKAMListDialogAction());
+
+        // add separtor before bel configuration entry
+        kiMenu.addSeparator();
+
+        // add to "KAM Navigator" menu if KAM Plugin is available
+        kiMenu.add(new SettingsDialogAction());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent e) {
+        super.propertyChange(e);
+
+        if (CytoscapeDesktop.NETWORK_VIEW_DESTROYED.equals(e.getPropertyName())) {
+            if (e.getNewValue() instanceof CyNetworkView) {
+                // remove kam network from session
+                CyNetworkView view = (CyNetworkView) e.getNewValue();
+                KAMSession session = KAMSession.getInstance();
+                KAMNetwork network = session.getKAMNetwork(view.getNetwork());
+                session.getKAMNetworks().remove(network);
+            }
+        }
+    }
+
+    private static JMenu getKamPluginMenu() {
         final JMenu pluginMenu = Cytoscape.getDesktop().getCyMenus()
                 .getOperationsMenu();
 
@@ -84,39 +144,12 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
                 break;
             }
         }
-
-        // add to "KAM Navigator" menu if it doesn't exist
-        if (kiMenu == null) {
-            kiMenu = new JMenu(KAM_PLUGIN_SUBMENU);
-            pluginMenu.add(kiMenu);
-        }
-
-        // add "Select KAM" action to submenu
-        kiMenu.add(new SelectKAMDialogAction());
-
-        // add "Add Kam Nodes" action to submenu
-        kiMenu.add(new SearchKAMDialogAction());
-        
-        // add "Add Kam List" action to submenu
-        kiMenu.add(new SearchKAMListDialogAction());
-        
-        // add separtor before bel configuration entry
-        kiMenu.addSeparator();
-
-        // add to "KAM Navigator" menu if KAM Plugin is available
-        kiMenu.add(new SettingsDialogAction());
-
-        // hook up propery change listeners
-        final KAMNodeContextListener nctx = new KAMNodeContextListener();
-        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
-                CytoscapeDesktop.NETWORK_VIEW_CREATED, nctx);
-        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
-                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, nctx);
+        return kiMenu;
     }
 
     /**
      * The {@link CytoscapeAction action} to trigger the Load KAM dialog.
-     *
+     * 
      * @see LoadKAMDialog
      * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
      */
