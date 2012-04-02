@@ -5,6 +5,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.webservice.KAMService;
@@ -57,14 +62,11 @@ final class InterconnectNodesTask extends AddEdgesTask {
         for (final CyNode cynode : cynodes) {
             kamNodes.add(kamNetwork.getKAMNode(cynode));
         }
+        final List<SimplePath> paths = interconnect(kamNodes);
+        if (paths == null) {
+            return null;
+        }
 
-        // TODO do we want to split up interconnect into multiple calls so
-        // if we are interconnecting a large number of nodes the user will
-        // be able to cancel without waiting for back end to return?
-        // or alternatively, put this in a thread?
-        final List<SimplePath> paths = kamService.interconnect(
-                kamNetwork.getDialectHandle(), kamNodes,
-                INTERCONNECT_DEPTH);
         final List<KamEdge> edges = new ArrayList<KamEdge>();
         for (final SimplePath path : paths) {
             if (halt) {
@@ -76,4 +78,50 @@ final class InterconnectNodesTask extends AddEdgesTask {
         return edges;
     }
 
+    // TODO this method of interrupting the executor is taken directly
+    // from the node search, can we push it up somewhere?
+    private List<SimplePath> interconnect(final Collection<KamNode> kamNodes) {
+        ExecutorService e = Executors.newSingleThreadExecutor();
+        Future<List<SimplePath>> future = e
+                .submit(new Callable<List<SimplePath>>() {
+                    @Override
+                    public List<SimplePath> call() throws Exception {
+                        return kamService.interconnect(
+                                kamNetwork.getDialectHandle(), kamNodes,
+                                INTERCONNECT_DEPTH);
+                    }
+                });
+
+        while (!(future.isDone() || future.isCancelled()) && !e.isShutdown()) {
+            try {
+                if (halt) {
+                    // this should not block
+                    // but be aware that if the thread in the executor is
+                    // blocked it will continue to live on
+                    e.shutdownNow();
+
+                    future.cancel(true);
+                }
+                // sleep thread to enable interrupt
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                halt = true;
+            }
+        }
+
+        if (future.isCancelled()) {
+            return null;
+        }
+        try {
+            return future.get();
+        } catch (InterruptedException ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+            return null;
+        } catch (ExecutionException ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }
