@@ -153,9 +153,12 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
         
-        // register listener
-        Cytoscape.getCurrentNetwork().addSelectEventListener(this);
-        subjectNetworks.add(Cytoscape.getCurrentNetwork());
+        // register listener for each kam network
+        for (KAMNetwork kn : KAMSession.getInstance().getKAMNetworks()) {
+            CyNetwork cn = kn.getCyNetwork();
+            cn.addSelectEventListener(this);
+            subjectNetworks.add(cn);
+        }
 
         loadNeighborhood();
     }
