@@ -75,13 +75,17 @@ import cytoscape.task.Task;
 public class SearchKAMDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -8900235008972637257L;
     private static final String DIALOG_TITLE = "Add KAM Nodes";
+    
+    private TableRowSorter<ResultsTableModel> rowSorter;
+    private KAMNetwork lastSearchedNetwork = null;
+    
+    // swing components
     private JTable resultsTable;
     private JComboBox networkCmb;
     private JComboBox functionCmb;
     private JButton cancelBtn;
     private JButton searchBtn;
     private JButton addBtn;
-    private TableRowSorter<ResultsTableModel> rowSorter;
     private JTextField filterTxt;
     private JComboBox edgeCmb;
     private JLabel resultsCount;
@@ -382,6 +386,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
 
                 final KAMNetwork kamNetwork = KAMSession.getInstance()
                         .getKAMNetwork(networkOption.getCyNetwork());
+                this.lastSearchedNetwork = kamNetwork;
+                
                 final Task task = new AbstractSearchKamTask(kamNetwork, selfunc) {
 
                     @Override
@@ -416,29 +422,23 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                     selectedNodes.add(selectedNode);
                 }
 
-                // FIXME what if the network option changes between search and add?
-                final NetworkOption networkOption = (NetworkOption) networkCmb
-                        .getSelectedItem();
-                final KAMNetwork kamNetwork = KAMSession.getInstance()
-                        .getKAMNetwork(networkOption.getCyNetwork());
-
                 // run add task, hook in edges based on selected option
                 EdgeOption eeo = (EdgeOption) edgeCmb.getSelectedItem();
                 switch (eeo) {
                     case ALL_EDGES:
-                        KAMTasks.addNodesAndExpand(kamNetwork, selectedNodes, EdgeDirectionType.BOTH);
+                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, selectedNodes, EdgeDirectionType.BOTH);
                         break;
                     case DOWNSTREAM:
-                        KAMTasks.addNodesAndExpand(kamNetwork, selectedNodes, EdgeDirectionType.FORWARD);
+                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, selectedNodes, EdgeDirectionType.FORWARD);
                         break;
                     case INTERCONNECT:
-                        KAMTasks.addNodesAndInterconnect(kamNetwork, selectedNodes);
+                        KAMTasks.addNodesAndInterconnect(lastSearchedNetwork, selectedNodes);
                         break;
                     case NONE:
-                        KAMTasks.addNodes(kamNetwork, selectedNodes);
+                        KAMTasks.addNodes(lastSearchedNetwork, selectedNodes);
                         break;
                     case UPSTREAM:
-                        KAMTasks.addNodesAndExpand(kamNetwork, selectedNodes, EdgeDirectionType.REVERSE);
+                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, selectedNodes, EdgeDirectionType.REVERSE);
                         break;
                 }
             }
