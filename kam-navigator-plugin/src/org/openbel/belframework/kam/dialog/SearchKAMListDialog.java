@@ -282,8 +282,6 @@ public final class SearchKAMListDialog extends JDialog {
         browseResultsLabel = new JLabel();
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Add KAM List");
-        setName("Add KAM List");
 
         namespaceComboBox.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
