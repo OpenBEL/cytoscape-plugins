@@ -38,7 +38,6 @@ import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamHandle;
 import com.selventa.belframework.ws.client.KamNode;
-import com.selventa.belframework.ws.client.RelationshipType;
 
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;
@@ -47,18 +46,9 @@ import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.data.Semantics;
 import cytoscape.view.CyNetworkView;
-import cytoscape.visual.ArrowShape;
 import cytoscape.visual.CalculatorCatalog;
-import cytoscape.visual.EdgeAppearanceCalculator;
-import cytoscape.visual.NodeAppearanceCalculator;
 import cytoscape.visual.VisualMappingManager;
-import cytoscape.visual.VisualPropertyType;
 import cytoscape.visual.VisualStyle;
-import cytoscape.visual.calculators.BasicCalculator;
-import cytoscape.visual.calculators.Calculator;
-import cytoscape.visual.mappings.DiscreteMapping;
-import cytoscape.visual.mappings.ObjectMapping;
-import cytoscape.visual.mappings.PassThroughMapping;
 
 /**
  * {@link KAMNetwork} is a lightweight object that links a loaded
@@ -353,50 +343,6 @@ public class KAMNetwork {
         
         // load style
         Cytoscape.firePropertyChange(Cytoscape.VIZMAP_LOADED, null, f.getAbsolutePath());
-    }
-    
-    // TODO: remove unused method
-    // keeping around for reference for now
-    private VisualStyle createKAMStyle() {
-        VisualStyle visualStyle = new VisualStyle(KAM_STYLE);
-        
-        NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
-
-        // nodes: label
-        final PassThroughMapping nlabels = new PassThroughMapping("",
-                ObjectMapping.NODE_MAPPING);
-        nlabels.setControllingAttributeName("ID", null, false);
-        Calculator nlcalc = new BasicCalculator(
-                KAM_STYLE + " Node Label",
-                nlabels,
-                VisualPropertyType.NODE_LABEL);
-        nac.setCalculator(nlcalc);
-
-        EdgeAppearanceCalculator eac = visualStyle.getEdgeAppearanceCalculator();
-
-        // edges: target arrow shape
-        final DiscreteMapping arrows = new DiscreteMapping(ArrowShape.NONE,
-                ObjectMapping.EDGE_MAPPING);
-        arrows.setControllingAttributeName("interaction", cyn, false);
-        for (final RelationshipType rt : RelationshipType.values()) {
-            arrows.putMapValue(rt.name(), ArrowShape.ARROW);
-        }
-        final Calculator eacalc = new BasicCalculator(
-                KAM_STYLE + " Interaction", arrows, 
-                VisualPropertyType.EDGE_TGTARROW_SHAPE);
-        eac.setCalculator(eacalc);
-
-        // edges: label
-        final PassThroughMapping elabels = new PassThroughMapping("",
-                ObjectMapping.EDGE_MAPPING);
-        elabels.setControllingAttributeName("interaction", null, false);
-        Calculator elcalc = new BasicCalculator(
-                KAM_STYLE + " Edge Label",
-                elabels,
-                VisualPropertyType.EDGE_LABEL);
-        eac.setCalculator(elcalc);
-        
-        return visualStyle;
     }
     
     private static void writeInputStreamIntoFile(InputStream in, File f)
