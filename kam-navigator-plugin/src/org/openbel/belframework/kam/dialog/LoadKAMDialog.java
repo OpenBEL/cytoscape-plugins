@@ -33,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -381,13 +383,25 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
             if (kamHandle != null) {
                 // load default dialect handle
                 DialectHandle dialectHandle = kamService.getDialect();
+                KAMSession session = KAMSession.getInstance();
+                
+                // set unique network name
+                Set<String> existingNames = new HashSet<String>();
+                for (KAMNetwork network : session.getKAMNetworks()) {
+                    existingNames.add(network.getName());
+                }
+                String networkName = kam.getName();
+                int i = 2;
+                while (existingNames.contains(networkName)) {
+                    networkName = kam.getName() + " " + i;
+                    i++;
+                }
                 
                 // Create KAM Network for this selected KAM.
-                final KAMNetwork kamNetwork = new KAMNetwork(kam.getName(), 
+                final KAMNetwork kamNetwork = new KAMNetwork(networkName, 
                         kamHandle, dialectHandle);
     
                 // Store session data for KAM and CyNetwork.
-                KAMSession session = KAMSession.getInstance();
                 session.getKAMNetworks().add(kamNetwork);
                 
                 Cytoscape.firePropertyChange(

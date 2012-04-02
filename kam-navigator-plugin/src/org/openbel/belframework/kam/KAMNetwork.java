@@ -71,6 +71,7 @@ public class KAMNetwork {
     private final CyNetwork cyn;
     private final KamHandle kamHandle;
     private final DialectHandle dialectHandle;
+    private final String name;
 
     /**
      * Create the {@link KAMNetwork} with the {@link String kam name} and
@@ -84,6 +85,7 @@ public class KAMNetwork {
             final DialectHandle dialectHandle) {
         this.kamHandle = kamHandle;
         this.dialectHandle = dialectHandle;
+        this.name = kamName;
         this.cyn = Cytoscape.createNetwork(kamName + NETWORK_SUFFIX, true);
         this.cyn.addSelectEventListener(new NetworkDetailsListener(this));
 
@@ -203,6 +205,13 @@ public class KAMNetwork {
                 KAM_EDGE_ID_ATTR);
         kamEdge.setId(kamEdgeId);
         return kamEdge;
+    }
+
+    /**
+     * @return name of this KAM networks, sans postfix
+     */
+    public String getName() {
+        return name;
     }
 
     /**
