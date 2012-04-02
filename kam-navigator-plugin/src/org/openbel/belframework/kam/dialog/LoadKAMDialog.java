@@ -49,6 +49,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import org.openbel.belframework.kam.KAMNavigatorPlugin;
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.Utility;
@@ -388,6 +389,10 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
                 // Store session data for KAM and CyNetwork.
                 KAMSession session = KAMSession.getInstance();
                 session.getKAMNetworks().add(kamNetwork);
+                
+                Cytoscape.firePropertyChange(
+                        KAMNavigatorPlugin.KAM_NETWORK_CREATED_EVENT, null,
+                        kamNetwork);
             }
 
             // dispose of kam select dialog

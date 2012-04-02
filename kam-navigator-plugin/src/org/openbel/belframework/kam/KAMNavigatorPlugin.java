@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 import org.openbel.belframework.kam.dialog.LoadKAMDialog;
 import org.openbel.belframework.kam.dialog.SearchKAMDialog;
@@ -54,6 +55,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
     public static final String KAM_NODE_FUNCTION_ATTR = "KAM_NODE_FUNCTION";
     public static final String KAM_NODE_LABEL_ATTR = "KAM_NODE_LABEL";
     public static final String KAM_EDGE_ID_ATTR = "KAM_EDGE_ID";
+    public static final String KAM_NETWORK_CREATED_EVENT = "KAM_NETWORK_CREATED_EVENT";
 
     /**
      * Default no-arg plugin construtor to initialize this plugin.
@@ -79,6 +81,8 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
                 CytoscapeDesktop.NETWORK_VIEW_DESTROYED, nctx);
 
         // register property change listener for this instance
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                KAM_NETWORK_CREATED_EVENT, this);
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
 
@@ -107,6 +111,8 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
 
         // add to "KAM Navigator" menu if KAM Plugin is available
         kiMenu.add(new SettingsDialogAction());
+        
+        updateMenuState();
     }
 
     /**
@@ -124,7 +130,22 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
                 KAMNetwork network = session.getKAMNetwork(view.getNetwork());
                 session.getKAMNetworks().remove(network);
             }
+            updateMenuState();
+        } else if (KAM_NETWORK_CREATED_EVENT.equals(e.getPropertyName())) {
+            updateMenuState();
         }
+    }
+
+    private static void updateMenuState() {
+        JMenu kiMenu = getKamPluginMenu();
+        JMenuItem addNodesItem = kiMenu.getItem(1);
+        JMenuItem addListItem = kiMenu.getItem(2);
+
+        boolean hasKamNetworks = !Utility.isEmpty(KAMSession.getInstance()
+                .getKAMNetworks());
+        // disable / enable items that require kam networks
+        addNodesItem.setEnabled(hasKamNetworks);
+        addListItem.setEnabled(hasKamNetworks);
     }
 
     private static JMenu getKamPluginMenu() {
