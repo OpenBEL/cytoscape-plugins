@@ -193,8 +193,7 @@ public final class SearchKAMListDialog extends JDialog {
 
         // results label
         browseResultsLabel.setText("No file loaded");
-        // resultsFoundLabel.setText("0 found");
-        resultsFoundLabel.setVisible(false);
+        resultsFoundLabel.setText("No search performed");
         
         // disable buttons
         searchButton.setEnabled(false);
