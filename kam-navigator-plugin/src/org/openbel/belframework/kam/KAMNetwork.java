@@ -45,6 +45,7 @@ import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.data.Semantics;
+import cytoscape.logger.CyLogger;
 import cytoscape.view.CyNetworkView;
 import cytoscape.visual.CalculatorCatalog;
 import cytoscape.visual.VisualMappingManager;
@@ -64,6 +65,8 @@ import cytoscape.visual.VisualStyle;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 public class KAMNetwork {
+    
+    private static final CyLogger log = CyLogger.getLogger(KAMNetwork.class);
     private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
     private static final CyAttributes edgeAtt = Cytoscape.getEdgeAttributes();
     private static final String NETWORK_SUFFIX = " (KAM)";
@@ -339,8 +342,7 @@ public class KAMNetwork {
             f = File.createTempFile("viz", null);
             writeInputStreamIntoFile(in, f);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.warn("Error loading style", e);
             return;
         } finally {
             Utility.closeSilently(in);

@@ -21,6 +21,7 @@ import com.selventa.belframework.ws.client.SimplePath;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
+import cytoscape.logger.CyLogger;
 import cytoscape.task.Task;
 
 /**
@@ -35,6 +36,8 @@ import cytoscape.task.Task;
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 final class InterconnectNodesTask extends AddEdgesTask {
+    
+    private static final CyLogger log = CyLogger.getLogger(InterconnectNodesTask.class);
     // interconnect should always have a max depth of 1, otherwise it is a 
     // pathfind
     private static final int INTERCONNECT_DEPTH = 1;
@@ -115,12 +118,10 @@ final class InterconnectNodesTask extends AddEdgesTask {
         try {
             return future.get();
         } catch (InterruptedException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.warn("Error interconnecting nodes", ex);
             return null;
         } catch (ExecutionException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.warn("Error interconnecting nodes", ex);
             return null;
         }
     }

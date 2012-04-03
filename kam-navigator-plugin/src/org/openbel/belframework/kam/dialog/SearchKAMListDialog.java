@@ -67,6 +67,7 @@ import com.selventa.belframework.ws.client.NamespaceDescriptor;
 
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
+import cytoscape.logger.CyLogger;
 import cytoscape.task.Task;
 import cytoscape.util.CyFileFilter;
 import cytoscape.util.FileUtil;
@@ -81,6 +82,7 @@ import cytoscape.util.FileUtil;
 public final class SearchKAMListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
+    private static final CyLogger log = CyLogger.getLogger(SearchKAMListDialog.class);
     public static final String TITLE = "Add KAM Nodes From List";
     private static final String ALL_SELECTION = "ALL";
 
@@ -243,8 +245,7 @@ public final class SearchKAMListDialog extends JDialog {
         try {
             fileIdentifiers = readIdentifiersFromFile(file);
         } catch (IOException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.warn("Error reading identifiers from file", ex);
         }
 
         if (!Utility.isEmpty(fileIdentifiers)) {

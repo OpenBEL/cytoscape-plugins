@@ -36,6 +36,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.WindowConstants;
 
 import cytoscape.Cytoscape;
+import cytoscape.logger.CyLogger;
 
 /**
  * {@link SettingsDialog} defines the <em>BELFramework Configuration</em>
@@ -45,6 +46,8 @@ import cytoscape.Cytoscape;
  */
 public class SettingsDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 6873725058633597932L;
+    
+    private static final CyLogger log = CyLogger.getLogger(SettingsDialog.class);
     private static final String TITLE = "BELFramework Configuration";
     private static final Configuration cfg = Configuration.getInstance();
     private JTextField wsdlURLTxt;
@@ -154,11 +157,10 @@ public class SettingsDialog extends JDialog implements ActionListener {
             try {
                 cfg.saveState();
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
-                        "Error writing to configuration file",
+                String msg = "Error writing to configuration file";
+                JOptionPane.showMessageDialog(Cytoscape.getDesktop(), msg,
                         "IO Error", JOptionPane.ERROR_MESSAGE);
-                // TODO use cytoscape log for errors
-                ex.printStackTrace();
+                log.error(msg, ex);
             }
 
             // reload connector

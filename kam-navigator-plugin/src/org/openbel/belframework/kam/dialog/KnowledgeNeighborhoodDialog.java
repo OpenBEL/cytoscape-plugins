@@ -79,6 +79,7 @@ import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.data.SelectEvent;
 import cytoscape.data.SelectEventListener;
+import cytoscape.logger.CyLogger;
 import cytoscape.view.CyNetworkView;
 import cytoscape.view.CytoscapeDesktop;
 
@@ -91,6 +92,8 @@ import cytoscape.view.CytoscapeDesktop;
 public class KnowledgeNeighborhoodDialog extends JDialog implements
         ActionListener, PropertyChangeListener, SelectEventListener {
     private static final long serialVersionUID = -736918933072782546L;
+    
+    private static final CyLogger log = CyLogger.getLogger(KnowledgeNeighborhoodDialog.class);
     private static final String DIALOG_TITLE = "Knowledge Neighborhood";
     private static final String ALL_SELECTION = "All";
     
@@ -468,11 +471,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                                 }
                             });
                         } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            log.warn("Error loading knowledge neighborhood", e);
                         } catch (InvocationTargetException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            log.warn("Error loading knowledge neighborhood", e);
                         }
                         
                     }

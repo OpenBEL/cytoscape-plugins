@@ -42,6 +42,7 @@ import com.selventa.belframework.ws.client.Namespace;
 import com.selventa.belframework.ws.client.NamespaceValue;
 import com.selventa.belframework.ws.client.NodeFilter;
 
+import cytoscape.logger.CyLogger;
 import cytoscape.task.Task;
 import cytoscape.task.TaskMonitor;
 
@@ -54,6 +55,8 @@ import cytoscape.task.TaskMonitor;
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 public abstract class AbstractSearchKamTask implements Task {
+    
+    private static final CyLogger log = CyLogger.getLogger(AbstractSearchKamTask.class);
 
     private final KAMNetwork kamNetwork;
     private final FunctionType function;
@@ -187,12 +190,10 @@ public abstract class AbstractSearchKamTask implements Task {
         try {
             return future.get();
         } catch (InterruptedException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.warn("Error searching kam nodes", ex);
             return null;
         } catch (ExecutionException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.warn("Error searching kam nodes", ex);
             return null;
         }
     }
