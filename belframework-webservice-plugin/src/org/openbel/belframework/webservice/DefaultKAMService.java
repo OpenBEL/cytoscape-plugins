@@ -241,13 +241,7 @@ class DefaultKAMService implements KAMService {
         req.setKamNode(node);
 
         final GetSupportingTermsResponse res = webAPI.getSupportingTerms(req);
-
-        final List<BelTerm> terms = res.getTerms();
-        for (final BelTerm term : terms) {
-            formatLabel(term);
-        }
-
-        return terms;
+        return res.getTerms();
     }
 
     /**
@@ -271,22 +265,18 @@ class DefaultKAMService implements KAMService {
         for (final BelStatement stmt : stmts) {
             final BelTerm subject = stmt.getSubjectTerm();
 
-            String label = TermLabelFormatter.format(subject.getLabel());
-            subject.setLabel(label);
+            subject.setLabel(subject.getLabel());
 
             final BelTerm objectTerm = stmt.getObjectTerm();
             final BelStatement objectStmt = stmt.getObjectStatement();
             if (objectTerm != null) {
-                label = TermLabelFormatter.format(objectTerm.getLabel());
-                objectTerm.setLabel(label);
+                objectTerm.setLabel(objectTerm.getLabel());
             } else if (objectStmt != null) {
                 final BelTerm nestedSub = objectStmt.getSubjectTerm();
-                label = TermLabelFormatter.format(nestedSub.getLabel());
-                nestedSub.setLabel(label);
+                nestedSub.setLabel(nestedSub.getLabel());
 
                 final BelTerm nestedObj = objectStmt.getObjectTerm();
-                label = TermLabelFormatter.format(nestedObj.getLabel());
-                nestedObj.setLabel(label);
+                nestedObj.setLabel(nestedObj.getLabel());
             }
         }
 
@@ -448,16 +438,5 @@ class DefaultKAMService implements KAMService {
             // the kam service can create their own UI errors
             throw new RuntimeException("Connection error.");
         }
-    }
-
-    /**
-     * Calls to the {@link TermLabelFormatter label formatter} to format the
-     * {@link String BEL term label} based on the user's configuration.
-     *
-     * @param term
-     */
-    private void formatLabel(final BelTerm term) {
-        String label = TermLabelFormatter.format(term.getLabel());
-        term.setLabel(label);
     }
 }

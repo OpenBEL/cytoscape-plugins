@@ -41,15 +41,12 @@ public class Configuration {
             "Stores configuration for the BELFramework Web Service cytoscape plugin.";
     private static final String WSDL_KEY = "WSDL_URL";
     private static final String TIMEOUT_KEY = "TIMEOUT";
-    private static final String SHORT_FORM_BEL_KEY = "SHORT_FORM_BEL";
     private static final String DEFAULT_WSDL_URL =
             "http://localhost:8080/BELFrameworkWebAPI/belframework.wsdl";
-    private static final Boolean DEFAULT_SHORT_BEL_FORM = true;
     private static final int DEFAULT_TIMEOUT = 120;
     private static Configuration instance;
     private String wsdlURL;
     private Integer timeout;
-    private Boolean shortBelForm;
 
     /**
      * Gets the singleton {@link Configuration} instance.  If the singleton
@@ -60,8 +57,7 @@ public class Configuration {
      */
     public synchronized static Configuration getInstance() {
         if (instance == null) {
-            instance = new Configuration(DEFAULT_WSDL_URL, DEFAULT_TIMEOUT,
-                    DEFAULT_SHORT_BEL_FORM);
+            instance = new Configuration(DEFAULT_WSDL_URL, DEFAULT_TIMEOUT);
         }
 
         return instance;
@@ -74,7 +70,6 @@ public class Configuration {
         if (instance != null) {
             instance.wsdlURL = DEFAULT_WSDL_URL;
             instance.timeout = DEFAULT_TIMEOUT;
-            instance.shortBelForm = DEFAULT_SHORT_BEL_FORM;
         }
     }
 
@@ -83,13 +78,10 @@ public class Configuration {
      *
      * @param wsdlURL the wsdl url
      * @param timeout the timeout value
-     * @param shortBelForm whether to use short or long form
      */
-    private Configuration(final String wsdlURL, final Integer timeout,
-            final Boolean shortBelForm) {
+    private Configuration(final String wsdlURL, final Integer timeout) {
         this.wsdlURL = wsdlURL;
         this.timeout = timeout;
-        this.shortBelForm = shortBelForm;
     }
 
     public String getWSDLURL() {
@@ -116,18 +108,6 @@ public class Configuration {
         }
     }
 
-    public Boolean getShortBelForm() {
-        return shortBelForm;
-    }
-
-    public void setShortBelForm(Boolean shortBelForm) {
-        if (shortBelForm != null) {
-            this.shortBelForm = shortBelForm;
-        } else {
-            this.shortBelForm = DEFAULT_SHORT_BEL_FORM;
-        }
-    }
-
     /**
      * Saves the configuration state of the webservice client plugin to the
      * plugin properties file {@code belframework-webservice.props}.
@@ -147,7 +127,6 @@ public class Configuration {
         final Properties cfgprops = new Properties();
         cfgprops.put(WSDL_KEY, wsdlURL);
         cfgprops.put(TIMEOUT_KEY, timeout.toString());
-        cfgprops.put(SHORT_FORM_BEL_KEY, shortBelForm.toString());
         cfgprops.store(new FileWriter(cfg), COMMENTS);
     }
 
@@ -190,13 +169,6 @@ public class Configuration {
                 }
             } else {
                 timeout = DEFAULT_TIMEOUT;
-            }
-
-            String shortFormProperty = cfgprops.getProperty(SHORT_FORM_BEL_KEY);
-            if (shortFormProperty != null) {
-                shortBelForm = Boolean.valueOf(shortFormProperty);
-            } else {
-                shortBelForm = DEFAULT_SHORT_BEL_FORM;
             }
         } else {
             Configuration.resetToDefaults();

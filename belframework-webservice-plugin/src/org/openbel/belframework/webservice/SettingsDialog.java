@@ -66,7 +66,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
         // set configuration values
         wsdlURLTxt.setText(cfg.getWSDLURL());
         timeoutSpn.setValue(cfg.getTimeout());
-        shortFormChk.setSelected(cfg.getShortBelForm());
 
         // set up dialog
         setTitle(TITLE);
@@ -173,7 +172,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
             final Configuration cfg = Configuration.getInstance();
             cfg.setWSDLURL(wsdlURLTxt.getText());
             cfg.setTimeout((Integer) timeoutSpn.getValue());
-            cfg.setShortBelForm(shortFormChk.isSelected());
             
             // write configuration to file
             try {
