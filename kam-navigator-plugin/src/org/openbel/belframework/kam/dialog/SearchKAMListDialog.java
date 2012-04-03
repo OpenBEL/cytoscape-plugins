@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -148,23 +147,23 @@ public final class SearchKAMListDialog extends JDialog {
         // resultsPanel.setVisible(false);
 
         // network options
-        final Set<CyNetwork> networkSet = KAMSession.getInstance()
+        final List<CyNetwork> networks = KAMSession.getInstance()
                 .getKamBackedNetworks();
-        final List<NetworkOption> networks = new ArrayList<NetworkOption>(
-                networkSet.size());
-        for (Iterator<CyNetwork> it = networkSet.iterator(); it.hasNext();) {
+        final List<NetworkOption> networkOptons = new ArrayList<NetworkOption>(
+                networks.size());
+        for (Iterator<CyNetwork> it = networks.iterator(); it.hasNext();) {
             CyNetwork cyn = it.next();
 
             NetworkOption networkOpt = new NetworkOption(cyn);
-            networks.add(networkOpt);
+            networkOptons.add(networkOpt);
 
             // trap this network option if this is the active cyn
             if (Cytoscape.getCurrentNetwork() == cyn) {
                 networkComboBox.setSelectedItem(networkOpt);
             }
         }
-        networkComboBox.setModel(new DefaultComboBoxModel(networks
-                .toArray(new NetworkOption[networks.size()])));
+        networkComboBox.setModel(new DefaultComboBoxModel(networkOptons
+                .toArray(new NetworkOption[networkOptons.size()])));
 
         // namespace options
         namespaceComboBox.setModel(new DefaultComboBoxModel(

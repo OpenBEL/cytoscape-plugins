@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -167,17 +166,18 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         searchPanel.add(networkLbl, gridBagConstraints);
 
-        final Set<CyNetwork> networkSet = KAMSession.getInstance()
+        final List<CyNetwork> networks = KAMSession.getInstance()
                 .getKamBackedNetworks();
-        final Iterator<CyNetwork> networkIt = networkSet.iterator();
-        final List<NetworkOption> networks = new ArrayList<NetworkOption>(networkSet.size());
+        final Iterator<CyNetwork> networkIt = networks.iterator();
+        final List<NetworkOption> networkOptions = new ArrayList<NetworkOption>(
+                networks.size());
         NetworkOption selectedNetwork = null;
 
         while (networkIt.hasNext()) {
             final CyNetwork cyn = networkIt.next();
 
             final NetworkOption networkOpt = new NetworkOption(cyn);
-            networks.add(networkOpt);
+            networkOptions.add(networkOpt);
 
             // trap this network option if this is the active cyn
             if (Cytoscape.getCurrentNetwork() == cyn) {
@@ -186,8 +186,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         }
 
         networkCmb.addActionListener(this);
-        networkCmb.setModel(new DefaultComboBoxModel(networks
-                .toArray(new NetworkOption[networks.size()])));
+        networkCmb.setModel(new DefaultComboBoxModel(networkOptions
+                .toArray(new NetworkOption[networkOptions.size()])));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;

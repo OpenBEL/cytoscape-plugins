@@ -19,7 +19,11 @@
  */
 package org.openbel.belframework.kam;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import cytoscape.CyNetwork;
@@ -54,11 +58,24 @@ public class KAMSession {
         return kamNetworks;
     }
 
-    public Set<CyNetwork> getKamBackedNetworks() {
-        Set<CyNetwork> networks = new HashSet<CyNetwork>();
+    /**
+     * Convenience method to retrieve {@link CyNetwork CyNetworks} in session
+     * 
+     * @return a sorted {@link List} of {@link CyNetwork CyNetworks} backing the
+     *         {@link KAMNetwork KAMNetworks} in the session. Can be empty but
+     *         not null.
+     */
+    public List<CyNetwork> getKamBackedNetworks() {
+        List<CyNetwork> networks = new ArrayList<CyNetwork>();
         for (KAMNetwork kn : kamNetworks) {
             networks.add(kn.getCyNetwork());
         }
+        Collections.sort(networks, new Comparator<CyNetwork>() {
+            @Override
+            public int compare(CyNetwork o1, CyNetwork o2) {
+                return o1.getTitle().compareTo(o2.getTitle());
+            }
+        });
         return networks;
     }
 
