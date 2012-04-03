@@ -32,6 +32,7 @@ import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
 
 import cytoscape.CyNetwork;
+import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.layout.CyLayoutAlgorithm;
 import cytoscape.layout.CyLayouts;
@@ -83,7 +84,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
     @Override
     public void run() {
         // run AddNodes (super) task
-        super.addNodes();
+        Set<CyNode> cynodes = super.addNodes();
 
         m.setStatus("Interconnecting network for " + kamNodes.size() + " selected nodes.");
 

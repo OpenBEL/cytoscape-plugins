@@ -58,7 +58,6 @@ import cytoscape.view.CyNetworkView;
 class AddNodesTask implements Task {
     private static final String TITLE = "Adding Nodes";
     protected TaskMonitor m;
-    protected Set<CyNode> cynodes;
     protected boolean halt = false;
     protected final KAMNetwork kamNetwork;
     private final List<KamNode> kamNodes;
@@ -76,7 +75,7 @@ class AddNodesTask implements Task {
      */
     @Override
     public void run() {
-        addNodes();
+        Set<CyNode> cynodes = addNodes();
 
         if (halt) {
             return;
@@ -102,14 +101,16 @@ class AddNodesTask implements Task {
 
     /**
      * Adds {@link KamNode kam nodes} to the {@link KAMNetwork kam network}.
+     * 
+     * @return added nodes
      */
-    protected void addNodes() {
+    protected Set<CyNode> addNodes() {
         m.setStatus("Adding " + kamNodes.size() + " selected nodes.");
         int percentage = 0;
         m.setPercentCompleted(percentage);
 
         // Add the KAM nodes and keep track
-        cynodes = new HashSet<CyNode>();
+        Set<CyNode> cynodes = new HashSet<CyNode>();
         // use current percentage to keep track of values less then 1
         double currentPercentage = 0.0;
         double nodePercent = (1.0 / kamNodes.size()) * 100;
@@ -131,6 +132,8 @@ class AddNodesTask implements Task {
                 currentPercentage = currentPercentage - round;
             }
         }
+        
+        return cynodes;
     }
 
     @Override
