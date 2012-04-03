@@ -19,17 +19,17 @@
  */
 package org.openbel.belframework.webservice;
 
+import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByNamespaceValuesRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByPatternsRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createFindNamespaceValuesRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetAdjacentKamEdgesRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createGetAllNamespacesRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetCatalogRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetDialectRequest;
+import static com.selventa.belframework.ws.client.ObjectFactory.createGetDefaultDialectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingEvidenceRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingTermsRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createInterconnectRequest;
 import static com.selventa.belframework.ws.client.ObjectFactory.createLoadKamRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetAllNamespacesRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createFindNamespaceValuesRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByNamespaceValuesRequest;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 
 import com.selventa.belframework.ws.client.BelStatement;
 import com.selventa.belframework.ws.client.BelTerm;
+import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.EdgeFilter;
 import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesRequest;
@@ -54,8 +55,8 @@ import com.selventa.belframework.ws.client.GetAllNamespacesRequest;
 import com.selventa.belframework.ws.client.GetAllNamespacesResponse;
 import com.selventa.belframework.ws.client.GetCatalogRequest;
 import com.selventa.belframework.ws.client.GetCatalogResponse;
-import com.selventa.belframework.ws.client.GetDialectRequest;
-import com.selventa.belframework.ws.client.GetDialectResponse;
+import com.selventa.belframework.ws.client.GetDefaultDialectRequest;
+import com.selventa.belframework.ws.client.GetDefaultDialectResponse;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
 import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
 import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
@@ -74,7 +75,6 @@ import com.selventa.belframework.ws.client.NamespaceValue;
 import com.selventa.belframework.ws.client.NodeFilter;
 import com.selventa.belframework.ws.client.SimplePath;
 import com.selventa.belframework.ws.client.WebAPI;
-import com.selventa.belframework.ws.client.DialectHandle;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
@@ -217,13 +217,11 @@ class DefaultKAMService implements KAMService {
      * {@inheritDoc}
      */
     @Override
-    public DialectHandle getDialect() {
-        // no parameters yet
-        
+    public DialectHandle getDefaultDialect() {
         checkValid();
-        final GetDialectRequest req = createGetDialectRequest();
+        final GetDefaultDialectRequest req = createGetDefaultDialectRequest();
         // nothing in the request
-        final GetDialectResponse res = webAPI.getDialect(req);
+        final GetDefaultDialectResponse res = webAPI.getDefaultDialect(req);
         return res.getDialect();
     }
 

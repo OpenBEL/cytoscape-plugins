@@ -88,9 +88,9 @@ public interface KAMService {
     List<Kam> getCatalog();
 
     /**
-     * TODO: still WIP, document after this stablizes
+     * Retrieves the default dialect.
      */
-    DialectHandle getDialect();
+    DialectHandle getDefaultDialect();
 
     /**
      * Fires a loads request for a {@link Kam kam} on the server end of the

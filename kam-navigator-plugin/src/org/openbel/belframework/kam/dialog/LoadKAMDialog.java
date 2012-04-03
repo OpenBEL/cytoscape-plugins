@@ -382,7 +382,7 @@ public class LoadKAMDialog extends JDialog implements ActionListener {
 
             if (kamHandle != null) {
                 // load default dialect handle
-                DialectHandle dialectHandle = kamService.getDialect();
+                DialectHandle dialectHandle = kamService.getDefaultDialect();
                 KAMSession session = KAMSession.getInstance();
                 
                 // set unique network name
