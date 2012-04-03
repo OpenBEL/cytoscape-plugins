@@ -54,6 +54,14 @@ public class KAMSession {
         return kamNetworks;
     }
 
+    public Set<CyNetwork> getKamBackedNetworks() {
+        Set<CyNetwork> networks = new HashSet<CyNetwork>();
+        for (KAMNetwork kn : kamNetworks) {
+            networks.add(kn.getCyNetwork());
+        }
+        return networks;
+    }
+
     public KAMNetwork getKAMNetwork(final CyNetwork cyn) {
         for (final KAMNetwork kamNetwork : kamNetworks) {
             if (kamNetwork.getCyNetwork() == cyn) {

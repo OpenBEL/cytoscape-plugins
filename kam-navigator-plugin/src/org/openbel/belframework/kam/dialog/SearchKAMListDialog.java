@@ -148,7 +148,8 @@ public final class SearchKAMListDialog extends JDialog {
         // resultsPanel.setVisible(false);
 
         // network options
-        final Set<CyNetwork> networkSet = Utility.getKamNetworks();
+        final Set<CyNetwork> networkSet = KAMSession.getInstance()
+                .getKamBackedNetworks();
         final List<NetworkOption> networks = new ArrayList<NetworkOption>(
                 networkSet.size());
         for (Iterator<CyNetwork> it = networkSet.iterator(); it.hasNext();) {

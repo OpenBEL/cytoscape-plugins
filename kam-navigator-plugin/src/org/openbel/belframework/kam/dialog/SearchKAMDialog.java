@@ -167,7 +167,8 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         searchPanel.add(networkLbl, gridBagConstraints);
 
-        final Set<CyNetwork> networkSet = Utility.getKamNetworks();
+        final Set<CyNetwork> networkSet = KAMSession.getInstance()
+                .getKamBackedNetworks();
         final Iterator<CyNetwork> networkIt = networkSet.iterator();
         final List<NetworkOption> networks = new ArrayList<NetworkOption>(networkSet.size());
         NetworkOption selectedNetwork = null;
