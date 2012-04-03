@@ -151,6 +151,7 @@ public final class SearchKAMListDialog extends JDialog {
                 .getKamBackedNetworks();
         final List<NetworkOption> networkOptons = new ArrayList<NetworkOption>(
                 networks.size());
+        NetworkOption selectedNetwork = null;
         for (Iterator<CyNetwork> it = networks.iterator(); it.hasNext();) {
             CyNetwork cyn = it.next();
 
@@ -159,11 +160,16 @@ public final class SearchKAMListDialog extends JDialog {
 
             // trap this network option if this is the active cyn
             if (Cytoscape.getCurrentNetwork() == cyn) {
-                networkComboBox.setSelectedItem(networkOpt);
+                selectedNetwork = networkOpt;
             }
         }
         networkComboBox.setModel(new DefaultComboBoxModel(networkOptons
                 .toArray(new NetworkOption[networkOptons.size()])));
+        // lazy selection of current network,
+        // needs to happen after model is set
+        if (selectedNetwork != null) {
+            networkComboBox.setSelectedItem(selectedNetwork);
+        }
 
         // namespace options
         namespaceComboBox.setModel(new DefaultComboBoxModel(
