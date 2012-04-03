@@ -26,7 +26,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -50,7 +49,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
     private static final Configuration cfg = Configuration.getInstance();
     private JTextField wsdlURLTxt;
     private JSpinner timeoutSpn;
-    private JCheckBox shortFormChk;
     private JButton cancelBtn;
     private JButton saveBtn;
 
@@ -123,27 +121,6 @@ public class SettingsDialog extends JDialog implements ActionListener {
         gridBagConstraints.weighty = 0.1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         sp.add(timeoutSpn, gridBagConstraints);
-
-        JLabel shortFormLbl = new JLabel("Use short-form in BEL terms:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.weighty = 5.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        sp.add(shortFormLbl, gridBagConstraints);
-
-        shortFormChk = new JCheckBox();
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 5.0;
-        gridBagConstraints.weighty = 5.0;
-        sp.add(shortFormChk, gridBagConstraints);
 
         getContentPane().add(sp, java.awt.BorderLayout.CENTER);
 
