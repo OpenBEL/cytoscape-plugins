@@ -212,15 +212,20 @@ class DefaultKAMService implements KAMService {
         req.setKam(kam);
         return webAPI.loadKam(req);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public DialectHandle getDefaultDialect() {
+    public DialectHandle getDefaultDialect(final KamHandle kamHandle) {
+        if (kamHandle == null) {
+            throw new IllegalArgumentException("kam handle is null");
+        }
+
         checkValid();
+
         final GetDefaultDialectRequest req = createGetDefaultDialectRequest();
-        // nothing in the request
+        req.setKam(kamHandle);
         final GetDefaultDialectResponse res = webAPI.getDefaultDialect(req);
         return res.getDialect();
     }

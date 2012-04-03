@@ -88,9 +88,13 @@ public interface KAMService {
     List<Kam> getCatalog();
 
     /**
-     * Retrieves the default dialect.
+     * Retrieves the default dialect for a KAM.
+     * 
+     * @param kamHandle
+     *            the {@link KamHandle kam handle} that identifies a loaded
+     *            {@link Kam kam}
      */
-    DialectHandle getDefaultDialect();
+    DialectHandle getDefaultDialect(KamHandle kamHandle);
 
     /**
      * Fires a loads request for a {@link Kam kam} on the server end of the
