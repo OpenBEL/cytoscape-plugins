@@ -23,6 +23,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     -->
     <property file="build.properties" />
 
+    <property name="license" value="COPYING" />
     <property name="dist.path" value="dist" />
     <property name="src.path" value="src" />
     <property name="lib.path" value="lib" />
@@ -80,11 +81,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <attribute name="Cytoscape-Plugin"
                            value="org.openbel.belframework.kam.KAMNavigatorPlugin" />
             </manifest>
+        	
+            <!-- include license -->
+            <metainf file="${license}" />
         </jar>
     </target>
 
     <target name="package-source">
         <jar destfile="${dist.path}/${src.jar.name}" basedir="${src.path}">
+            <!-- include license -->
+            <metainf file="${license}" />
         </jar>
     </target>
 
