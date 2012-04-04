@@ -80,11 +80,11 @@ import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
 
 /**
- * {@link DefaultKAMService} implements an API wrapper around version
- * 1.2.3 of the {@link WebAPI BEL Framework Web API}.  This lightweight class
- * reuses the same webservice stub instance obtained from the
- * {@link WebServiceClientManager cytoscape webservice manager}.
- *
+ * {@link DefaultKAMService} implements an API wrapper around the {@link WebAPI
+ * BEL Framework Web API}. This lightweight class reuses the same webservice
+ * stub instance obtained from the {@link WebServiceClientManager cytoscape
+ * webservice manager}.
+ * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
