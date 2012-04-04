@@ -5,7 +5,7 @@ This Cytoscape Plugin allows users to access and query BEL Framework Knowledge A
 
 License
 -------
-This project is licensed under the terms of the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
+This project is licensed under the terms of the [LGPL v3](http://www.gnu.org/licenses/lgpl.txt).
 
 Dependencies
 ----------
