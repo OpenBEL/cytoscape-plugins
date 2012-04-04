@@ -14,7 +14,7 @@ To build this plugin you will need
 
 -   [ANT](http://ant.apache.org/)
 -   BELFramework 1.2.2 or greater installed
--   Cytoscape 2.7.x or 2.8.x installed
+-   Cytoscape 2.8.x installed
 
 Once installed you will need to configure the *HOME* location of each
 

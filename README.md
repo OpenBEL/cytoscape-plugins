@@ -1,4 +1,4 @@
-KAM Navigator Cytoscape Plugin V1.2
+KAM Navigator Cytoscape Plugin V0.8
 ===================================
 
 KAM Navigator is a [Cytoscape](http://www.cytoscape.org/) plugin that allows licensed [BEL Framework](http://www.belframework.org/) users to query, visualize, and 

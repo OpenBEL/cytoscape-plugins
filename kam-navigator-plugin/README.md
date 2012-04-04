@@ -9,7 +9,7 @@ This project is licensed under the terms of the [LGPL v3](http://www.gnu.org/lic
 
 Dependencies
 ----------
--   BELFramework Webservice Plugin V1.0
+-   BELFramework Webservice Plugin V0.8
 
 Building
 --------
@@ -19,7 +19,7 @@ To build this plugin you will need
 -   [ANT](http://ant.apache.org/)
 -   BELFramework Webservice Plugin
 -   BELFramework 1.2.2 or greater installed
--   Cytoscape 2.7.x or 2.8.x installed
+-   Cytoscape 2.8.x installed
 
 Make sure the latest BEL Framework Web Service Plugin is built and copied to the `lib/` folder.
 
@@ -62,7 +62,7 @@ To set up the [Eclipse IDE](http://www.eclipse.org/) for working with this plugi
 
 -   Configure classpath
 
-    -   Add `lib/belframework_webservice_1.0.jar` to the project classpath.
+    -   Add `lib/belframework_webservice_0.8.jar` to the project classpath.
     -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
     -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to the project classpath.
 
