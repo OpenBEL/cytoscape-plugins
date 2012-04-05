@@ -279,6 +279,8 @@ public final class SearchKAMListDialog extends JDialog {
         final ResultsTableModel model = (ResultsTableModel) resultsTable
                 .getModel();
         model.clear();
+        // disable add button to match model clear
+        addButton.setEnabled(false);
 
         if (Utility.isEmpty(identifiers)) {
             return;
