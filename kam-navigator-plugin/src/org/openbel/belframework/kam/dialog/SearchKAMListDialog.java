@@ -241,7 +241,11 @@ public final class SearchKAMListDialog extends JDialog {
         
         File file = FileUtil.getFile("Select file with identifiers",
                 FileUtil.LOAD, new CyFileFilter[] { csvAndTxtFilter });
-        
+        if (file == null) {
+            // no file was selected
+            return;
+        }
+
         // clear previous identifiers whenever selecting a new file
         this.identifiers.clear();
         
