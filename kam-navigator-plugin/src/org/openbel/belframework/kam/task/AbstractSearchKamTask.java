@@ -142,6 +142,9 @@ public abstract class AbstractSearchKamTask implements Task {
 
         monitor.setPercentCompleted(0);
         List<KamNode> nodes = searchKAMNodes();
+        
+        // TODO update UI should still be called if the halt command is issued
+        // to perform clean up, etc
         if (!halt && nodes != null) {
             // sort nodes by label
             Collections.sort(nodes, new Comparator<KamNode>() {
