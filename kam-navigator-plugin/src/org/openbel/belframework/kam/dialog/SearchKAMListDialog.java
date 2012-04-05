@@ -589,6 +589,7 @@ public final class SearchKAMListDialog extends JDialog {
 
         public void clear() {
             nodes.clear();
+            fireTableDataChanged();
         }
         
         public List<KamNode> getNodes() {
