@@ -205,6 +205,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
                     + ", Cytoscape Version:" + CytoscapeVersion.version 
                     + ", OS Name:" + System.getProperty("os.name") 
                     + ", OS Version:" + System.getProperty("os.version")
+                    + ", Java Version:" + System.getProperty("java.version")
                     + "]";
             body = urlEncode(body);
             
