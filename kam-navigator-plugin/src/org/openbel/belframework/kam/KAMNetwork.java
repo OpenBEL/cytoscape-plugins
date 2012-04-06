@@ -30,7 +30,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.FunctionType;
@@ -136,9 +139,21 @@ public class KAMNetwork {
      * might be empty
      */
     @SuppressWarnings("unchecked")
-    public List<KamNode> getKAMNodes() {
-        final List<CyNode> cynodes = cyn.nodesList();
-        final List<KamNode> kamNodes = new ArrayList<KamNode>(cynodes.size());
+    public Set<KamNode> getKAMNodes() {
+        return getKAMNodes(cyn.nodesList());
+    }
+    
+    /**
+     * Retrieve all the {@link KamNode kam nodes} for a {@link Collection} of
+     * {@link CyNode cytoscape nodes}.
+     * 
+     * @param cynodes
+     *            {@link Collection} of {@link CyNode cytoscape nodes}
+     * @return {@link List} of {@link KamNode kam nodes}, which will not be
+     *         {@code null} but might be empty
+     */
+    public Set<KamNode> getKAMNodes(final Collection<CyNode> cynodes) {
+        final Set<KamNode> kamNodes = new HashSet<KamNode>(cynodes.size());
         for (final CyNode cynode : cynodes) {
             KamNode kamNode = getKAMNode(cynode);
             if (kamNode != null) {

@@ -21,7 +21,6 @@ package org.openbel.belframework.kam.task;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -80,13 +79,7 @@ final class InterconnectNodesTask extends AddEdgesTask {
      */
     @Override
     protected Collection<KamEdge> getEdgesToAdd() {
-        final Collection<KamNode> kamNodes = new HashSet<KamNode>();
-        for (final CyNode cynode : cynodes) {
-            KamNode kamNode = kamNetwork.getKAMNode(cynode);
-            if (kamNode != null) {
-                kamNodes.add(kamNode);
-            }
-        }
+        final Collection<KamNode> kamNodes = kamNetwork.getKAMNodes(cynodes);
         final List<SimplePath> paths = interconnect(kamNodes);
         if (paths == null) {
             return null;

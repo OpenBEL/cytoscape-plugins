@@ -21,7 +21,6 @@ package org.openbel.belframework.kam.task;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -67,14 +66,7 @@ final class ExpandNodesTask extends AddEdgesTask {
      */
     @Override
     protected Collection<KamEdge> getEdgesToAdd() {
-        final Collection<KamNode> kamNodes = new HashSet<KamNode>();
-        for (final CyNode cynode : cynodes) {
-            KamNode kamNode = kamNetwork.getKAMNode(cynode);
-            if (kamNode != null) {
-                kamNodes.add(kamNode);
-            }
-        }
-
+        final Collection<KamNode> kamNodes = kamNetwork.getKAMNodes(cynodes);
         List<KamEdge> edges = new ArrayList<KamEdge>();
         for (KamNode kamNode : kamNodes) {
             if (halt) {
