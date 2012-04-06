@@ -100,6 +100,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                     break;
                 }
                 
+                // FIXME this should use the backend interconnect method
                 final List<KamEdge> edges = kamService
                         .getAdjacentKamEdges(kamNetwork.getDialectHandle(), 
                                 selectedNode, EdgeDirectionType.BOTH, null);
