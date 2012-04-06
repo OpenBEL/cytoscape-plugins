@@ -82,7 +82,10 @@ final class InterconnectNodesTask extends AddEdgesTask {
     protected Collection<KamEdge> getEdgesToAdd() {
         final Collection<KamNode> kamNodes = new HashSet<KamNode>();
         for (final CyNode cynode : cynodes) {
-            kamNodes.add(kamNetwork.getKAMNode(cynode));
+            KamNode kamNode = kamNetwork.getKAMNode(cynode);
+            if (kamNode != null) {
+                kamNodes.add(kamNode);
+            }
         }
         final List<SimplePath> paths = interconnect(kamNodes);
         if (paths == null) {

@@ -185,6 +185,10 @@ public class DetailsView {
      */
     public void showNodeDetails(final KAMNetwork kn, final CyNode node) {
         final KamNode kamNode = kn.getKAMNode(node);
+        if (kamNode == null) {
+            // node is not kam backed
+            return;
+        }
 
         final List<BelTerm> terms = kamService.getSupportingTerms(kamNode);
 

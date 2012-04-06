@@ -421,9 +421,11 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         final Collection<KamNode> kamNodes = new HashSet<KamNode>();
         for (final CyNode cynode : selected) {
             KamNode kamNode = kamNetwork.getKAMNode(cynode);
-            kamNodes.add(kamNode);
-            // update selected kamNode ids
-            selectedKamNodeIds.add(kamNode.getId());
+            if (kamNode != null) {
+                kamNodes.add(kamNode);
+                // update selected kamNode ids
+                selectedKamNodeIds.add(kamNode.getId());
+            }
         }
         
         // put this a thread so it doesn't lock the UI

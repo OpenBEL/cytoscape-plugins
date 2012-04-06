@@ -140,7 +140,10 @@ public class KAMNetwork {
         final List<CyNode> cynodes = cyn.nodesList();
         final List<KamNode> kamNodes = new ArrayList<KamNode>(cynodes.size());
         for (final CyNode cynode : cynodes) {
-            kamNodes.add(getKAMNode(cynode));
+            KamNode kamNode = getKAMNode(cynode);
+            if (kamNode != null) {
+                kamNodes.add(kamNode);
+            }
         }
 
         return kamNodes;
@@ -152,24 +155,23 @@ public class KAMNetwork {
      *
      * @param cynode the {@link CyNode cytoscape node}
      * @return the {@link KamNode kam node} equivalent of the specific
-     * {@link CyNode cytoscape node}
+     * {@link CyNode cytoscape node}, null if the cynode is not kam backed
      */
     public KamNode getKAMNode(final CyNode cynode) {
-        // TODO do we want a check here to see if the cynode is kam backed?
-        final KamNode kamNode = new KamNode();
-
         final String id = cynode.getIdentifier();
-
         final String kamId = nodeAtt.getStringAttribute(id, KAM_NODE_ID_ATTR);
-        kamNode.setId(kamId);
-
         final String func = nodeAtt.getStringAttribute(id, KAM_NODE_FUNCTION_ATTR);
+        final String lbl = nodeAtt.getStringAttribute(id, KAM_NODE_LABEL_ATTR);
+        // check to see if the cynode is kam backed
+        if (kamId == null || func == null || lbl == null) {
+            return null;
+        }
+        
+        final KamNode kamNode = new KamNode();
+        kamNode.setId(kamId);
         final FunctionType ftype = FunctionType.valueOf(func);
         kamNode.setFunction(ftype);
-
-        final String lbl = nodeAtt.getStringAttribute(id, KAM_NODE_LABEL_ATTR);
         kamNode.setLabel(lbl);
-
         return kamNode;
     }
 

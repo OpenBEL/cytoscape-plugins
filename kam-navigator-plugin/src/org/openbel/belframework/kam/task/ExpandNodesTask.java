@@ -69,7 +69,10 @@ final class ExpandNodesTask extends AddEdgesTask {
     protected Collection<KamEdge> getEdgesToAdd() {
         final Collection<KamNode> kamNodes = new HashSet<KamNode>();
         for (final CyNode cynode : cynodes) {
-            kamNodes.add(kamNetwork.getKAMNode(cynode));
+            KamNode kamNode = kamNetwork.getKAMNode(cynode);
+            if (kamNode != null) {
+                kamNodes.add(kamNode);
+            }
         }
 
         List<KamEdge> edges = new ArrayList<KamEdge>();
