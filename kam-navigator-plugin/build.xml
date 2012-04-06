@@ -29,9 +29,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="lib.path" value="lib" />
     <property name="compile.path" value="bin" />
     <property name="jar.version" value="0.8" />
-    <property name="jar.name" value="kam_navigator_${jar.version}.jar" />
+    <property name="jar.name" value="belframework_kam_navigator_${jar.version}.jar" />
     <property name="src.jar.name"
-              value="kam_navigator_source_${jar.version}.jar" />
+              value="belframework_kam_navigator_source_${jar.version}.jar" />
     <property name="deploy.path"
               value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
     <property name="bel.jar.path" value="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-${BELFRAMEWORK_VERSION}.jar" />
