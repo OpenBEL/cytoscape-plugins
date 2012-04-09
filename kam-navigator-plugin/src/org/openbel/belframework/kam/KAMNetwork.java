@@ -300,9 +300,10 @@ public class KAMNetwork {
         final List<CyNode> nodes = cyn.nodesList();
         for (final CyNode node : nodes) {
             final String kamNodeId = nodeAtt.getStringAttribute(
-                    node.getIdentifier(),
+                    node.getIdentifier(), 
                     KAM_NODE_ID_ATTR);
-            if (kamNodeId.equals(kamNode.getId())) {
+            // if the kamNodeId is null, the node isn't a kam node
+            if (kamNodeId != null && kamNodeId.equals(kamNode.getId())) {
                 return node;
             }
         }
