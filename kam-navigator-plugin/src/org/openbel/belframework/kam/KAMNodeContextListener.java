@@ -87,6 +87,10 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         }
     }
 
+    // TODO this is currently operating on selected nodes, where cytoscape
+    // expects it to work that triggered the event.
+    // This needs to rethought in a way that be consistent with cytooscape's
+    // behaviors but also not limiting to actiosn like interconnect etc
     /**
      * {@inheritDoc}
      */
@@ -102,6 +106,10 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         //  but they should be 
         @SuppressWarnings("unchecked")
         Set<CyNode> selected = view.getNetwork().getSelectedNodes();
+        if (Utility.isEmpty(selected)) {
+            return;
+        }
+        
         for (CyNode cynode : selected) {
             // check to see if node is KAM backed
             String cyid = cynode.getIdentifier();
