@@ -510,11 +510,11 @@ public final class SearchKAMListDialog extends JDialog {
                     String[] split = line.split(",");
                     String firstColumn = split[0];
                     if (!isBlank(firstColumn)) { // don't add blank identifiers
-                        identifiers.add(firstColumn);
+                        identifiers.add(firstColumn.trim());
                     }
                 } else {
                     // else just take entire line as identifier
-                    identifiers.add(line);
+                    identifiers.add(line.trim());
                 }
             }
         } finally {
