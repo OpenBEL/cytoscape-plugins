@@ -25,8 +25,10 @@ Make sure the latest BEL Framework Web Service Plugin is built and copied to the
 
 Once installed you will need to configure the *HOME* location of each
 
--   Change the `BELFRAMEWORK_HOME` property in build.properties to point to the BELFramework installation folder.
--   Change the `CYTOSCAPE_HOME` property in build.properties to poi nt to the Cytoscape installation folder.
+-   Uncomment and set the `BELFRAMEWORK_HOME` property in build.properties to
+    point to the BELFramework installation folder.
+-   Uncomment and set the `CYTOSCAPE_HOME` property in build.properties to point
+    to the Cytoscape installation folder.
 
 To build the project use the following commands
 

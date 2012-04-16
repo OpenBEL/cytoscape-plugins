@@ -18,8 +18,10 @@ To build this plugin you will need
 
 Once installed you will need to configure the *HOME* location of each
 
--   Change the `BELFRAMEWORK_HOME` property in build.properties to point to the BELFramework installation folder.
--   Change the `CYTOSCAPE_HOME` property in build.properties to point to the Cytoscape installation folder.
+-   Uncomment and set the `BELFRAMEWORK_HOME` property in build.properties to
+    point to the BELFramework installation folder.
+-   Uncomment and set the `CYTOSCAPE_HOME` property in build.properties to point
+    to the Cytoscape installation folder.
 
 To build the project use the following commands
 
