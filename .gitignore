@@ -10,3 +10,7 @@ kam-navigator-plugin/.project
 kam-navigator-plugin/bin/
 kam-navigator-plugin/dist/
 kam-navigator-plugin/lib/
+belframework-webservice-plugin/nbproject/
+kam-navigator-plugin/nb-build.xml
+kam-navigator-plugin/nbproject/
+belframework-webservice-plugin/nb-build.xml
