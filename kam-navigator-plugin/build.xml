@@ -26,7 +26,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="license" value="COPYING" />
     <property name="dist.path" value="dist" />
     <property name="src.path" value="src" />
-    <property name="lib.path" value="lib" />
+    <property name="lib.path" value="../belframework-webservice-plugin/dist/" />
     <property name="compile.path" value="bin" />
     <property name="jar.version" value="0.9-SNAPSHOT" />
     <property name="jar.name" value="belframework_kam_navigator_${jar.version}.jar" />
