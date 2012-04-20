@@ -24,7 +24,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="dist.path" value="dist" />
     <property name="src.path" value="src" />
     <property name="compile.path" value="bin" />
-    <property name="jar.version" value="0.8" />
+    <property name="jar.version" value="0.9-SNAPSHOT" />
     <property name="jar.name"
               value="belframework_webservice_${jar.version}.jar" />
     <property name="src.jar.name"
