@@ -1,0 +1,12 @@
+.metadata
+RemoteSystemsTempFiles/
+belframework-webservice-plugin/.classpath
+belframework-webservice-plugin/.project
+belframework-webservice-plugin/bin/
+belframework-webservice-plugin/dist/
+kam-navigator-plugin/.settings
+kam-navigator-plugin/.classpath
+kam-navigator-plugin/.project
+kam-navigator-plugin/bin/
+kam-navigator-plugin/dist/
+kam-navigator-plugin/lib/
