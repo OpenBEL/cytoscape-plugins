@@ -311,21 +311,6 @@ public class KAMNetwork {
         return null;
     }
 
-    @SuppressWarnings({ "unchecked", "unused" })
-    private CyEdge findCyEdge(final KamEdge kamEdge) {
-        final List<CyEdge> edges = cyn.edgesList();
-        for (final CyEdge edge : edges) {
-            final String kamEdgeId = edgeAtt.getStringAttribute(
-                    edge.getIdentifier(),
-                    KAM_EDGE_ID_ATTR);
-            if (kamEdgeId.equals(kamEdge.getId())) {
-                return edge;
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Load the {@link VisualStyle visual style} to apply to new
      * {@link CyNetworkView cytoscape network views}.
