@@ -64,6 +64,7 @@ import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
@@ -127,9 +128,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
         
-        // register listener for each kam network
-        for (KAMNetwork kn : KAMSession.getInstance().getKAMNetworks()) {
-            CyNetwork cn = kn.getCyNetwork();
+        // register listener for each network
+        for (CyNetwork cn : Cytoscape.getNetworkSet()) {
             cn.addSelectEventListener(this);
             subjectNetworks.add(cn);
         }
@@ -196,10 +196,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 }
             }
 
-            KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
-                    currentNetwork);
-
-            KAMTasks.addEdges(kamNetwork, selectedEdges);
+            KAMTasks.addEdges(currentNetwork, kamId, selectedEdges);
         } else if (e.getSource().equals(expandBothButton)
                 || e.getSource().equals(expandUpstreamButton)
                 || e.getSource().equals(expandDownstreamButton)
@@ -387,12 +384,9 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             return;
         }
 
-        final KAMNetwork kamNetwork = KAMSession.getInstance().getKAMNetwork(
-                currentNetwork);
-
         final Collection<KamNode> kamNodes = new HashSet<KamNode>();
         for (final CyNode cynode : selected) {
-            KamNode kamNode = kamNetwork.getKAMNode(cynode);
+            KamNode kamNode = NetworkUtility.getKAMNode(cynode);
             if (kamNode != null) {
                 kamNodes.add(kamNode);
                 // update selected kamNode ids

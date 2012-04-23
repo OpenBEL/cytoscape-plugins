@@ -224,10 +224,8 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             // FIXME If a cytoscape session is restored the KAMNetwork
             // will not exist. We will have to reconnect to the KAM.
             final CyNetwork network = view.getNetwork();
-            final KAMNetwork kamNetwork = KAMSession.getInstance()
-                    .getKAMNetwork(network);
             
-            KAMTasks.expandNodes(kamNetwork, cynodes, direction);
+            KAMTasks.expandNodes(network, cynodes, direction);
         }
     }
 
@@ -259,10 +257,8 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             // FIXME If a cytoscape session is restored the KAMNetwork
             // will not exist. We will have to reconnect to the KAM.
             final CyNetwork network = view.getNetwork();
-            final KAMNetwork kamNetwork = KAMSession.getInstance()
-                    .getKAMNetwork(network);
             
-            KAMTasks.interconnectNodes(kamNetwork, cynodes);
+            KAMTasks.interconnectNodes(network, cynodes);
         }
     }
 }

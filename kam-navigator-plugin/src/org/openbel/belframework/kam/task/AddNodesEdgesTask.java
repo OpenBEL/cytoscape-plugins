@@ -23,7 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
+import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -58,9 +60,9 @@ final class AddNodesEdgesTask extends AddNodesTask {
     private final EdgeDirectionType direction;
     private final Set<String> kamNodeIds;
 
-    AddNodesEdgesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes,
-            final EdgeDirectionType direction) {
-        super(kamNetwork, kamNodes);
+    AddNodesEdgesTask(CyNetwork cyNetwork, KamIdentifier kamId, List<KamNode> kamNodes,
+            EdgeDirectionType direction) {
+        super(cyNetwork, kamId, kamNodes);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
         this.direction = direction;
@@ -99,11 +101,12 @@ final class AddNodesEdgesTask extends AddNodesTask {
             }
             
             final List<KamEdge> edges = kamService.getAdjacentKamEdges(
-                    kamNetwork.getDialectHandle(), selectedNode, direction,
+                    KAMSession.getInstance().getDialectHandle(kamId),
+                    selectedNode, direction,
                     null);
 
             for (final KamEdge edge : edges) {
-                kamNetwork.addEdge(edge);
+                NetworkUtility.addEdge(cyNetwork, kamId, edge);
             }
         }
         
@@ -111,18 +114,16 @@ final class AddNodesEdgesTask extends AddNodesTask {
             return;
         }
 
-        final CyNetwork cyn = kamNetwork.getCyNetwork();
-
-        cyn.unselectAllNodes();
-        cyn.setSelectedNodeState(cynodes, true);
+        cyNetwork.unselectAllNodes();
+        cyNetwork.setSelectedNodeState(cynodes, true);
 
         CyLayoutAlgorithm dcl = CyLayouts.getLayout("degree-circle");
         dcl.setSelectedOnly(true);
         dcl.doLayout();
 
-        final CyNetworkView view = Cytoscape.getNetworkView(cyn.getIdentifier());
+        final CyNetworkView view = Cytoscape.getNetworkView(cyNetwork.getIdentifier());
         view.redrawGraph(true, true);
-        Cytoscape.getDesktop().setFocus(cyn.getIdentifier());
+        Cytoscape.getDesktop().setFocus(cyNetwork.getIdentifier());
 
         m.setPercentCompleted(100);
     }

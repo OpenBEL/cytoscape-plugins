@@ -23,7 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
+import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -50,14 +52,15 @@ import cytoscape.view.CyNetworkView;
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
+// TODO this needs to be redone to use interconnect backend
 final class AddNodesInterconnectTask extends AddNodesTask {
     private static final String TITLE = "Interconnecting Nodes";
     private final KAMService kamService;
     private final List<KamNode> kamNodes;
     private final Set<String> kamNodeIds;
 
-    AddNodesInterconnectTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
-        super(kamNetwork, kamNodes);
+    AddNodesInterconnectTask(CyNetwork cyNetwork, KamIdentifier kamId, List<KamNode> kamNodes) {
+        super(cyNetwork, kamId, kamNodes);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
         this.kamNodeIds = new HashSet<String>(kamNodes.size());
@@ -89,7 +92,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
         m.setStatus("Interconnecting network for " + kamNodes.size() + " selected nodes.");
 
         // Add existing KAM nodes to selected
-        kamNodes.addAll(kamNetwork.getKAMNodes());
+        kamNodes.addAll(NetworkUtility.getKAMNodes(cyNetwork.nodesList()));
 
         // If more than one node selected, link up shared edges
         int numNodes = kamNodes.size();
@@ -102,7 +105,8 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                 
                 // FIXME this should use the backend interconnect method
                 final List<KamEdge> edges = kamService
-                        .getAdjacentKamEdges(kamNetwork.getDialectHandle(), 
+                        .getAdjacentKamEdges(
+                                KAMSession.getInstance().getDialectHandle(kamId), 
                                 selectedNode, EdgeDirectionType.BOTH, null);
 
                 for (final KamEdge edge : edges) {
@@ -112,7 +116,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                     // filter out adjacent edges not between selected nodes
                     if (kamNodeIds.contains(esrc.getId())
                             && kamNodeIds.contains(etgt.getId())) {
-                        kamNetwork.addEdge(edge);
+                        NetworkUtility.addEdge(cyNetwork, kamId, edge);
                     }
                 }
             }
@@ -122,20 +126,18 @@ final class AddNodesInterconnectTask extends AddNodesTask {
             return;
         }
 
-        final CyNetwork cyn = kamNetwork.getCyNetwork();
-
-        cyn.unselectAllNodes();
-        cyn.setSelectedNodeState(cynodes, true);
+        cyNetwork.unselectAllNodes();
+        cyNetwork.setSelectedNodeState(cynodes, true);
 
         CyLayoutAlgorithm dcl = CyLayouts.getLayout("degree-circle");
         dcl.setSelectedOnly(true);
         dcl.doLayout();
 
-        final CyNetworkView view = Cytoscape.getNetworkView(cyn.getIdentifier());
+        final CyNetworkView view = Cytoscape.getNetworkView(cyNetwork.getIdentifier());
         view.redrawGraph(true, true);
 
-        Cytoscape.setCurrentNetwork(cyn.getIdentifier());
-        Cytoscape.setCurrentNetworkView(cyn.getIdentifier());
+        Cytoscape.setCurrentNetwork(cyNetwork.getIdentifier());
+        Cytoscape.setCurrentNetworkView(cyNetwork.getIdentifier());
 
         m.setPercentCompleted(100);
     }
