@@ -18,6 +18,8 @@ public class KamIdentifier {
         this.compiledTime = kam.getLastCompiled().toGregorianCalendar()
                 .getTimeInMillis();
         this.wsdlUrl = wsdlUrl;
+        
+        nullCheck();
     }
 
     public KamIdentifier(CyNode node) {
@@ -26,10 +28,13 @@ public class KamIdentifier {
 
         this.name = nodeAtt.getStringAttribute(cyId,
                 KAMNavigatorPlugin.KAM_NAME_ATTR);
+        // will throw an exception if the date string is null or not parsable
         this.compiledTime = Long.parseLong(nodeAtt.getStringAttribute(cyId,
                 KAMNavigatorPlugin.KAM_COMPILE_DATE_ATTR));
         this.wsdlUrl = nodeAtt.getStringAttribute(cyId,
                 KAMNavigatorPlugin.WSDL_URL_ATTR);
+        
+        nullCheck();
     }
 
     public String getName() {
@@ -77,6 +82,12 @@ public class KamIdentifier {
         } else if (!wsdlUrl.equals(other.wsdlUrl))
             return false;
         return true;
+    }
+    
+    private void nullCheck() {
+        if (name == null || wsdlUrl == null) {
+            throw new NullPointerException("Can't construct a Kam Identifier with null parameters");
+        }
     }
 
 }

@@ -10,8 +10,10 @@ import static org.openbel.belframework.kam.KAMNavigatorPlugin.WSDL_URL_ATTR;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.selventa.belframework.ws.client.FunctionType;
@@ -70,7 +72,8 @@ public class NetworkUtility {
      * @return the {@link CyEdge cytoscape edge} created for the specific
      *         {@link KamEdge kam edge}
      */
-    public static CyEdge addEdge(CyNetwork cyn, KamIdentifier kamId, KamEdge edge) {
+    public static CyEdge addEdge(CyNetwork cyn, KamIdentifier kamId,
+            KamEdge edge) {
         // link up the source node
         final KamNode srckn = (KamNode) edge.getSource();
 
@@ -151,13 +154,12 @@ public class NetworkUtility {
     }
 
     /**
-     * Retrieve all {@link CyEdge cytoscape edges} in the
-     * {@link CyNetwork cytoscape network} as {@link KamEdge kam edges}.
-     *
+     * Retrieve all {@link CyEdge cytoscape edges} in the {@link CyNetwork
+     * cytoscape network} as {@link KamEdge kam edges}.
+     * 
      * @return the {@link List} of {@link KamEdge kam edges} for all
-     * {@link CyEdge cytoscape edges} in the
-     * {@link CyNetwork cytoscape network}, which will not be {@code null} but
-     * might be empty
+     *         {@link CyEdge cytoscape edges} in the {@link CyNetwork cytoscape
+     *         network}, which will not be {@code null} but might be empty
      */
     public List<KamEdge> getKAMEdges(Collection<CyEdge> cyedges) {
         final List<KamEdge> kamEdges = new ArrayList<KamEdge>(cyedges.size());
@@ -172,19 +174,20 @@ public class NetworkUtility {
     }
 
     /**
-     * Retrieve the {@link KamEdge kam edge} for a specific
-     * {@link CyEdge cytoscape edge}.
-     *
-     * @param cyedge the {@link CyEdge cytoscape edge}
+     * Retrieve the {@link KamEdge kam edge} for a specific {@link CyEdge
+     * cytoscape edge}.
+     * 
+     * @param cyedge
+     *            the {@link CyEdge cytoscape edge}
      * @return the {@link KamEdge kam edge} equivalent of the specific
-     * {@link CyEdge cytoscape edge}
+     *         {@link CyEdge cytoscape edge}
      */
     public static KamEdge getKAMEdge(CyEdge cyedge) {
         if (!isKamBacked(cyedge)) {
             // FIXME add checks for this new behavior
             return null;
         }
-        
+
         final KamEdge kamEdge = new KamEdge();
 
         String kamEdgeId = edgeAtt.getStringAttribute(cyedge.getIdentifier(),
@@ -192,7 +195,7 @@ public class NetworkUtility {
         kamEdge.setId(kamEdgeId);
         return kamEdge;
     }
-    
+
     public static boolean isKamBacked(CyNode cynode) {
         final String kamId = nodeAtt.getStringAttribute(cynode.getIdentifier(),
                 KAM_NODE_ID_ATTR);
@@ -203,6 +206,64 @@ public class NetworkUtility {
         String kamEdgeId = edgeAtt.getStringAttribute(cyedge.getIdentifier(),
                 KAM_EDGE_ID_ATTR);
         return kamEdgeId != null;
+    }
+
+    public static Map<KamIdentifier, Set<CyNode>> getKamNodeIds(
+            Collection<CyNode> cynodes) {
+        Map<KamIdentifier, Set<CyNode>> ret = new HashMap<KamIdentifier, Set<CyNode>>();
+
+        for (CyNode n : cynodes) {
+            if (!isKamBacked(n)) {
+                continue;
+            }
+
+            KamIdentifier id = new KamIdentifier(n);
+
+            Set<CyNode> ns = ret.get(id);
+            if (ns == null) {
+                ns = new HashSet<CyNode>();
+            }
+            ns.add(n);
+        }
+
+        return ret;
+    }
+
+    public static Map<KamIdentifier, Set<CyEdge>> getKamEdgeIds(
+            Collection<CyEdge> cyedges) {
+        Map<KamIdentifier, Set<CyEdge>> ret = new HashMap<KamIdentifier, Set<CyEdge>>();
+
+        for (CyEdge e : cyedges) {
+            if (!isKamBacked(e)) {
+                continue;
+            }
+
+            KamIdentifier sId = new KamIdentifier((CyNode) e.getSource());
+            KamIdentifier tId = new KamIdentifier((CyNode) e.getTarget());
+            if (!sId.equals(tId)) {
+                throw new IllegalArgumentException(
+                        "Edge nodes can not exist in two different kams");
+            }
+
+            Set<CyEdge> es = ret.get(sId);
+            if (es == null) {
+                es = new HashSet<CyEdge>();
+            }
+            es.add(e);
+        }
+
+        return ret;
+    }
+    
+    // convience method
+    // XXX this could be slow performing
+    // might be better to associate a kamid with a network in the session
+    public static KamIdentifier getKamNodeId(Collection<CyNode> cynodes) {
+        Map<KamIdentifier, Set<CyNode>> map = getKamNodeIds(cynodes);
+        if (map.keySet().size() != 1) {
+            return null;
+        }
+        return map.keySet().iterator().next();
     }
 
     private static CyNode findCyNode(CyNetwork cyn, KamNode kamNode) {

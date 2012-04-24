@@ -22,9 +22,6 @@ package org.openbel.belframework.kam;
 import static com.selventa.belframework.ws.client.EdgeDirectionType.BOTH;
 import static com.selventa.belframework.ws.client.EdgeDirectionType.FORWARD;
 import static com.selventa.belframework.ws.client.EdgeDirectionType.REVERSE;
-import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
-import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
-import static org.openbel.belframework.kam.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 import giny.view.NodeView;
 
 import java.awt.event.ActionEvent;
@@ -45,8 +42,6 @@ import com.selventa.belframework.ws.client.KamNode;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
-import cytoscape.Cytoscape;
-import cytoscape.data.CyAttributes;
 import cytoscape.util.CytoscapeAction;
 import cytoscape.view.CyNetworkView;
 import cytoscape.view.CytoscapeDesktop;
@@ -66,7 +61,6 @@ import ding.view.NodeContextMenuListener;
  */
 public class KAMNodeContextListener implements PropertyChangeListener,
         NodeContextMenuListener {
-    private static final CyAttributes nodeAtt = Cytoscape.getNodeAttributes();
     private static final String INTERCONNECT_LABEL = "Interconnect";
 
     /**
@@ -112,14 +106,17 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         
         for (CyNode cynode : selected) {
             // check to see if node is KAM backed
-            String cyid = cynode.getIdentifier();
-            final String id = nodeAtt.getStringAttribute(cyid, KAM_NODE_ID_ATTR);
-            final String func = nodeAtt.getStringAttribute(cyid, KAM_NODE_FUNCTION_ATTR);
-            final String lbl = nodeAtt.getStringAttribute(cyid, KAM_NODE_LABEL_ATTR);
-            if (id == null || func == null || lbl == null) {
+            if (!NetworkUtility.isKamBacked(cynode)) {
                 // return if cynode does not reference kam node
                 return;
             }
+        }
+        
+        KamIdentifier kamId = NetworkUtility.getKamNodeId(selected);
+        if (kamId == null) {
+            // nodes are from more then 1 kam, return to avoid confusion
+            // TODO disabling might be better then not generating the menu
+            return;
         }
 
         if (menu == null) {
@@ -128,22 +125,23 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         
         // construct node menu and add to context popup
         final JMenu kamNodeItem = new JMenu("KAM Node");
-        final JMenuItem downstream = new JMenuItem(new ExpandAction(FORWARD,
-                selected, view));
+        final JMenuItem downstream = new JMenuItem(new ExpandAction(kamId, 
+                FORWARD, selected, view));
         kamNodeItem.add(downstream);
-        final JMenuItem upstream = new JMenuItem(new ExpandAction(REVERSE,
-                selected, view));
+        final JMenuItem upstream = new JMenuItem(new ExpandAction(kamId, 
+                REVERSE, selected, view));
         kamNodeItem.add(upstream);
-        final JMenuItem both = new JMenuItem(new ExpandAction(BOTH, selected,
-                view));
+        final JMenuItem both = new JMenuItem(new ExpandAction(kamId, 
+                BOTH, selected, view));
         kamNodeItem.add(both);
         
         if (selected.size() > 1) {
             // interconnect added only if more then one nodes are selected
             final JMenuItem interconnect = new JMenuItem(new InterconnectAction(
-                    selected, view));
+                    kamId, selected, view));
             kamNodeItem.add(interconnect);
         } else {
+            // FIXME no need for this placeholder, just use a disabled menu item
             // create placeholder disabled item for interconnect to keep menu 
             // size consistent
             final JMenuItem placeholder = new JMenuItem(INTERCONNECT_LABEL);
@@ -193,11 +191,14 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         
         private final EdgeDirectionType direction;
         private final Set<CyNode> cynodes;
+        private final KamIdentifier kamId;
         private final CyNetworkView view;
 
-        private ExpandAction(final EdgeDirectionType direction,
-                final Set<CyNode> cynodes, final CyNetworkView view) {
+        private ExpandAction(KamIdentifier kamId, 
+                EdgeDirectionType direction,
+                Set<CyNode> cynodes, CyNetworkView view) {
             super("Expand " + getLabel(direction));
+            this.kamId = kamId;
             this.direction = direction;
             this.cynodes = cynodes;
             this.view = view;
@@ -225,7 +226,8 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             // will not exist. We will have to reconnect to the KAM.
             final CyNetwork network = view.getNetwork();
             
-            KAMTasks.expandNodes(network, cynodes, direction);
+            
+            KAMTasks.expandNodes(network, kamId, cynodes, direction);
         }
     }
 
@@ -240,11 +242,13 @@ public class KAMNodeContextListener implements PropertyChangeListener,
         private static final long serialVersionUID = 8540857606052921412L;
         
         private final Set<CyNode> cynodes;
+        private final KamIdentifier kamId;
         private final CyNetworkView view;
 
-        private InterconnectAction(final Set<CyNode> cynodes, 
-                final CyNetworkView view) {
+        private InterconnectAction(KamIdentifier kamId, Set<CyNode> cynodes, 
+                CyNetworkView view) {
             super(INTERCONNECT_LABEL);
+            this.kamId = kamId;
             this.cynodes = cynodes;
             this.view = view;
         }
@@ -258,7 +262,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             // will not exist. We will have to reconnect to the KAM.
             final CyNetwork network = view.getNetwork();
             
-            KAMTasks.interconnectNodes(network, cynodes);
+            KAMTasks.interconnectNodes(network, kamId, cynodes);
         }
     }
 }

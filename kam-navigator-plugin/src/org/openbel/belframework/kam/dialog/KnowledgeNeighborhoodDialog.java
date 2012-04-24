@@ -62,8 +62,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.openbel.belframework.kam.KAMNetwork;
-import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;

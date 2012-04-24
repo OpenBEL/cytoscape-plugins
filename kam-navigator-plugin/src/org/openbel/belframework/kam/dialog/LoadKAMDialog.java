@@ -52,7 +52,6 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 import org.openbel.belframework.kam.KAMNavigatorPlugin;
-import org.openbel.belframework.kam.KAMNetwork;
 import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.webservice.KAMService;
