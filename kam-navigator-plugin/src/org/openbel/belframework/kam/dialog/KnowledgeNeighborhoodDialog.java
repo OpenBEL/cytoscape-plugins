@@ -178,7 +178,10 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         super.dispose();
 
         // deregister this listener for all associated objects
-        Cytoscape.getPropertyChangeSupport().removePropertyChangeListener(this);
+        Cytoscape.getPropertyChangeSupport().removePropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_CREATED, this);
+        Cytoscape.getPropertyChangeSupport().removePropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
         for (CyNetwork network : subjectNetworks) {
             if (network != null) {
                 network.removeSelectEventListener(this);
