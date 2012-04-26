@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <!-- global info regarding the project these plugins come from -->
+    <name> Selventa - Cytoscape Plugins </name>
+    <description>This is the list of cytoscape plugins provided by Selventa.</description>
+    <url>http://www.selventa.com</url>
+
+    <themes>
+        <theme>
+            <uniqueID>KAMNavigatorTheme</uniqueID>
+
+            <name>KAM Navigator</name>
+            <description>This theme provides the KAM Navigator and BELFramework Webservice plugins.</description>
+            <themeVersion>1.1</themeVersion>
+
+            <cytoscapeVersions>
+                <version>2.7</version>
+                <version>2.8</version>
+            </cytoscapeVersions>
+        
+            <pluginlist>
+                <!-- BELFramework Webservice plugin for the theme -->
+                <plugin>
+                    <uniqueID>BELFrameworkWebservice</uniqueID>
+                    <name>BELFramework Webservice Plugin</name>
+            	    <description>A client connector to the BEL Framework Web Services. This is required to run the KAM Navigator plugin.</description>
+                    <pluginVersion>1.1</pluginVersion>
+
+                    <cytoscapeVersions>
+                        <version>2.7</version>
+                        <version>2.8</version>
+                    </cytoscapeVersions>
+
+                    <filetype>jar</filetype>
+                    <category>Analysis</category>
+                    <url>http://resource.belframework.org/selventa/cytoscape/belframework_webservice_1.1.jar</url>
+
+                    <authorlist>
+                        <author>
+                            <name>Selventa</name>
+                            <institution>Selventa</institution>
+                        </author>
+                    </authorlist>
+                </plugin>
+
+                <!-- BELFramework KAM plugin for the theme -->
+                <plugin>
+                    <uniqueID>KAMNavigator</uniqueID>
+                    <name>KAM Navigator</name>
+            	    <description>KAM Navigator plugin for the BEL Framework.</description>
+                    <pluginVersion>1.1</pluginVersion>
+
+                    <cytoscapeVersions>
+                        <version>2.7</version>
+                        <version>2.8</version>
+                    </cytoscapeVersions>
+
+                    <filetype>jar</filetype>
+                    <category>Analysis</category>
+                    <url>http://resource.belframework.org/selventa/cytoscape/kam_navigator_1.1.jar</url>
+
+                    <authorlist>
+                        <author>
+                            <name>Selventa</name>
+                            <institution>Selventa</institution>
+                        </author>
+                    </authorlist>
+                </plugin>
+            </pluginlist>
+        </theme>
+    </themes>
+</project>
+
