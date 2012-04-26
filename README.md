@@ -12,6 +12,6 @@ The KAM Navigator plugin was developed with two main goals:
 -   To illustrate how to use the BEL Framework Web Services API to create innovative and interesting knowledge-aware applications.
 
 The KAM Navigator plugin was designed and developed by [Selventa](http://www.selventa.com) and is being released 
-for public use under the LGPLv3 license..
+for public use under the LGPLv3 license.
 
-
+Additional information on installing and using the plugin can be found in the [User Manual](https://github.com/belframework-org/Cytoscape-Plugins/wiki).
