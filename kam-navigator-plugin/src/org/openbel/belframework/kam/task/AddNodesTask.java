@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.NetworkUtility;
 
@@ -122,6 +123,7 @@ class AddNodesTask implements Task {
             }
             
             CyNode cyn = NetworkUtility.addNode(cyNetwork, kamId, node);
+            KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
             cynodes.add(cyn);
             currentPercentage += nodePercent;
             if (currentPercentage >= 1.0) {

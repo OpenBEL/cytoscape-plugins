@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.kam.Utility;
@@ -91,6 +92,7 @@ class AddEdgesTask implements Task {
             }
 
             CyEdge cyEdge = NetworkUtility.addEdge(cyNetwork, kamId, edge);
+            KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
             addedEdges.add(cyEdge);
             
             // TODO move percentage code (used by this and add nodes)

@@ -40,7 +40,7 @@ import cytoscape.CyNode;
  * This object is a singleton.
  * </p>
  * 
- * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
+ * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 public class KAMSession {
     private static KAMSession instance;
@@ -57,7 +57,8 @@ public class KAMSession {
         return instance;
     }
 
-    public synchronized void addKam(Kam kam, KamHandle kamHandle, DialectHandle dialectHandle) {
+    public synchronized void addKam(Kam kam, KamHandle kamHandle,
+            DialectHandle dialectHandle) {
         KamIdentifier kamId = new KamIdentifier(kam, Configuration
                 .getInstance().getWSDLURL());
         // TODO do we want to check for existing kam and throw an error if there
@@ -72,10 +73,11 @@ public class KAMSession {
         return kamHandles.get(kamIdentifier);
     }
 
-    public synchronized DialectHandle getDialectHandle(KamIdentifier kamIdentifier) {
+    public synchronized DialectHandle getDialectHandle(
+            KamIdentifier kamIdentifier) {
         return dialectHandles.get(kamIdentifier);
     }
-    
+
     @SuppressWarnings("unchecked")
     public synchronized KamIdentifier getKamIdentifier(CyNetwork network) {
         KamIdentifier kamId = networkKamIds.get(network);
@@ -100,6 +102,11 @@ public class KAMSession {
 
     public synchronized void associateNetworkWithKam(CyNetwork network,
             KamIdentifier kamId) {
+        KamIdentifier previousId = networkKamIds.get(network);
+        if (previousId != null && !previousId.equals(kamId)) {
+            throw new IllegalArgumentException(
+                    "Network is already associated with KAM");
+        }
         networkKamIds.put(network, kamId);
     }
 
