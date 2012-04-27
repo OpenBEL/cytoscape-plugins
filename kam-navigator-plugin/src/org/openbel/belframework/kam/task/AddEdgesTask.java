@@ -91,8 +91,8 @@ class AddEdgesTask implements Task {
                 break;
             }
 
-            CyEdge cyEdge = NetworkUtility.addEdge(cyNetwork, kamId, edge);
             KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
+            CyEdge cyEdge = NetworkUtility.addEdge(cyNetwork, kamId, edge);
             addedEdges.add(cyEdge);
             
             // TODO move percentage code (used by this and add nodes)

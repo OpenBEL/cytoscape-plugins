@@ -122,8 +122,8 @@ class AddNodesTask implements Task {
                 break;
             }
             
-            CyNode cyn = NetworkUtility.addNode(cyNetwork, kamId, node);
             KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
+            CyNode cyn = NetworkUtility.addNode(cyNetwork, kamId, node);
             cynodes.add(cyn);
             currentPercentage += nodePercent;
             if (currentPercentage >= 1.0) {
