@@ -29,7 +29,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -51,15 +51,18 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.openbel.belframework.kam.EdgeOption;
-import org.openbel.belframework.kam.KAMNetwork;
-import org.openbel.belframework.kam.KAMSession;
-import org.openbel.belframework.kam.NetworkOption;
+import org.openbel.belframework.kam.KAMOption;
+import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.kam.task.AbstractSearchKamTask;
 import org.openbel.belframework.kam.task.KAMTasks;
+import org.openbel.belframework.webservice.Configuration;
+import org.openbel.belframework.webservice.KAMService;
+import org.openbel.belframework.webservice.KAMServiceFactory;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.FunctionType;
+import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamNode;
 
 import cytoscape.CyNetwork;
@@ -76,11 +79,13 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
     private static final String DIALOG_TITLE = "Add KAM Nodes";
     
     private TableRowSorter<ResultsTableModel> rowSorter;
-    private KAMNetwork lastSearchedNetwork = null;
+    private CyNetwork lastSearchedNetwork = null;
+    private KamIdentifier lastSearchedKamId = null;
+    private final KAMService kamService;
     
     // swing components
     private JTable resultsTable;
-    private JComboBox networkCmb;
+    private JComboBox kamCmb;
     private JComboBox functionCmb;
     private JButton cancelBtn;
     private JButton searchBtn;
@@ -96,6 +101,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      */
     public SearchKAMDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
+        this.kamService = KAMServiceFactory.getInstance().getKAMService();
         
         initUI();
     }
@@ -151,13 +157,13 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         JPanel resultsPanel = new JPanel();
         JScrollPane resultsPane = new JScrollPane();
         functionCmb = new JComboBox();
-        networkCmb = new JComboBox();
+        kamCmb = new JComboBox();
         resultsTable = new JTable();
         resultsCount = new JLabel();
 
         searchPanel.setLayout(new java.awt.GridBagLayout());
 
-        networkLbl.setText("Network:");
+        networkLbl.setText("KAM:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -166,28 +172,16 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         searchPanel.add(networkLbl, gridBagConstraints);
 
-        final List<CyNetwork> networks = KAMSession.getInstance()
-                .getKamBackedNetworks();
-        final Iterator<CyNetwork> networkIt = networks.iterator();
-        final List<NetworkOption> networkOptions = new ArrayList<NetworkOption>(
-                networks.size());
-        NetworkOption selectedNetwork = null;
-
-        while (networkIt.hasNext()) {
-            final CyNetwork cyn = networkIt.next();
-
-            final NetworkOption networkOpt = new NetworkOption(cyn);
-            networkOptions.add(networkOpt);
-
-            // trap this network option if this is the active cyn
-            if (Cytoscape.getCurrentNetwork() == cyn) {
-                selectedNetwork = networkOpt;
-            }
+        List<Kam> kamCatalog = kamService.getCatalog();
+        List<KAMOption> kamOptions = new ArrayList<KAMOption>(kamCatalog.size());
+        for (Kam kam : kamCatalog) {
+            kamOptions.add(new KAMOption(kam));
         }
+        Collections.sort(kamOptions);
 
-        networkCmb.addActionListener(this);
-        networkCmb.setModel(new DefaultComboBoxModel(networkOptions
-                .toArray(new NetworkOption[networkOptions.size()])));
+        kamCmb.addActionListener(this);
+        kamCmb.setModel(new DefaultComboBoxModel(kamOptions
+                .toArray(new KAMOption[kamOptions.size()])));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -195,7 +189,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.weightx = 10.0;
-        searchPanel.add(networkCmb, gridBagConstraints);
+        searchPanel.add(kamCmb, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -322,12 +316,6 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         gridBagConstraints.weighty = 1.0;
         searchPanel.add(optionsPanel, gridBagConstraints);
 
-        // lazy selection of current network,
-        // needs to happen after ResultsTableModel is set as the table model
-        if (selectedNetwork != null) {
-            networkCmb.setSelectedItem(selectedNetwork);
-        }
-
         return searchPanel;
     }
 
@@ -365,31 +353,24 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         if (e != null) {
             if (e.getSource() == functionCmb) {
                 searchBtn.setEnabled(true);
-            } else if (e.getSource() == networkCmb) {
+            } else if (e.getSource() == kamCmb) {
                 resultsTable.getSelectionModel().clearSelection();
 
                 final ResultsTableModel model = (ResultsTableModel) resultsTable
                         .getModel();
                 model.clear();
-
                 model.fireTableDataChanged();
-
-                final NetworkOption networkOption = (NetworkOption) networkCmb.getSelectedItem();
-                Cytoscape.getDesktop().setFocus(
-                        networkOption.getCyNetwork().getIdentifier());
             } else if (e.getSource() == cancelBtn) {
                 this.dispose();
             } else if (e.getSource() == searchBtn) {
                 FunctionType selfunc = (FunctionType) functionCmb.getSelectedItem();
 
-                final NetworkOption networkOption = (NetworkOption) networkCmb
-                        .getSelectedItem();
-
-                final KAMNetwork kamNetwork = KAMSession.getInstance()
-                        .getKAMNetwork(networkOption.getCyNetwork());
-                this.lastSearchedNetwork = kamNetwork;
+                this.lastSearchedNetwork = Cytoscape.getCurrentNetwork();
+                KAMOption kamOpt = (KAMOption) kamCmb.getSelectedItem();
+                this.lastSearchedKamId = new KamIdentifier(kamOpt.getKam(),
+                        Configuration.getInstance().getWSDLURL());
                 
-                final Task task = new AbstractSearchKamTask(kamNetwork, selfunc) {
+                final Task task = new AbstractSearchKamTask(lastSearchedKamId, selfunc) {
 
                     @Override
                     protected void updateUI(Collection<KamNode> nodes) {
@@ -427,19 +408,19 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 EdgeOption eeo = (EdgeOption) edgeCmb.getSelectedItem();
                 switch (eeo) {
                     case ALL_EDGES:
-                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, selectedNodes, EdgeDirectionType.BOTH);
+                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.BOTH);
                         break;
                     case DOWNSTREAM:
-                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, selectedNodes, EdgeDirectionType.FORWARD);
+                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.FORWARD);
                         break;
                     case INTERCONNECT:
-                        KAMTasks.addNodesAndInterconnect(lastSearchedNetwork, selectedNodes);
+                        KAMTasks.addNodesAndInterconnect(lastSearchedNetwork, lastSearchedKamId, selectedNodes);
                         break;
                     case NONE:
-                        KAMTasks.addNodes(lastSearchedNetwork, selectedNodes);
+                        KAMTasks.addNodes(lastSearchedNetwork, lastSearchedKamId, selectedNodes);
                         break;
                     case UPSTREAM:
-                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, selectedNodes, EdgeDirectionType.REVERSE);
+                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.REVERSE);
                         break;
                 }
             }

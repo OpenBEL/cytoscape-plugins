@@ -29,6 +29,9 @@ import com.selventa.belframework.ws.client.DialectHandle;
 import com.selventa.belframework.ws.client.Kam;
 import com.selventa.belframework.ws.client.KamHandle;
 
+import cytoscape.CyNetwork;
+import cytoscape.CyNode;
+
 /**
  * {@link KAMSession} tracks the {@link Set set} of the loaded
  * {@link KAMNetwork kam networks}.
@@ -43,6 +46,8 @@ public class KAMSession {
     private static KAMSession instance;
     private Map<KamIdentifier, KamHandle> kamHandles = new HashMap<KamIdentifier, KamHandle>();
     private Map<KamIdentifier, DialectHandle> dialectHandles = new HashMap<KamIdentifier, DialectHandle>();
+    // right there should only be one kam associated with any given network
+    private Map<CyNetwork, KamIdentifier> networkKamIds = new HashMap<CyNetwork, KamIdentifier>();
 
     public static synchronized KAMSession getInstance() {
         if (instance == null) {
@@ -69,6 +74,33 @@ public class KAMSession {
 
     public synchronized DialectHandle getDialectHandle(KamIdentifier kamIdentifier) {
         return dialectHandles.get(kamIdentifier);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public synchronized KamIdentifier getKamIdentifier(CyNetwork network) {
+        KamIdentifier kamId = networkKamIds.get(network);
+        if (kamId == null) {
+            Map<KamIdentifier, Set<CyNode>> map = NetworkUtility
+                    .getKamNodeIds(network.nodesList());
+            if (map.keySet().size() < 1) {
+                // no kam nodes
+                return null;
+            } else if (map.keySet().size() > 1) {
+                // there is more then 1 kam associated with this network
+                throw new IllegalStateException(
+                        "More then 1 kam associated with elements in network");
+            } else {
+                // one kam id
+                kamId = map.keySet().iterator().next();
+                associateNetworkWithKam(network, kamId);
+            }
+        }
+        return kamId;
+    }
+
+    public synchronized void associateNetworkWithKam(CyNetwork network,
+            KamIdentifier kamId) {
+        networkKamIds.put(network, kamId);
     }
 
     private KAMSession() {

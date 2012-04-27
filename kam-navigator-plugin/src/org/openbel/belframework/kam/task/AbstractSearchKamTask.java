@@ -30,6 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.openbel.belframework.kam.KAMLoader;
+import org.openbel.belframework.kam.KAMLoader.KAMLoadException;
 import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.Utility;
@@ -141,6 +143,22 @@ public abstract class AbstractSearchKamTask implements Task {
      */
     @Override
     public void run() {
+        KamHandle kamHandle = KAMSession.getInstance().getKamHandle(kamId);
+        if (kamHandle == null) {
+            monitor.setStatus("Loading \"" + kamId.getName() + "\" KAM.");
+
+            monitor.setPercentCompleted(0);
+            // FIXME add ablity to cancel KAM Load
+            try {
+                kamHandle = new KAMLoader().load(kamId);
+            } catch (KAMLoadException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return;
+            }
+            monitor.setPercentCompleted(100);
+        }
+        
         monitor.setStatus("Searching for KAM Nodes");
 
         monitor.setPercentCompleted(0);

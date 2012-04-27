@@ -34,7 +34,6 @@ import java.net.URISyntaxException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.openbel.belframework.kam.dialog.LoadKAMDialog;
 import org.openbel.belframework.kam.dialog.SearchKAMDialog;
 import org.openbel.belframework.kam.dialog.SearchKAMListDialog;
 import org.openbel.belframework.webservice.SettingsDialog;
@@ -122,9 +121,6 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
             kiMenu = new JMenu(KAM_PLUGIN_SUBMENU);
             pluginMenu.add(kiMenu);
         }
-
-        // add "Select KAM" action to submenu
-        kiMenu.add(new SelectKAMDialogAction());
 
         // add "Add Kam Nodes" action to submenu
         kiMenu.add(new SearchKAMDialogAction());
@@ -311,29 +307,6 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
                 return true;
             }
             return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
-        }
-    }
-
-    /**
-     * The {@link CytoscapeAction action} to trigger the Load KAM dialog.
-     * 
-     * @see LoadKAMDialog
-     * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
-     */
-    private static final class SelectKAMDialogAction extends CytoscapeAction {
-        private static final long serialVersionUID = 2243171495622023060L;
-
-        public SelectKAMDialogAction() {
-            super("Load KAM");
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void actionPerformed(ActionEvent event) {
-            LoadKAMDialog kcdialog = new LoadKAMDialog();
-            kcdialog.setVisible(true);
         }
     }
 

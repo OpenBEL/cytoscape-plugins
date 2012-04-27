@@ -45,6 +45,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -62,6 +63,10 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.openbel.belframework.kam.KAMLoader;
+import org.openbel.belframework.kam.KAMLoader.KAMLoadException;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
@@ -103,6 +108,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private final Set<CyNetwork> subjectNetworks = new HashSet<CyNetwork>();
     // network that nodes were last selected on
     private CyNetwork currentNetwork;
+    // kam that nodes were last selected on
+    private KamIdentifier currentKamId;
     
     // Executor for loading the knowledge neighborhood
     private final ExecutorService loadExecutor = Executors.newSingleThreadExecutor();
@@ -194,7 +201,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 }
             }
 
-            KAMTasks.addEdges(currentNetwork, kamId, selectedEdges);
+            KAMTasks.addEdges(currentNetwork, currentKamId, selectedEdges);
         } else if (e.getSource().equals(expandBothButton)
                 || e.getSource().equals(expandUpstreamButton)
                 || e.getSource().equals(expandDownstreamButton)
@@ -364,6 +371,14 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         
         // register current network (will be used for add edges command)
         currentNetwork = Cytoscape.getCurrentNetwork();
+        // register current kam used by the network
+        currentKamId = KAMSession.getInstance().getKamIdentifier(currentNetwork);
+        if (currentKamId == null) {
+            // if there is no kam associated with the current network, return
+            resultsLabel.setText("No KAM associated with current network");
+            return;
+        }
+        
         @SuppressWarnings("unchecked")
         final Set<CyNode> selected = currentNetwork.getSelectedNodes();
         
@@ -399,8 +414,20 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             public void run() {
                 // start loading
                 loading = true;
-
+                
                 try {
+                    try {
+                        // No need to hold on the KamHandle
+                        // just need to load to work on KamNode
+                        new KAMLoader().load(currentKamId);
+                    } catch (KAMLoadException e) {
+                        JOptionPane.showMessageDialog(getContentPane(),
+                                "Error loading \"" + currentKamId.getName()
+                                        + "\" KAM.\n", "Kam Load Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
                     final List<KamEdge> edges = new ArrayList<KamEdge>();
                     for (KamNode kamNode : kamNodes) {
                         if (haltLoading) {
@@ -408,7 +435,8 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                         }
 
                         edges.addAll(kamService.getAdjacentKamEdges(
-                                kamNetwork.getDialectHandle(), kamNode,
+                                KAMSession.getInstance().getDialectHandle(currentKamId), 
+                                kamNode,
                                 EdgeDirectionType.BOTH, null));
                     }
                     model.addEdges(edges);
