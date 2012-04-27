@@ -180,11 +180,10 @@ public class DetailsView {
      * Callback to handle showing node details for the active cytoscape node.
      *
      * @see NetworkDetailsListener#onSelectEvent(cytoscape.data.SelectEvent)
-     * @param kn the {@link KAMNetwork kam network} containing the node
      * @param node the {@link CyNode cytoscape node} that is active
      */
-    public void showNodeDetails(final KAMNetwork kn, final CyNode node) {
-        final KamNode kamNode = kn.getKAMNode(node);
+    public void showNodeDetails(final CyNode node) {
+        final KamNode kamNode = NetworkUtility.getKAMNode(node);
         if (kamNode == null) {
             // node is not kam backed
             return;
@@ -205,11 +204,14 @@ public class DetailsView {
      * Callback to handle showing edge details for the active cytoscape edge.
      *
      * @see NetworkDetailsListener#onSelectEvent(cytoscape.data.SelectEvent)
-     * @param kn the {@link KAMNetwork kam network} containing the edge
      * @param edge the {@link CyEdge cytoscape edge} that is active
      */
-    public void showEdgeDetails(final KAMNetwork kn, final CyEdge edge) {
-        final KamEdge kamEdge = kn.getKAMEdge(edge);
+    public void showEdgeDetails(final CyEdge edge) {
+        final KamEdge kamEdge = NetworkUtility.getKAMEdge(edge);
+        if (kamEdge == null) {
+            // edge is not kam backed
+            return;
+        }
 
         final List<BelStatement> statements = kamService
                 .getSupportingEvidence(kamEdge);

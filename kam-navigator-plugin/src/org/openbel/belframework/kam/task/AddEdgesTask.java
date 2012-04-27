@@ -24,7 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
+import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.kam.Utility;
 
 import com.selventa.belframework.ws.client.KamEdge;
@@ -53,11 +55,13 @@ class AddEdgesTask implements Task {
     private static final String TITLE = "Adding Edges";
     private TaskMonitor monitor;
     protected boolean halt = false;
-    protected final KAMNetwork kamNetwork;
+    protected final CyNetwork cyNetwork;
+    protected final KamIdentifier kamId;
     protected final Collection<KamEdge> kamEdges;
 
-    AddEdgesTask(KAMNetwork kamNetwork, Collection<KamEdge> kamEdges) {
-        this.kamNetwork = kamNetwork;
+    AddEdgesTask(CyNetwork cyNetwork, KamIdentifier kamId, Collection<KamEdge> kamEdges) {
+        this.cyNetwork = cyNetwork;
+        this.kamId = kamId;
         this.kamEdges = kamEdges;
     }
 
@@ -87,7 +91,8 @@ class AddEdgesTask implements Task {
                 break;
             }
 
-            CyEdge cyEdge = kamNetwork.addEdge(edge);
+            KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
+            CyEdge cyEdge = NetworkUtility.addEdge(cyNetwork, kamId, edge);
             addedEdges.add(cyEdge);
             
             // TODO move percentage code (used by this and add nodes)
@@ -108,10 +113,8 @@ class AddEdgesTask implements Task {
             return;
         }
 
-        final CyNetwork cyn = kamNetwork.getCyNetwork();
-
-        cyn.unselectAllEdges();
-        cyn.setSelectedEdgeState(addedEdges, true);
+        cyNetwork.unselectAllEdges();
+        cyNetwork.setSelectedEdgeState(addedEdges, true);
         // do we want to keep track of added nodes and select those as well?
 
         // TODO push this default layout up somewhere
@@ -120,11 +123,11 @@ class AddEdgesTask implements Task {
         dcl.doLayout();
 
         final CyNetworkView view = Cytoscape
-                .getNetworkView(cyn.getIdentifier());
+                .getNetworkView(cyNetwork.getIdentifier());
         view.redrawGraph(true, true);
 
-        Cytoscape.setCurrentNetwork(cyn.getIdentifier());
-        Cytoscape.setCurrentNetworkView(cyn.getIdentifier());
+        Cytoscape.setCurrentNetwork(cyNetwork.getIdentifier());
+        Cytoscape.setCurrentNetworkView(cyNetwork.getIdentifier());
 
         monitor.setPercentCompleted(100);
     }

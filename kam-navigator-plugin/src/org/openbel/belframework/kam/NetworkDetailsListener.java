@@ -40,11 +40,6 @@ import cytoscape.data.SelectEventListener;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 public class NetworkDetailsListener implements SelectEventListener {
-    private final KAMNetwork kamNetwork;
-
-    public NetworkDetailsListener(final KAMNetwork kamNetwork) {
-        this.kamNetwork = kamNetwork;
-    }
 
     /**
      * {@inheritDoc}
@@ -57,24 +52,22 @@ public class NetworkDetailsListener implements SelectEventListener {
             switch(e.getTargetType()) {
                 case SINGLE_NODE:
                     final CyNode cynode = (CyNode) e.getTarget();
-                    DetailsView.getInstance().showNodeDetails(kamNetwork, cynode);
+                    DetailsView.getInstance().showNodeDetails(cynode);
                 case NODE_SET:
                     Set<CyNode> nodesSelected = (Set<CyNode>) e.getTarget();
                     Iterator<CyNode> nit = nodesSelected.iterator();
                     if (nit.hasNext()) {
-                        DetailsView.getInstance().showNodeDetails(kamNetwork,
-                                nit.next());
+                        DetailsView.getInstance().showNodeDetails(nit.next());
                     }
                     break;
                 case SINGLE_EDGE:
                     final CyEdge cyedge = (CyEdge) e.getTarget();
-                    DetailsView.getInstance().showEdgeDetails(kamNetwork, cyedge);
+                    DetailsView.getInstance().showEdgeDetails(cyedge);
                 case EDGE_SET:
                     Set<CyEdge> edgesSelected = (Set<CyEdge>) e.getTarget();
                     Iterator<CyEdge> eit = edgesSelected.iterator();
                     if (eit.hasNext()) {
-                        DetailsView.getInstance().showEdgeDetails(kamNetwork,
-                                eit.next());
+                        DetailsView.getInstance().showEdgeDetails(eit.next());
                     }
                     break;
             }

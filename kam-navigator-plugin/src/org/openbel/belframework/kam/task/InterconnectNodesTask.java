@@ -29,7 +29,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
+import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -63,8 +65,8 @@ final class InterconnectNodesTask extends AddEdgesTask {
     private final Set<CyNode> cynodes;
     private final KAMService kamService;
 
-    InterconnectNodesTask(KAMNetwork kamNetwork, Set<CyNode> cynodes) {
-        super(kamNetwork, null);
+    InterconnectNodesTask(CyNetwork cyNetwork, KamIdentifier kamId, Set<CyNode> cynodes) {
+        super(cyNetwork, kamId, null);
         this.cynodes = cynodes;
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
 
@@ -79,7 +81,7 @@ final class InterconnectNodesTask extends AddEdgesTask {
      */
     @Override
     protected Collection<KamEdge> getEdgesToAdd() {
-        final Collection<KamNode> kamNodes = kamNetwork.getKAMNodes(cynodes);
+        final Collection<KamNode> kamNodes = NetworkUtility.getKAMNodes(cynodes);
         final List<SimplePath> paths = interconnect(kamNodes);
         if (paths == null) {
             return null;
@@ -105,7 +107,8 @@ final class InterconnectNodesTask extends AddEdgesTask {
                     @Override
                     public List<SimplePath> call() throws Exception {
                         return kamService.interconnect(
-                                kamNetwork.getDialectHandle(), kamNodes,
+                                KAMSession.getInstance().getDialectHandle(kamId),
+                                kamNodes,
                                 INTERCONNECT_DEPTH);
                     }
                 });

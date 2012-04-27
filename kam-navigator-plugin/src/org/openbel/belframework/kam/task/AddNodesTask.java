@@ -23,7 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
+import org.openbel.belframework.kam.NetworkUtility;
 
 import com.selventa.belframework.ws.client.KamNode;
 
@@ -59,12 +61,14 @@ class AddNodesTask implements Task {
     private static final String TITLE = "Adding Nodes";
     protected TaskMonitor m;
     protected boolean halt = false;
-    protected final KAMNetwork kamNetwork;
+    protected final CyNetwork cyNetwork;
+    protected final KamIdentifier kamId;
     private final List<KamNode> kamNodes;
 
-    AddNodesTask(final KAMNetwork kamNetwork, final List<KamNode> kamNodes) {
+    AddNodesTask(CyNetwork cyNetwork, KamIdentifier kamId, List<KamNode> kamNodes) {
+        this.cyNetwork = cyNetwork;
+        this.kamId = kamId;
         this.kamNodes = kamNodes;
-        this.kamNetwork = kamNetwork;
     }
 
     /**
@@ -81,20 +85,18 @@ class AddNodesTask implements Task {
             return;
         }
         
-        final CyNetwork cyn = kamNetwork.getCyNetwork();
-
-        cyn.unselectAllNodes();
-        cyn.setSelectedNodeState(cynodes, true);
+        cyNetwork.unselectAllNodes();
+        cyNetwork.setSelectedNodeState(cynodes, true);
 
         CyLayoutAlgorithm dcl = CyLayouts.getLayout("degree-circle");
         dcl.setSelectedOnly(true);
         dcl.doLayout();
 
-        final CyNetworkView view = Cytoscape.getNetworkView(cyn.getIdentifier());
+        final CyNetworkView view = Cytoscape.getNetworkView(cyNetwork.getIdentifier());
         view.redrawGraph(true, true);
 
-        Cytoscape.setCurrentNetwork(cyn.getIdentifier());
-        Cytoscape.setCurrentNetworkView(cyn.getIdentifier());
+        Cytoscape.setCurrentNetwork(cyNetwork.getIdentifier());
+        Cytoscape.setCurrentNetworkView(cyNetwork.getIdentifier());
 
         m.setPercentCompleted(100);
     }
@@ -120,7 +122,8 @@ class AddNodesTask implements Task {
                 break;
             }
             
-            CyNode cyn = kamNetwork.addNode(node);
+            KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
+            CyNode cyn = NetworkUtility.addNode(cyNetwork, kamId, node);
             cynodes.add(cyn);
             currentPercentage += nodePercent;
             if (currentPercentage >= 1.0) {

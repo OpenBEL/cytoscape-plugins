@@ -22,13 +22,14 @@ package org.openbel.belframework.kam.task;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.Utility;
 
 import com.selventa.belframework.ws.client.EdgeDirectionType;
 import com.selventa.belframework.ws.client.KamEdge;
 import com.selventa.belframework.ws.client.KamNode;
 
+import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.task.Task;
 
@@ -38,6 +39,7 @@ import cytoscape.task.Task;
  * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
+// TODO update javadocs
 public class KAMTasks {
 
     /**
@@ -49,10 +51,9 @@ public class KAMTasks {
      * @param kamNodes
      *            the {@link KamNode kam nodes} to add
      */
-    public static void addNodes(final KAMNetwork kamNetwork,
-            final List<KamNode> kamNodes) {
-        final AddNodesTask task = new AddNodesTask(kamNetwork, kamNodes);
-        Utility.executeTask(task);
+    public static void addNodes(CyNetwork cyNetwork, KamIdentifier kamId,
+            List<KamNode> kamNodes) {
+        Utility.executeTask(new AddNodesTask(cyNetwork, kamId, kamNodes));
     }
 
     /**
@@ -64,10 +65,9 @@ public class KAMTasks {
      * @param kamNodes
      *            the {@link KamEdge kam edges} to add
      */
-    public static void addEdges(final KAMNetwork kamNetwork,
-            final List<KamEdge> kamEdges) {
-        final AddEdgesTask task = new AddEdgesTask(kamNetwork, kamEdges);
-        Utility.executeTask(task);
+    public static void addEdges(CyNetwork cyNetwork, KamIdentifier kamId,
+            List<KamEdge> kamEdges) {
+        Utility.executeTask(new AddEdgesTask(cyNetwork, kamId, kamEdges));
     }
 
     /**
@@ -79,11 +79,11 @@ public class KAMTasks {
      * @param kamNodes
      *            the {@link KamNode kam nodes} to expand
      */
-    public static void addNodesAndExpand(final KAMNetwork kamNetwork,
-            final List<KamNode> kamNodes, final EdgeDirectionType direction) {
-        final AddNodesEdgesTask task = new AddNodesEdgesTask(kamNetwork,
-                kamNodes, direction);
-        Utility.executeTask(task);
+    public static void addNodesAndExpand(CyNetwork cyNetwork,
+            KamIdentifier kamId, List<KamNode> kamNodes,
+            EdgeDirectionType direction) {
+        Utility.executeTask(new AddNodesEdgesTask(cyNetwork, kamId, kamNodes,
+                direction));
     }
 
     /**
@@ -95,11 +95,10 @@ public class KAMTasks {
      * @param kamNodes
      *            the {@link KamNode kam nodes} to interconnect
      */
-    public static void addNodesAndInterconnect(final KAMNetwork kamNetwork,
-            final List<KamNode> kamNodes) {
-        final AddNodesInterconnectTask task = new AddNodesInterconnectTask(
-                kamNetwork, kamNodes);
-        Utility.executeTask(task);
+    public static void addNodesAndInterconnect(CyNetwork cyNetwork,
+            KamIdentifier kamId, List<KamNode> kamNodes) {
+        Utility.executeTask(new AddNodesInterconnectTask(cyNetwork, kamId,
+                kamNodes));
     }
 
     /**
@@ -112,11 +111,10 @@ public class KAMTasks {
      * @param direction
      *            the {@link EdgeDirectionType} to expand in
      */
-    public static void expandNodes(final KAMNetwork kamNetwork,
-            final Set<CyNode> cynodes, final EdgeDirectionType direction) {
-        final ExpandNodesTask task = new ExpandNodesTask(kamNetwork, cynodes,
-                direction);
-        Utility.executeTask(task);
+    public static void expandNodes(CyNetwork cyNetwork, KamIdentifier kamId,
+            Set<CyNode> cynodes, EdgeDirectionType direction) {
+        Utility.executeTask(new ExpandNodesTask(cyNetwork, kamId, cynodes,
+                direction));
     }
 
     /**
@@ -128,11 +126,9 @@ public class KAMTasks {
      * @param cynodes
      *            the {@link CyNode CyNodes} to interconnect, must be 2 or more
      */
-    public static void interconnectNodes(final KAMNetwork kamNetwork,
-            final Set<CyNode> cynodes) {
-        final InterconnectNodesTask task = new InterconnectNodesTask(
-                kamNetwork, cynodes);
-        Utility.executeTask(task);
+    public static void interconnectNodes(CyNetwork cyNetwork,
+            KamIdentifier kamId, Set<CyNode> cynodes) {
+        Utility.executeTask(new InterconnectNodesTask(cyNetwork, kamId, cynodes));
     }
 
     private KAMTasks() {

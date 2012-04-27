@@ -19,28 +19,35 @@
  */
 package org.openbel.belframework.kam;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import org.openbel.belframework.webservice.Configuration;
+
+import com.selventa.belframework.ws.client.DialectHandle;
+import com.selventa.belframework.ws.client.Kam;
+import com.selventa.belframework.ws.client.KamHandle;
+
 import cytoscape.CyNetwork;
+import cytoscape.CyNode;
 
 /**
  * {@link KAMSession} tracks the {@link Set set} of the loaded
  * {@link KAMNetwork kam networks}.
- *
+ * 
  * <p>
  * This object is a singleton.
  * </p>
- *
- * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
+ * 
+ * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 public class KAMSession {
     private static KAMSession instance;
-    private Set<KAMNetwork> kamNetworks;
+    private Map<KamIdentifier, KamHandle> kamHandles = new HashMap<KamIdentifier, KamHandle>();
+    private Map<KamIdentifier, DialectHandle> dialectHandles = new HashMap<KamIdentifier, DialectHandle>();
+    // right there should only be one kam associated with any given network
+    private Map<CyNetwork, KamIdentifier> networkKamIds = new HashMap<CyNetwork, KamIdentifier>();
 
     public static synchronized KAMSession getInstance() {
         if (instance == null) {
@@ -50,42 +57,60 @@ public class KAMSession {
         return instance;
     }
 
+    public synchronized void addKam(Kam kam, KamHandle kamHandle,
+            DialectHandle dialectHandle) {
+        KamIdentifier kamId = new KamIdentifier(kam, Configuration
+                .getInstance().getWSDLURL());
+        // TODO do we want to check for existing kam and throw an error if there
+        // is?
+        kamHandles.put(kamId, kamHandle);
+        if (dialectHandle != null) {
+            dialectHandles.put(kamId, dialectHandle);
+        }
+    }
+
+    public synchronized KamHandle getKamHandle(KamIdentifier kamIdentifier) {
+        return kamHandles.get(kamIdentifier);
+    }
+
+    public synchronized DialectHandle getDialectHandle(
+            KamIdentifier kamIdentifier) {
+        return dialectHandles.get(kamIdentifier);
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized KamIdentifier getKamIdentifier(CyNetwork network) {
+        KamIdentifier kamId = networkKamIds.get(network);
+        if (kamId == null) {
+            Map<KamIdentifier, Set<CyNode>> map = NetworkUtility
+                    .getKamNodeIds(network.nodesList());
+            if (map.keySet().size() < 1) {
+                // no kam nodes
+                return null;
+            } else if (map.keySet().size() > 1) {
+                // there is more then 1 kam associated with this network
+                throw new IllegalStateException(
+                        "More then 1 kam associated with elements in network");
+            } else {
+                // one kam id
+                kamId = map.keySet().iterator().next();
+                associateNetworkWithKam(network, kamId);
+            }
+        }
+        return kamId;
+    }
+
+    public synchronized void associateNetworkWithKam(CyNetwork network,
+            KamIdentifier kamId) {
+        KamIdentifier previousId = networkKamIds.get(network);
+        if (previousId != null && !previousId.equals(kamId)) {
+            throw new IllegalArgumentException(
+                    "Network is already associated with KAM");
+        }
+        networkKamIds.put(network, kamId);
+    }
+
     private KAMSession() {
-        kamNetworks = new HashSet<KAMNetwork>();
-    }
-
-    public Set<KAMNetwork> getKAMNetworks() {
-        return kamNetworks;
-    }
-
-    /**
-     * Convenience method to retrieve {@link CyNetwork CyNetworks} in session
-     * 
-     * @return a sorted {@link List} of {@link CyNetwork CyNetworks} backing the
-     *         {@link KAMNetwork KAMNetworks} in the session. Can be empty but
-     *         not null.
-     */
-    public List<CyNetwork> getKamBackedNetworks() {
-        List<CyNetwork> networks = new ArrayList<CyNetwork>();
-        for (KAMNetwork kn : kamNetworks) {
-            networks.add(kn.getCyNetwork());
-        }
-        Collections.sort(networks, new Comparator<CyNetwork>() {
-            @Override
-            public int compare(CyNetwork o1, CyNetwork o2) {
-                return o1.getTitle().compareTo(o2.getTitle());
-            }
-        });
-        return networks;
-    }
-
-    public KAMNetwork getKAMNetwork(final CyNetwork cyn) {
-        for (final KAMNetwork kamNetwork : kamNetworks) {
-            if (kamNetwork.getCyNetwork() == cyn) {
-                return kamNetwork;
-            }
-        }
-
-        return null;
+        // singleton. use get instance
     }
 }

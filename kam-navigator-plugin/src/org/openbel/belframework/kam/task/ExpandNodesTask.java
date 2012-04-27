@@ -24,7 +24,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.kam.KAMNetwork;
+import org.openbel.belframework.kam.KAMSession;
+import org.openbel.belframework.kam.KamIdentifier;
+import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
@@ -53,9 +55,9 @@ final class ExpandNodesTask extends AddEdgesTask {
     private final Set<CyNode> cynodes;
     private final KAMService kamService;
 
-    ExpandNodesTask(KAMNetwork kamNetwork, Set<CyNode> cynodes,
+    ExpandNodesTask(CyNetwork cyNetwork, KamIdentifier kamId, Set<CyNode> cynodes,
             EdgeDirectionType direction) {
-        super(kamNetwork, null);
+        super(cyNetwork, kamId, null);
         this.cynodes = cynodes;
         this.direction = direction;
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
@@ -66,7 +68,7 @@ final class ExpandNodesTask extends AddEdgesTask {
      */
     @Override
     protected Collection<KamEdge> getEdgesToAdd() {
-        final Collection<KamNode> kamNodes = kamNetwork.getKAMNodes(cynodes);
+        final Collection<KamNode> kamNodes = NetworkUtility.getKAMNodes(cynodes);
         List<KamEdge> edges = new ArrayList<KamEdge>();
         for (KamNode kamNode : kamNodes) {
             if (halt) {
@@ -74,7 +76,8 @@ final class ExpandNodesTask extends AddEdgesTask {
             }
 
             edges.addAll(kamService.getAdjacentKamEdges(
-                    kamNetwork.getDialectHandle(), kamNode, direction, null));
+                    KAMSession.getInstance().getDialectHandle(kamId), 
+                    kamNode, direction, null));
         }
         return edges;
     }
