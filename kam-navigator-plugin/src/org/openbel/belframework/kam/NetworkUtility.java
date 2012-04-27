@@ -222,6 +222,7 @@ public class NetworkUtility {
             Set<CyNode> ns = ret.get(id);
             if (ns == null) {
                 ns = new HashSet<CyNode>();
+                ret.put(id, ns);
             }
             ns.add(n);
         }
