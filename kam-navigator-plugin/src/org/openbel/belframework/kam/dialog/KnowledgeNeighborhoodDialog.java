@@ -72,11 +72,11 @@ import org.openbel.belframework.kam.task.KAMTasks;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.EdgeDirectionType;
-import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamNode;
-import com.selventa.belframework.ws.client.RelationshipType;
+import org.openbel.framework.ws.model.EdgeDirectionType;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamNode;
+import org.openbel.framework.ws.model.RelationshipType;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;

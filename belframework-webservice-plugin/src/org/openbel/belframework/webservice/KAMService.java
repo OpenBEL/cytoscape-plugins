@@ -22,23 +22,23 @@ package org.openbel.belframework.webservice;
 import java.util.Collection;
 import java.util.List;
 
-import com.selventa.belframework.ws.client.BelStatement;
-import com.selventa.belframework.ws.client.BelTerm;
-import com.selventa.belframework.ws.client.DialectHandle;
-import com.selventa.belframework.ws.client.EdgeDirectionType;
-import com.selventa.belframework.ws.client.EdgeFilter;
-import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.Kam;
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamHandle;
-import com.selventa.belframework.ws.client.KamNode;
-import com.selventa.belframework.ws.client.LoadKamResponse;
-import com.selventa.belframework.ws.client.Namespace;
-import com.selventa.belframework.ws.client.NamespaceDescriptor;
-import com.selventa.belframework.ws.client.NamespaceValue;
-import com.selventa.belframework.ws.client.NodeFilter;
-import com.selventa.belframework.ws.client.SimplePath;
-import com.selventa.belframework.ws.client.WebAPI;
+import org.openbel.framework.ws.model.BelStatement;
+import org.openbel.framework.ws.model.BelTerm;
+import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.EdgeDirectionType;
+import org.openbel.framework.ws.model.EdgeFilter;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.Kam;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamHandle;
+import org.openbel.framework.ws.model.KamNode;
+import org.openbel.framework.ws.model.LoadKamResponse;
+import org.openbel.framework.ws.model.Namespace;
+import org.openbel.framework.ws.model.NamespaceDescriptor;
+import org.openbel.framework.ws.model.NamespaceValue;
+import org.openbel.framework.ws.model.NodeFilter;
+import org.openbel.framework.ws.model.SimplePath;
+import org.openbel.framework.ws.model.WebAPI;
 
 /**
  * {@link KAMService} defines an API wrapper around version 1.2.3 of the

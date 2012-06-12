@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.selventa.belframework.ws.client.FunctionType;
+import org.openbel.framework.ws.model.FunctionType;
 
 import cytoscape.Cytoscape;
 import cytoscape.task.Task;

@@ -39,12 +39,12 @@ import javax.swing.table.AbstractTableModel;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.Annotation;
-import com.selventa.belframework.ws.client.BelStatement;
-import com.selventa.belframework.ws.client.BelTerm;
-import com.selventa.belframework.ws.client.Citation;
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamNode;
+import org.openbel.framework.ws.model.Annotation;
+import org.openbel.framework.ws.model.BelStatement;
+import org.openbel.framework.ws.model.BelTerm;
+import org.openbel.framework.ws.model.Citation;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamNode;
 
 import cytoscape.CyEdge;
 import cytoscape.CyNode;

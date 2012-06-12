@@ -1,6 +1,6 @@
 package org.openbel.belframework.kam;
 
-import com.selventa.belframework.ws.client.Kam;
+import org.openbel.framework.ws.model.Kam;
 
 import cytoscape.CyNode;
 import cytoscape.Cytoscape;

@@ -60,10 +60,10 @@ import org.openbel.belframework.webservice.Configuration;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.EdgeDirectionType;
-import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.Kam;
-import com.selventa.belframework.ws.client.KamNode;
+import org.openbel.framework.ws.model.EdgeDirectionType;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.Kam;
+import org.openbel.framework.ws.model.KamNode;
 
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;

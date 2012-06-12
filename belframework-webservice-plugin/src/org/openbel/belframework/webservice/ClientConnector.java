@@ -25,8 +25,8 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import com.selventa.belframework.ws.client.WebAPI;
-import com.selventa.belframework.ws.client.WebAPIService;
+import org.openbel.framework.ws.model.WebAPI;
+import org.openbel.framework.ws.model.WebAPIService;
 
 import cytoscape.data.webservice.CyWebServiceEvent;
 import cytoscape.data.webservice.CyWebServiceException;

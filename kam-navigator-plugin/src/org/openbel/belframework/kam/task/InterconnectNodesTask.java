@@ -35,9 +35,9 @@ import org.openbel.belframework.kam.NetworkUtility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamNode;
-import com.selventa.belframework.ws.client.SimplePath;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamNode;
+import org.openbel.framework.ws.model.SimplePath;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;

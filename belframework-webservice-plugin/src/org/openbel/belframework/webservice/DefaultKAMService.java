@@ -19,62 +19,51 @@
  */
 package org.openbel.belframework.webservice;
 
-import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByNamespaceValuesRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createFindKamNodesByPatternsRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createFindNamespaceValuesRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetAdjacentKamEdgesRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetAllNamespacesRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetCatalogRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetDefaultDialectRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingEvidenceRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createGetSupportingTermsRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createInterconnectRequest;
-import static com.selventa.belframework.ws.client.ObjectFactory.createLoadKamRequest;
-
 import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.selventa.belframework.ws.client.BelStatement;
-import com.selventa.belframework.ws.client.BelTerm;
-import com.selventa.belframework.ws.client.DialectHandle;
-import com.selventa.belframework.ws.client.EdgeDirectionType;
-import com.selventa.belframework.ws.client.EdgeFilter;
-import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesRequest;
-import com.selventa.belframework.ws.client.FindKamNodesByNamespaceValuesResponse;
-import com.selventa.belframework.ws.client.FindKamNodesByPatternsRequest;
-import com.selventa.belframework.ws.client.FindKamNodesByPatternsResponse;
-import com.selventa.belframework.ws.client.FindNamespaceValuesRequest;
-import com.selventa.belframework.ws.client.FindNamespaceValuesResponse;
-import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.FunctionTypeFilterCriteria;
-import com.selventa.belframework.ws.client.GetAdjacentKamEdgesRequest;
-import com.selventa.belframework.ws.client.GetAdjacentKamEdgesResponse;
-import com.selventa.belframework.ws.client.GetAllNamespacesRequest;
-import com.selventa.belframework.ws.client.GetAllNamespacesResponse;
-import com.selventa.belframework.ws.client.GetCatalogRequest;
-import com.selventa.belframework.ws.client.GetCatalogResponse;
-import com.selventa.belframework.ws.client.GetDefaultDialectRequest;
-import com.selventa.belframework.ws.client.GetDefaultDialectResponse;
-import com.selventa.belframework.ws.client.GetSupportingEvidenceRequest;
-import com.selventa.belframework.ws.client.GetSupportingEvidenceResponse;
-import com.selventa.belframework.ws.client.GetSupportingTermsRequest;
-import com.selventa.belframework.ws.client.GetSupportingTermsResponse;
-import com.selventa.belframework.ws.client.InterconnectRequest;
-import com.selventa.belframework.ws.client.InterconnectResponse;
-import com.selventa.belframework.ws.client.Kam;
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamHandle;
-import com.selventa.belframework.ws.client.KamNode;
-import com.selventa.belframework.ws.client.LoadKamRequest;
-import com.selventa.belframework.ws.client.LoadKamResponse;
-import com.selventa.belframework.ws.client.Namespace;
-import com.selventa.belframework.ws.client.NamespaceDescriptor;
-import com.selventa.belframework.ws.client.NamespaceValue;
-import com.selventa.belframework.ws.client.NodeFilter;
-import com.selventa.belframework.ws.client.SimplePath;
-import com.selventa.belframework.ws.client.WebAPI;
+import org.openbel.framework.ws.model.BelStatement;
+import org.openbel.framework.ws.model.BelTerm;
+import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.EdgeDirectionType;
+import org.openbel.framework.ws.model.EdgeFilter;
+import org.openbel.framework.ws.model.FindKamNodesByNamespaceValuesRequest;
+import org.openbel.framework.ws.model.FindKamNodesByNamespaceValuesResponse;
+import org.openbel.framework.ws.model.FindKamNodesByPatternsRequest;
+import org.openbel.framework.ws.model.FindKamNodesByPatternsResponse;
+import org.openbel.framework.ws.model.FindNamespaceValuesRequest;
+import org.openbel.framework.ws.model.FindNamespaceValuesResponse;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.FunctionTypeFilterCriteria;
+import org.openbel.framework.ws.model.GetAdjacentKamEdgesRequest;
+import org.openbel.framework.ws.model.GetAdjacentKamEdgesResponse;
+import org.openbel.framework.ws.model.GetAllNamespacesRequest;
+import org.openbel.framework.ws.model.GetAllNamespacesResponse;
+import org.openbel.framework.ws.model.GetCatalogRequest;
+import org.openbel.framework.ws.model.GetCatalogResponse;
+import org.openbel.framework.ws.model.GetDefaultDialectRequest;
+import org.openbel.framework.ws.model.GetDefaultDialectResponse;
+import org.openbel.framework.ws.model.GetSupportingEvidenceRequest;
+import org.openbel.framework.ws.model.GetSupportingEvidenceResponse;
+import org.openbel.framework.ws.model.GetSupportingTermsRequest;
+import org.openbel.framework.ws.model.GetSupportingTermsResponse;
+import org.openbel.framework.ws.model.InterconnectRequest;
+import org.openbel.framework.ws.model.InterconnectResponse;
+import org.openbel.framework.ws.model.Kam;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamHandle;
+import org.openbel.framework.ws.model.KamNode;
+import org.openbel.framework.ws.model.LoadKamRequest;
+import org.openbel.framework.ws.model.LoadKamResponse;
+import org.openbel.framework.ws.model.Namespace;
+import org.openbel.framework.ws.model.NamespaceDescriptor;
+import org.openbel.framework.ws.model.NamespaceValue;
+import org.openbel.framework.ws.model.NodeFilter;
+import org.openbel.framework.ws.model.ObjectFactory;
+import org.openbel.framework.ws.model.SimplePath;
+import org.openbel.framework.ws.model.WebAPI;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
@@ -88,6 +77,9 @@ import cytoscape.data.webservice.WebServiceClientManager;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
+	
+	private static final ObjectFactory OBJECT_FACTORY = ObjectFactorySingleton.getInstance();
+	
     protected WebAPI webAPI;
     private ClientConnector clientConnector;
 
@@ -127,7 +119,8 @@ class DefaultKAMService implements KAMService {
 
         checkValid();
 
-        final FindNamespaceValuesRequest req = createFindNamespaceValuesRequest();
+        final FindNamespaceValuesRequest req = OBJECT_FACTORY
+                .createFindNamespaceValuesRequest();
         req.getPatterns().addAll(patterns);
         if (namespaces != null) {
             req.getNamespaces().addAll(namespaces);
@@ -156,7 +149,8 @@ class DefaultKAMService implements KAMService {
 
         checkValid();
 
-        final FindKamNodesByNamespaceValuesRequest req = createFindKamNodesByNamespaceValuesRequest();
+        final FindKamNodesByNamespaceValuesRequest req = OBJECT_FACTORY
+                .createFindKamNodesByNamespaceValuesRequest();
         req.setHandle(kamHandle);
         req.getNamespaceValues().addAll(namespaceValues);
 
@@ -179,7 +173,8 @@ class DefaultKAMService implements KAMService {
     public List<NamespaceDescriptor> getAllNamespaces() {
         checkValid();
         
-        final GetAllNamespacesRequest req = createGetAllNamespacesRequest();
+        final GetAllNamespacesRequest req = OBJECT_FACTORY
+                .createGetAllNamespacesRequest();
         final GetAllNamespacesResponse res = webAPI.getAllNamespaces(req);
         return res.getNamespaceDescriptors();
     }
@@ -191,7 +186,7 @@ class DefaultKAMService implements KAMService {
 	public List<Kam> getCatalog() {
         checkValid();
 
-        final GetCatalogRequest req = createGetCatalogRequest();
+        final GetCatalogRequest req = OBJECT_FACTORY.createGetCatalogRequest();
 
         final GetCatalogResponse res = webAPI.getCatalog(req);
         return res.getKams();
@@ -208,7 +203,7 @@ class DefaultKAMService implements KAMService {
 
         checkValid();
 
-        final LoadKamRequest req = createLoadKamRequest();
+        final LoadKamRequest req = OBJECT_FACTORY.createLoadKamRequest();
         req.setKam(kam);
         return webAPI.loadKam(req);
     }
@@ -224,7 +219,8 @@ class DefaultKAMService implements KAMService {
 
         checkValid();
 
-        final GetDefaultDialectRequest req = createGetDefaultDialectRequest();
+        final GetDefaultDialectRequest req = OBJECT_FACTORY
+                .createGetDefaultDialectRequest();
         req.setKam(kamHandle);
         final GetDefaultDialectResponse res = webAPI.getDefaultDialect(req);
         return res.getDialect();
@@ -242,7 +238,7 @@ class DefaultKAMService implements KAMService {
         checkValid();
 
         final GetSupportingTermsRequest req =
-                createGetSupportingTermsRequest();
+                OBJECT_FACTORY.createGetSupportingTermsRequest();
         req.setKamNode(node);
 
         final GetSupportingTermsResponse res = webAPI.getSupportingTerms(req);
@@ -261,7 +257,7 @@ class DefaultKAMService implements KAMService {
         checkValid();
 
         final GetSupportingEvidenceRequest req =
-                createGetSupportingEvidenceRequest();
+                OBJECT_FACTORY.createGetSupportingEvidenceRequest();
         req.setKamEdge(edge);
 
         final GetSupportingEvidenceResponse res =
@@ -305,7 +301,7 @@ class DefaultKAMService implements KAMService {
         checkValid();
 
         final FindKamNodesByPatternsRequest req =
-                createFindKamNodesByPatternsRequest();
+                OBJECT_FACTORY.createFindKamNodesByPatternsRequest();
         req.setHandle(handle);
         if (dialectHandle != null) {
             req.setDialect(dialectHandle);
@@ -343,7 +339,7 @@ class DefaultKAMService implements KAMService {
         checkValid();
 
         final FindKamNodesByPatternsRequest req =
-                createFindKamNodesByPatternsRequest();
+                OBJECT_FACTORY.createFindKamNodesByPatternsRequest();
         req.setHandle(handle);
         if (dialectHandle != null) {
             req.setDialect(dialectHandle);
@@ -377,7 +373,7 @@ class DefaultKAMService implements KAMService {
         checkValid();
 
         final GetAdjacentKamEdgesRequest req =
-                createGetAdjacentKamEdgesRequest();
+                OBJECT_FACTORY.createGetAdjacentKamEdgesRequest();
         if (dialectHandle != null) {
             req.setDialect(dialectHandle);
         }
@@ -409,7 +405,8 @@ class DefaultKAMService implements KAMService {
 
         checkValid();
 
-        final InterconnectRequest req = createInterconnectRequest();
+        final InterconnectRequest req = OBJECT_FACTORY
+                .createInterconnectRequest();
         if (dialectHandle != null) {
             req.setDialect(dialectHandle);
         }

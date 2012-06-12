@@ -19,9 +19,9 @@
  */
 package org.openbel.belframework.kam;
 
-import static com.selventa.belframework.ws.client.EdgeDirectionType.BOTH;
-import static com.selventa.belframework.ws.client.EdgeDirectionType.FORWARD;
-import static com.selventa.belframework.ws.client.EdgeDirectionType.REVERSE;
+import static org.openbel.framework.ws.model.EdgeDirectionType.BOTH;
+import static org.openbel.framework.ws.model.EdgeDirectionType.FORWARD;
+import static org.openbel.framework.ws.model.EdgeDirectionType.REVERSE;
 import giny.view.NodeView;
 
 import java.awt.event.ActionEvent;
@@ -37,8 +37,8 @@ import javax.swing.JPopupMenu;
 import org.openbel.belframework.kam.dialog.KnowledgeNeighborhoodDialog;
 import org.openbel.belframework.kam.task.KAMTasks;
 
-import com.selventa.belframework.ws.client.EdgeDirectionType;
-import com.selventa.belframework.ws.client.KamNode;
+import org.openbel.framework.ws.model.EdgeDirectionType;
+import org.openbel.framework.ws.model.KamNode;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;

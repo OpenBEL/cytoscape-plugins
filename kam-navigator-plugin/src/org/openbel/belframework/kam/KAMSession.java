@@ -25,9 +25,9 @@ import java.util.Set;
 
 import org.openbel.belframework.webservice.Configuration;
 
-import com.selventa.belframework.ws.client.DialectHandle;
-import com.selventa.belframework.ws.client.Kam;
-import com.selventa.belframework.ws.client.KamHandle;
+import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.Kam;
+import org.openbel.framework.ws.model.KamHandle;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;

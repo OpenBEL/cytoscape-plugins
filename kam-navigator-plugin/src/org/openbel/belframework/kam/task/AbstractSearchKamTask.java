@@ -38,14 +38,14 @@ import org.openbel.belframework.kam.Utility;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.DialectHandle;
-import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.FunctionTypeFilterCriteria;
-import com.selventa.belframework.ws.client.KamHandle;
-import com.selventa.belframework.ws.client.KamNode;
-import com.selventa.belframework.ws.client.Namespace;
-import com.selventa.belframework.ws.client.NamespaceValue;
-import com.selventa.belframework.ws.client.NodeFilter;
+import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.FunctionTypeFilterCriteria;
+import org.openbel.framework.ws.model.KamHandle;
+import org.openbel.framework.ws.model.KamNode;
+import org.openbel.framework.ws.model.Namespace;
+import org.openbel.framework.ws.model.NamespaceValue;
+import org.openbel.framework.ws.model.NodeFilter;
 
 import cytoscape.logger.CyLogger;
 import cytoscape.task.Task;

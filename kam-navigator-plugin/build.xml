@@ -34,7 +34,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
               value="belframework_kam_navigator_source_${jar.version}.jar" />
     <property name="deploy.path"
               value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
-    <property name="bel.jar.path" value="${BELFRAMEWORK_HOME}/lib/webapiclient/BELFrameworkWebAPIClient-${BELFRAMEWORK_VERSION}.jar" />
+    <property name="bel.jar.path" value="${BELFRAMEWORK_HOME}/lib/webapiclient/org.openbel.framework.ws.model-${BELFRAMEWORK_VERSION}.jar" />
 
     <path id="classpath">
         <fileset dir="${lib.path}">

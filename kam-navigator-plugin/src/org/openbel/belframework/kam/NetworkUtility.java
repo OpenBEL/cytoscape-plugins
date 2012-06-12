@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.selventa.belframework.ws.client.FunctionType;
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamNode;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamNode;
 
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;

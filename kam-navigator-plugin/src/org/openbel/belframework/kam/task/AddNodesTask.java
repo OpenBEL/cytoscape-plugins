@@ -27,7 +27,7 @@ import org.openbel.belframework.kam.KAMSession;
 import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.NetworkUtility;
 
-import com.selventa.belframework.ws.client.KamNode;
+import org.openbel.framework.ws.model.KamNode;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;

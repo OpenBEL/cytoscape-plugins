@@ -25,9 +25,9 @@ import java.util.Set;
 import org.openbel.belframework.kam.KamIdentifier;
 import org.openbel.belframework.kam.Utility;
 
-import com.selventa.belframework.ws.client.EdgeDirectionType;
-import com.selventa.belframework.ws.client.KamEdge;
-import com.selventa.belframework.ws.client.KamNode;
+import org.openbel.framework.ws.model.EdgeDirectionType;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamNode;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;

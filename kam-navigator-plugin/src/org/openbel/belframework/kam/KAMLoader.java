@@ -6,11 +6,11 @@ import org.openbel.belframework.webservice.Configuration;
 import org.openbel.belframework.webservice.KAMService;
 import org.openbel.belframework.webservice.KAMServiceFactory;
 
-import com.selventa.belframework.ws.client.DialectHandle;
-import com.selventa.belframework.ws.client.KAMLoadStatus;
-import com.selventa.belframework.ws.client.Kam;
-import com.selventa.belframework.ws.client.KamHandle;
-import com.selventa.belframework.ws.client.LoadKamResponse;
+import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.KAMLoadStatus;
+import org.openbel.framework.ws.model.Kam;
+import org.openbel.framework.ws.model.KamHandle;
+import org.openbel.framework.ws.model.LoadKamResponse;
 
 public class KAMLoader {
 
