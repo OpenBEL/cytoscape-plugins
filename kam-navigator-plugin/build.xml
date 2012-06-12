@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <!--
     Contains configuration for the specific build environment.
     -->
-    <property file="build.properties" />
+	<property file="../build.properties" />
 
     <property name="license" value="COPYING" />
     <property name="dist.path" value="dist" />
