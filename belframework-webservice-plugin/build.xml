@@ -74,7 +74,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
             <manifest>
                 <attribute name="Cytoscape-Plugin"
-                           value="org.openbel.belframework.webservice.ClientPlugin" />
+                           value="org.openbel.cytoscape.webservice.ClientPlugin" />
             </manifest>
         	
             <!-- include license -->
