@@ -114,6 +114,8 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // register property change listener for this instance
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_CREATED, this);
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
 
         // build menu
         final JMenu pluginMenu = Cytoscape.getDesktop().getCyMenus()
@@ -132,7 +134,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         // add "Add Kam List" action to submenu
         kiMenu.add(new SearchKAMListDialogAction());
 
-        // add separtor before bel configuration entry
+        // add separator before bel configuration entry
         kiMenu.addSeparator();
 
         // add to "KAM Navigator" menu if KAM Plugin is available
@@ -142,6 +144,9 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         JMenuItem feedbackItem = kiMenu.add(new FeedbackMailToAction());
         // disable if default mail client is not setup
         feedbackItem.setEnabled(Desktop.getDesktop().isSupported(Desktop.Action.MAIL));
+        
+        // set the proper menu state
+        updateMenuState();
         
         // load the default style or styles
         loadKAMStyle();
@@ -159,7 +164,24 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
             // TODO can this been done with a single instance?
             // TODO do we need to remove this on network destruction?
             cyn.addSelectEventListener(new NetworkDetailsListener());
+            
+            // enable search menus items
+            updateMenuState();
+        } else if (CytoscapeDesktop.NETWORK_VIEW_DESTROYED.equals(e.getPropertyName())) {
+            // disable search menu items if no networks left
+            updateMenuState();
         }
+    }
+    
+    private static void updateMenuState() {
+        JMenu kiMenu = getKamPluginMenu();
+        JMenuItem addNodesItem = kiMenu.getItem(0);
+        JMenuItem addListItem = kiMenu.getItem(1);
+
+        boolean hasNetworks = !Cytoscape.getNetworkSet().isEmpty();
+        // disable / enable items that require networks
+        addNodesItem.setEnabled(hasNetworks);
+        addListItem.setEnabled(hasNetworks);
     }
 
     private static JMenu getKamPluginMenu() {
