@@ -2,9 +2,9 @@ package org.openbel.cytoscape.navigator;
 
 import java.util.List;
 
-import org.openbel.belframework.webservice.Configuration;
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.Configuration;
+import org.openbel.cytoscape.webservice.KAMService;
+import org.openbel.cytoscape.webservice.KAMServiceFactory;
 
 import org.openbel.framework.ws.model.DialectHandle;
 import org.openbel.framework.ws.model.KAMLoadStatus;

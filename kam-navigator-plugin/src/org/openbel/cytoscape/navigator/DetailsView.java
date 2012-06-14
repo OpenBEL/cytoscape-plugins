@@ -36,8 +36,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KAMService;
+import org.openbel.cytoscape.webservice.KAMServiceFactory;
 
 import org.openbel.framework.ws.model.Annotation;
 import org.openbel.framework.ws.model.BelStatement;

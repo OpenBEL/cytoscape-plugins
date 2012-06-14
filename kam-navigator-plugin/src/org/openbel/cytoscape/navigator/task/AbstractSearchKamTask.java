@@ -30,8 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KAMService;
+import org.openbel.cytoscape.webservice.KAMServiceFactory;
 import org.openbel.cytoscape.navigator.KAMLoader;
 import org.openbel.cytoscape.navigator.KAMSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;

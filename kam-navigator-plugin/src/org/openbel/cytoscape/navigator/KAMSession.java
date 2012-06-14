@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.openbel.belframework.webservice.Configuration;
+import org.openbel.cytoscape.webservice.Configuration;
 
 import org.openbel.framework.ws.model.DialectHandle;
 import org.openbel.framework.ws.model.Kam;

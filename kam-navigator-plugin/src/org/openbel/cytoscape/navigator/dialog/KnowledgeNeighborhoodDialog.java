@@ -63,8 +63,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KAMService;
+import org.openbel.cytoscape.webservice.KAMServiceFactory;
 import org.openbel.cytoscape.navigator.KAMLoader;
 import org.openbel.cytoscape.navigator.KAMSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;

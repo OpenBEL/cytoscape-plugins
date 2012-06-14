@@ -50,9 +50,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.openbel.belframework.webservice.Configuration;
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.Configuration;
+import org.openbel.cytoscape.webservice.KAMService;
+import org.openbel.cytoscape.webservice.KAMServiceFactory;
 import org.openbel.cytoscape.navigator.EdgeOption;
 import org.openbel.cytoscape.navigator.KAMOption;
 import org.openbel.cytoscape.navigator.KamIdentifier;

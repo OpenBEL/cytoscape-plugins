@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.belframework.webservice.KAMService;
-import org.openbel.belframework.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KAMService;
+import org.openbel.cytoscape.webservice.KAMServiceFactory;
 import org.openbel.cytoscape.navigator.KAMSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
