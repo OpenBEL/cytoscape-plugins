@@ -111,6 +111,10 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_DESTROYED, nctx);
 
+        // register property change listener for this instance
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                CytoscapeDesktop.NETWORK_VIEW_CREATED, this);
+
         // build menu
         final JMenu pluginMenu = Cytoscape.getDesktop().getCyMenus()
                 .getOperationsMenu();
