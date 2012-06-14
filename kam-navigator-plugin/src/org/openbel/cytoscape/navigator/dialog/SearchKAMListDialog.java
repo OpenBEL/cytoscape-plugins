@@ -113,7 +113,7 @@ public final class SearchKAMListDialog extends JDialog {
     private JScrollPane tableScrollPane;
 
     public SearchKAMListDialog() {
-        super(Cytoscape.getDesktop(), TITLE, false);
+        super(Cytoscape.getDesktop(), TITLE, true);
 
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         initUI();

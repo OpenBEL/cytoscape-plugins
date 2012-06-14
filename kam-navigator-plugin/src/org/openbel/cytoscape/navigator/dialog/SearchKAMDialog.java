@@ -100,7 +100,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      * @see #initUI()
      */
     public SearchKAMDialog() {
-        super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
+        super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
         this.kamService = KAMServiceFactory.getInstance().getKAMService();
         
         initUI();
