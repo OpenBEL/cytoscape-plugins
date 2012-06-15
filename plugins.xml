@@ -32,7 +32,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/belframework-org/Cytoscape-Plugins/belframework_webservice_0.8.jar</url>
+                    <url>http://cloud.github.com/downloads/OpenBEL/Cytoscape-Plugins/belframework_webservice_0.8.jar</url>
 
                     <authorlist>
                         <author>
@@ -55,7 +55,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/belframework-org/Cytoscape-Plugins/belframework_kam_navigator_0.8.jar</url>
+                    <url>http://cloud.github.com/downloads/OpenBEL/Cytoscape-Plugins/belframework_kam_navigator_0.8.jar</url>
 
                     <authorlist>
                         <author>
