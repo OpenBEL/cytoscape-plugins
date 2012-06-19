@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openbel.cytoscape.webservice;
+package org.openbel.cytoscape.webservice.dialog;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -34,6 +34,9 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.WindowConstants;
+
+import org.openbel.cytoscape.webservice.ClientConnector;
+import org.openbel.cytoscape.webservice.Configuration;
 
 import cytoscape.Cytoscape;
 import cytoscape.logger.CyLogger;

@@ -34,7 +34,7 @@ import java.net.URISyntaxException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.openbel.cytoscape.webservice.SettingsDialog;
+import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKAMDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKAMListDialog;
 
