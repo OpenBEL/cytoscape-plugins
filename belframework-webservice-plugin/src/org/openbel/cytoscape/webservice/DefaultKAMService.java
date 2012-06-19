@@ -67,6 +67,7 @@ import org.openbel.framework.ws.model.WebAPI;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.webservice.WebServiceClientManager;
+import cytoscape.logger.CyLogger;
 
 /**
  * {@link DefaultKAMService} implements an API wrapper around the {@link WebAPI
@@ -77,9 +78,12 @@ import cytoscape.data.webservice.WebServiceClientManager;
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 class DefaultKAMService implements KAMService {
-	
-	private static final ObjectFactory OBJECT_FACTORY = ObjectFactorySingleton.getInstance();
-	
+
+    private static final CyLogger log = CyLogger
+            .getLogger(DefaultKAMService.class);
+    private static final ObjectFactory OBJECT_FACTORY = ObjectFactorySingleton
+            .getInstance();
+
     protected WebAPI webAPI;
     private ClientConnector clientConnector;
 
@@ -99,6 +103,7 @@ class DefaultKAMService implements KAMService {
         clientConnector = (ClientConnector) WebServiceClientManager
                 .getClient("belframework");
         if (clientConnector == null) {
+            log.warn("Unable to resolve client connector");
             return;
         }
 
