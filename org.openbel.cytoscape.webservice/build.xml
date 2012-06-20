@@ -1,5 +1,5 @@
 <!--
-KAM Navigator Plugin
+BEL Framework Webservice Plugin
 
 URLs: http://openbel.org/
 Copyright (C) 2012, Selventa
@@ -17,31 +17,25 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
-<project name="kam-navigator-plugin" default="deploy">
-    <!--
-    Contains configuration for the specific build environment.
-    -->
+<project name="belframework-webservice-plugin" default="deploy">
 	<property file="../build.properties" />
 
-    <property name="license" value="COPYING" />
+	<property name="license" value="COPYING" />
     <property name="dist.path" value="dist" />
     <property name="src.path" value="src" />
-    <property name="lib.path" value="../belframework-webservice-plugin/dist/" />
     <property name="compile.path" value="bin" />
     <property name="jar.version" value="0.9-SNAPSHOT" />
-    <property name="jar.name" value="belframework_kam_navigator_${jar.version}.jar" />
+    <property name="jar.name"
+              value="org.openbel.cytoscape.webservice-${jar.version}.jar" />
     <property name="src.jar.name"
-              value="belframework_kam_navigator_source_${jar.version}.jar" />
+              value="org.openbel.cytoscape.webservice-source-${jar.version}.jar" />
     <property name="deploy.path"
               value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
     <property name="bel.jar.path" value="${BELFRAMEWORK_HOME}/lib/webapiclient/org.openbel.framework.ws.model-${BELFRAMEWORK_VERSION}.jar" />
 
     <path id="classpath">
-        <fileset dir="${lib.path}">
-            <include name="*.jar" />
-        </fileset>
-
         <pathelement location="${CYTOSCAPE_HOME}/cytoscape.jar" />
+        <pathelement location="${bel.jar.path}" />
     </path>
 
     <target name="clean">
@@ -80,7 +74,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
             <manifest>
                 <attribute name="Cytoscape-Plugin"
-                           value="org.openbel.cytoscape.navigator.KAMNavigatorPlugin" />
+                           value="org.openbel.cytoscape.webservice.ClientPlugin" />
             </manifest>
         	
             <!-- include license -->
