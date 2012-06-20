@@ -43,6 +43,9 @@ public abstract class AbstractController implements PropertyChangeListener {
         views.remove(view);
     }
 
+    // Might want to get rid of this, and couple controller + models together
+    // while decoupling is nice, reflection is slow, what happens if you have
+    // the same propetry name on multiple view classes
     protected void setModelProperty(String propertyName, Object newValue) {
         for (AbstractModel model : models) {
             Method method = null;
