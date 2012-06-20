@@ -1,34 +1,15 @@
-/*
- * BEL Framework Webservice Plugin
- *
- * URLs: http://openbel.org/
- * Copyright (C) 2012, Selventa
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-package org.openbel.cytoscape.webservice.dialog;
+package org.openbel.cytoscape.webservice.dialog.view;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -37,22 +18,20 @@ import javax.swing.WindowConstants;
 
 import org.openbel.cytoscape.webservice.ClientConnector;
 import org.openbel.cytoscape.webservice.Configuration;
+import org.openbel.cytoscape.webservice.dialog.controller.SettingsController;
 
 import cytoscape.Cytoscape;
-import cytoscape.logger.CyLogger;
 
-/**
- * {@link SettingsDialog} defines the <em>BELFramework Configuration</em>
- * dialog that sets the BELFramework Web API configuration.
- *
- * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
- */
-public class SettingsDialog extends JDialog implements ActionListener {
-    private static final long serialVersionUID = 6873725058633597932L;
-    
-    private static final CyLogger log = CyLogger.getLogger(SettingsDialog.class);
+public class SettingsView extends JDialog implements ActionListener,
+        PropertyChangeListener {
+
+    private static final long serialVersionUID = 5906507645846028923L;
+
     private static final String TITLE = "BELFramework Configuration";
     private static final Configuration cfg = Configuration.getInstance();
+
+    private final SettingsController controller;
+
     private JTextField wsdlURLTxt;
     private JSpinner timeoutSpn;
     private JButton cancelBtn;
@@ -61,8 +40,10 @@ public class SettingsDialog extends JDialog implements ActionListener {
     /**
      * Constructs the dialog and initializes the UI.
      */
-    public SettingsDialog() {
+    public SettingsView(SettingsController controller) {
         super(Cytoscape.getDesktop(), TITLE, true);
+
+        this.controller = controller;
 
         // set up dialog components
         initUI();
@@ -80,6 +61,30 @@ public class SettingsDialog extends JDialog implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         pack();
+        
+        this.setVisible(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * Handles the saving of webservice configuration by calling
+     * {@link ClientConnector#reconfigure()}
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == cancelBtn) {
+            this.dispose();
+        } else if (e.getSource() == saveBtn) {
+            this.controller.save(wsdlURLTxt.getText(),
+                    (Integer) timeoutSpn.getValue());
+            this.dispose();
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        // TODO Auto-generated method stub
     }
 
     /**
@@ -141,42 +146,4 @@ public class SettingsDialog extends JDialog implements ActionListener {
         getContentPane().add(bp, java.awt.BorderLayout.SOUTH);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Handles the saving of webservice configuration by calling
-     * {@link ClientConnector#reconfigure()}
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == cancelBtn) {
-            this.dispose();
-        } else if (e.getSource() == saveBtn) {
-            final Configuration cfg = Configuration.getInstance();
-            cfg.setWSDLURL(wsdlURLTxt.getText());
-            cfg.setTimeout((Integer) timeoutSpn.getValue());
-            
-            // write configuration to file
-            try {
-                cfg.saveState();
-            } catch (IOException ex) {
-                String msg = "Error writing to configuration file";
-                JOptionPane.showMessageDialog(Cytoscape.getDesktop(), msg,
-                        "IO Error", JOptionPane.ERROR_MESSAGE);
-                log.error(msg, ex);
-            }
-
-            // reload connector
-            ClientConnector client = ClientConnector.getInstance();
-            client.reconfigure();
-            if (!client.isValid()) {
-                JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
-                        "Error connecting to the BEL Framework Web Services.\n" +
-                                "Please check the BEL Framework Web Services Configuration.",
-                                "Connection Error", JOptionPane.ERROR_MESSAGE);
-            }
-            
-            this.dispose();
-        }
-    }
 }

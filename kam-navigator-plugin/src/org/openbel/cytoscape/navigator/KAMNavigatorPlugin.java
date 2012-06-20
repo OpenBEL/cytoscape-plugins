@@ -34,7 +34,7 @@ import java.net.URISyntaxException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
+import org.openbel.cytoscape.webservice.dialog.controller.SettingsController;
 import org.openbel.cytoscape.navigator.dialog.SearchKAMDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKAMListDialog;
 
@@ -399,8 +399,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
          */
         @Override
         public void actionPerformed(ActionEvent event) {
-            SettingsDialog settingsDialog = new SettingsDialog();
-            settingsDialog.setVisible(true);
+            new SettingsController();
         }
     }
 }
