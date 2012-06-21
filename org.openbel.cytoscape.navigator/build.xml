@@ -1,0 +1,108 @@
+<!--
+KAM Navigator Plugin
+
+URLs: http://openbel.org/
+Copyright (C) 2012, Selventa
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<project name="kam-navigator-plugin" default="deploy">
+    <!--
+    Contains configuration for the specific build environment.
+    -->
+	<property file="../build.properties" />
+
+    <property name="license" value="COPYING" />
+    <property name="dist.path" value="dist" />
+    <property name="src.path" value="src" />
+	<property name="lib.path" value="../org.openbel.cytoscape.webservice/dist/" />
+    <property name="compile.path" value="bin" />
+    <property name="jar.version" value="0.9-SNAPSHOT" />
+    <property name="jar.name" value="org.openbel.cytoscape.navigator-${jar.version}.jar" />
+    <property name="src.jar.name"
+              value="org.openbel.cytoscape.navigator-source-${jar.version}.jar" />
+    <property name="deploy.path"
+              value="${CYTOSCAPE_HOME}/plugins/${jar.name}" />
+    <property name="bel.jar.path" value="${BELFRAMEWORK_HOME}/lib/webapiclient/org.openbel.framework.ws.model-${BELFRAMEWORK_VERSION}.jar" />
+
+    <path id="classpath">
+        <fileset dir="${lib.path}">
+            <include name="*.jar" />
+        </fileset>
+
+        <pathelement location="${CYTOSCAPE_HOME}/cytoscape.jar" />
+    </path>
+
+    <target name="clean">
+        <delete dir="${compile.path}" />
+        <delete dir="${dist.path}" />
+    </target>
+
+    <target name="compile" depends="clean">
+        <fail message="BELFRAMEWORK_HOME must be configured in build.properties"
+              unless="BELFRAMEWORK_HOME" />
+        <fail message="CYTOSCAPE_HOME must be configured in build.properties."
+              unless="CYTOSCAPE_HOME" />
+
+        <mkdir dir="${compile.path}" />
+
+        <javac includeantruntime="false"
+               srcdir="${src.path}"
+               destdir="${compile.path}"
+               debuglevel="lines,vars,source"
+               debug="off">
+            <classpath refid="classpath" />
+        </javac>
+    </target>
+
+    <target name="package" depends="compile">
+        <fail message="BELFRAMEWORK_HOME must be configured in build.properties"
+              unless="BELFRAMEWORK_HOME" />
+        <fail message="CYTOSCAPE_HOME must be configured in build.properties."
+              unless="CYTOSCAPE_HOME" />
+
+        <jar destfile="${dist.path}/${jar.name}" basedir="${compile.path}">
+            <fileset dir="${src.path}" includes="**/*.props" />
+
+            <zipfileset src="${bel.jar.path}"
+                        includes="**/*.java **/*.class" />
+
+            <manifest>
+                <attribute name="Cytoscape-Plugin"
+                           value="org.openbel.cytoscape.navigator.KAMNavigatorPlugin" />
+            </manifest>
+        	
+            <!-- include license -->
+            <metainf file="${license}" />
+        </jar>
+    </target>
+
+    <target name="package-source">
+        <jar destfile="${dist.path}/${src.jar.name}" basedir="${src.path}">
+            <!-- include license -->
+            <metainf file="${license}" />
+        </jar>
+    </target>
+
+    <target name="deploy" depends="package">
+        <delete file="${deploy.path}" />
+        <mkdir dir="${dist.path}" />
+        <copy file="${dist.path}/${jar.name}" tofile="${deploy.path}" />
+    </target>
+
+    <target name="distribute">
+        <antcall target="package" />
+        <antcall target="package-source" />
+    </target>
+</project>

@@ -1,6 +1,6 @@
 # simple shell script to build (or rebuild) all projects
 
-cd belframework-webservice-plugin/
+cd org.openbel.cytoscape.webservice/
 ant
-cd ../kam-navigator-plugin/
+cd ../org.openbel.cytoscape.navigator/
 ant
