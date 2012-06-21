@@ -27,12 +27,12 @@ public class KamIdentifier {
         String cyId = node.getIdentifier();
 
         this.name = nodeAtt.getStringAttribute(cyId,
-                KAMNavigatorPlugin.KAM_NAME_ATTR);
+                KamNavigatorPlugin.KAM_NAME_ATTR);
         // will throw an exception if the date string is null or not parsable
         this.compiledTime = Long.parseLong(nodeAtt.getStringAttribute(cyId,
-                KAMNavigatorPlugin.KAM_COMPILE_DATE_ATTR));
+                KamNavigatorPlugin.KAM_COMPILE_DATE_ATTR));
         this.wsdlUrl = nodeAtt.getStringAttribute(cyId,
-                KAMNavigatorPlugin.WSDL_URL_ATTR);
+                KamNavigatorPlugin.WSDL_URL_ATTR);
         
         nullCheck();
     }

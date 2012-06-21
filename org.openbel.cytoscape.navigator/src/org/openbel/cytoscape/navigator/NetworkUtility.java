@@ -1,12 +1,12 @@
 package org.openbel.cytoscape.navigator;
 
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.KAM_COMPILE_DATE_ATTR;
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.KAM_EDGE_ID_ATTR;
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.KAM_NAME_ATTR;
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.KAM_NODE_ID_ATTR;
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.KAM_NODE_LABEL_ATTR;
-import static org.openbel.cytoscape.navigator.KAMNavigatorPlugin.WSDL_URL_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_COMPILE_DATE_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_EDGE_ID_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NAME_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_ID_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_LABEL_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.WSDL_URL_ATTR;
 
 import java.util.ArrayList;
 import java.util.Collection;

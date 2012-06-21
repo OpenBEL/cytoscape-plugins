@@ -34,13 +34,13 @@ import cytoscape.CyNode;
 import cytoscape.task.Task;
 
 /**
- * {@link KAMTasks} defines a wrapper to call supported, long-running
+ * {@link KamTasks} defines a wrapper to call supported, long-running
  * {@link Task cytoscape tasks}.
  * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 // TODO update javadocs
-public class KAMTasks {
+public class KamTasks {
 
     /**
      * Call the {@link AddNodesTask}.
@@ -131,7 +131,7 @@ public class KAMTasks {
         Utility.executeTask(new InterconnectNodesTask(cyNetwork, kamId, cynodes));
     }
 
-    private KAMTasks() {
+    private KamTasks() {
         // prevent instantiation
     }
 }

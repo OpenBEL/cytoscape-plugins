@@ -51,14 +51,14 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.openbel.cytoscape.webservice.Configuration;
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
 import org.openbel.cytoscape.navigator.EdgeOption;
-import org.openbel.cytoscape.navigator.KAMOption;
+import org.openbel.cytoscape.navigator.KamOption;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.Utility;
 import org.openbel.cytoscape.navigator.task.AbstractSearchKamTask;
-import org.openbel.cytoscape.navigator.task.KAMTasks;
+import org.openbel.cytoscape.navigator.task.KamTasks;
 
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.FunctionType;
@@ -70,18 +70,18 @@ import cytoscape.Cytoscape;
 import cytoscape.task.Task;
 
 /**
- * {@link SearchKAMDialog} represents the UI for the Add KAM Nodes dialog.
+ * {@link SearchKamDialog} represents the UI for the Add KAM Nodes dialog.
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public class SearchKAMDialog extends JDialog implements ActionListener {
+public class SearchKamDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -8900235008972637257L;
     private static final String DIALOG_TITLE = "Add KAM Nodes";
     
     private TableRowSorter<ResultsTableModel> rowSorter;
     private CyNetwork lastSearchedNetwork = null;
     private KamIdentifier lastSearchedKamId = null;
-    private final KAMService kamService;
+    private final KamService kamService;
     
     // swing components
     private JTable resultsTable;
@@ -99,9 +99,9 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      *
      * @see #initUI()
      */
-    public SearchKAMDialog() {
+    public SearchKamDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, true);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
         
         initUI();
     }
@@ -111,7 +111,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
      *
      * <p>
      * Implementation Note:
-     * Clean up resources used by {@link SearchKAMDialog}.
+     * Clean up resources used by {@link SearchKamDialog}.
      * </p>
      */
     @Override
@@ -173,15 +173,15 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
         searchPanel.add(networkLbl, gridBagConstraints);
 
         List<Kam> kamCatalog = kamService.getCatalog();
-        List<KAMOption> kamOptions = new ArrayList<KAMOption>(kamCatalog.size());
+        List<KamOption> kamOptions = new ArrayList<KamOption>(kamCatalog.size());
         for (Kam kam : kamCatalog) {
-            kamOptions.add(new KAMOption(kam));
+            kamOptions.add(new KamOption(kam));
         }
         Collections.sort(kamOptions);
 
         kamCmb.addActionListener(this);
         kamCmb.setModel(new DefaultComboBoxModel(kamOptions
-                .toArray(new KAMOption[kamOptions.size()])));
+                .toArray(new KamOption[kamOptions.size()])));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -366,7 +366,7 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 FunctionType selfunc = (FunctionType) functionCmb.getSelectedItem();
 
                 this.lastSearchedNetwork = Cytoscape.getCurrentNetwork();
-                KAMOption kamOpt = (KAMOption) kamCmb.getSelectedItem();
+                KamOption kamOpt = (KamOption) kamCmb.getSelectedItem();
                 this.lastSearchedKamId = new KamIdentifier(kamOpt.getKam(),
                         Configuration.getInstance().getWSDLURL());
                 
@@ -408,19 +408,19 @@ public class SearchKAMDialog extends JDialog implements ActionListener {
                 EdgeOption eeo = (EdgeOption) edgeCmb.getSelectedItem();
                 switch (eeo) {
                     case ALL_EDGES:
-                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.BOTH);
+                        KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.BOTH);
                         break;
                     case DOWNSTREAM:
-                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.FORWARD);
+                        KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.FORWARD);
                         break;
                     case INTERCONNECT:
-                        KAMTasks.addNodesAndInterconnect(lastSearchedNetwork, lastSearchedKamId, selectedNodes);
+                        KamTasks.addNodesAndInterconnect(lastSearchedNetwork, lastSearchedKamId, selectedNodes);
                         break;
                     case NONE:
-                        KAMTasks.addNodes(lastSearchedNetwork, lastSearchedKamId, selectedNodes);
+                        KamTasks.addNodes(lastSearchedNetwork, lastSearchedKamId, selectedNodes);
                         break;
                     case UPSTREAM:
-                        KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.REVERSE);
+                        KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.REVERSE);
                         break;
                 }
             }

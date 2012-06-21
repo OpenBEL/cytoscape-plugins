@@ -33,7 +33,7 @@ import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 
 /**
- * {@link KAMSession} tracks the {@link Set set} of the loaded
+ * {@link KamSession} tracks the {@link Set set} of the loaded
  * {@link KAMNetwork kam networks}.
  * 
  * <p>
@@ -42,16 +42,16 @@ import cytoscape.CyNode;
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
-public class KAMSession {
-    private static KAMSession instance;
+public class KamSession {
+    private static KamSession instance;
     private Map<KamIdentifier, KamHandle> kamHandles = new HashMap<KamIdentifier, KamHandle>();
     private Map<KamIdentifier, DialectHandle> dialectHandles = new HashMap<KamIdentifier, DialectHandle>();
     // right there should only be one kam associated with any given network
     private Map<CyNetwork, KamIdentifier> networkKamIds = new HashMap<CyNetwork, KamIdentifier>();
 
-    public static synchronized KAMSession getInstance() {
+    public static synchronized KamSession getInstance() {
         if (instance == null) {
-            instance = new KAMSession();
+            instance = new KamSession();
         }
 
         return instance;
@@ -110,7 +110,7 @@ public class KAMSession {
         networkKamIds.put(network, kamId);
     }
 
-    private KAMSession() {
+    private KamSession() {
         // singleton. use get instance
     }
 }

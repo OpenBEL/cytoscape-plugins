@@ -35,7 +35,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.openbel.cytoscape.navigator.dialog.KnowledgeNeighborhoodDialog;
-import org.openbel.cytoscape.navigator.task.KAMTasks;
+import org.openbel.cytoscape.navigator.task.KamTasks;
 
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.KamNode;
@@ -48,7 +48,7 @@ import cytoscape.view.CytoscapeDesktop;
 import ding.view.NodeContextMenuListener;
 
 /**
- * {@link KAMNodeContextListener} contributes actions to the context-sensitive
+ * {@link KamNodeContextListener} contributes actions to the context-sensitive
  * menu when clicking on a {@link CyNode cytoscape node}.  Specifically the
  * user is allowed to:
  * <ul>
@@ -59,7 +59,7 @@ import ding.view.NodeContextMenuListener;
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public class KAMNodeContextListener implements PropertyChangeListener,
+public class KamNodeContextListener implements PropertyChangeListener,
         NodeContextMenuListener {
     private static final String INTERCONNECT_LABEL = "Interconnect";
 
@@ -227,7 +227,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             final CyNetwork network = view.getNetwork();
             
             
-            KAMTasks.expandNodes(network, kamId, cynodes, direction);
+            KamTasks.expandNodes(network, kamId, cynodes, direction);
         }
     }
 
@@ -262,7 +262,7 @@ public class KAMNodeContextListener implements PropertyChangeListener,
             // will not exist. We will have to reconnect to the KAM.
             final CyNetwork network = view.getNetwork();
             
-            KAMTasks.interconnectNodes(network, kamId, cynodes);
+            KamTasks.interconnectNodes(network, kamId, cynodes);
         }
     }
 }

@@ -20,46 +20,46 @@
 package org.openbel.cytoscape.webservice;
 
 /**
- * {@link KAMServiceFactory} creates the {@link KAMService service interface} to
+ * {@link KamServiceFactory} creates the {@link KamService service interface} to
  * the BEL Framework Web API.
  *
  * <p>
  * This class is a singleton to provide a single instance of
- * {@link KAMService}.
+ * {@link KamService}.
  * </p>
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public class KAMServiceFactory {
-	private static KAMServiceFactory instance;
-	private KAMService kamService;
+public class KamServiceFactory {
+	private static KamServiceFactory instance;
+	private KamService kamService;
 
 	/**
-	 * Retrieve the singleton instance of {@link KAMServiceFactory}.
+	 * Retrieve the singleton instance of {@link KamServiceFactory}.
 	 *
 	 * @return the singleton instance
 	 */
-	public static synchronized KAMServiceFactory getInstance() {
+	public static synchronized KamServiceFactory getInstance() {
 		if (instance == null) {
-			instance = new KAMServiceFactory();
+			instance = new KamServiceFactory();
 		}
 
 		return instance;
 	}
 
 	/**
-	 * Retrieve the single instance {@link KAMService}.
+	 * Retrieve the single instance {@link KamService}.
 	 *
-	 * @return the {@link KAMService kam service}
+	 * @return the {@link KamService kam service}
 	 */
-	public KAMService getKAMService() {
+	public KamService getKAMService() {
 		return kamService;
 	}
 
 	/**
 	 * Private constructor for singleton.
 	 */
-	private KAMServiceFactory() {
-		this.kamService = new DefaultKAMService();
+	private KamServiceFactory() {
+		this.kamService = new DefaultKamService();
 	}
 }

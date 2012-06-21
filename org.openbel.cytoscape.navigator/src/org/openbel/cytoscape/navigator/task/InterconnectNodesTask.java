@@ -29,9 +29,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
 
@@ -50,7 +50,7 @@ import cytoscape.task.Task;
  * 
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#interconnectNodes(KAMNetwork, Set)}.
+ * {@link KamTasks#interconnectNodes(KAMNetwork, Set)}.
  * </p>
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
@@ -63,12 +63,12 @@ final class InterconnectNodesTask extends AddEdgesTask {
     private static final int INTERCONNECT_DEPTH = 1;
 
     private final Set<CyNode> cynodes;
-    private final KAMService kamService;
+    private final KamService kamService;
 
     InterconnectNodesTask(CyNetwork cyNetwork, KamIdentifier kamId, Set<CyNode> cynodes) {
         super(cyNetwork, kamId, null);
         this.cynodes = cynodes;
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
 
         if (cynodes == null || cynodes.size() < 2) {
             throw new IllegalArgumentException(
@@ -107,7 +107,7 @@ final class InterconnectNodesTask extends AddEdgesTask {
                     @Override
                     public List<SimplePath> call() throws Exception {
                         return kamService.interconnect(
-                                KAMSession.getInstance().getDialectHandle(kamId),
+                                KamSession.getInstance().getDialectHandle(kamId),
                                 kamNodes,
                                 INTERCONNECT_DEPTH);
                     }

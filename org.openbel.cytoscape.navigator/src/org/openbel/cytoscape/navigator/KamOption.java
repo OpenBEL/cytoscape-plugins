@@ -2,10 +2,10 @@ package org.openbel.cytoscape.navigator;
 
 import org.openbel.framework.ws.model.Kam;
 
-public final class KAMOption implements Comparable<KAMOption> {
+public final class KamOption implements Comparable<KamOption> {
     private final Kam kam;
     
-    public KAMOption(Kam kam) {
+    public KamOption(Kam kam) {
         this.kam = kam;
     }
     
@@ -22,7 +22,7 @@ public final class KAMOption implements Comparable<KAMOption> {
     }
     
     @Override
-    public int compareTo(KAMOption o) {
+    public int compareTo(KamOption o) {
         if (o == null) {
             return 1;
         }

@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
 
@@ -44,7 +44,7 @@ import cytoscape.view.CyNetworkView;
  *
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#addNodes(KAMNetwork, List)}.
+ * {@link KamTasks#addNodes(KAMNetwork, List)}.
  * </p>
  *
  * <p>
@@ -122,7 +122,7 @@ class AddNodesTask implements Task {
                 break;
             }
             
-            KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
+            KamSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
             CyNode cyn = NetworkUtility.addNode(cyNetwork, kamId, node);
             cynodes.add(cyn);
             currentPercentage += nodePercent;

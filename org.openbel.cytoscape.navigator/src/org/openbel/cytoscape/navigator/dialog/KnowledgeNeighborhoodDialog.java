@@ -63,14 +63,14 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
-import org.openbel.cytoscape.navigator.KAMLoader;
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.cytoscape.navigator.KamLoader;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
-import org.openbel.cytoscape.navigator.KAMLoader.KAMLoadException;
-import org.openbel.cytoscape.navigator.task.KAMTasks;
+import org.openbel.cytoscape.navigator.KamLoader.KAMLoadException;
+import org.openbel.cytoscape.navigator.task.KamTasks;
 
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.FunctionType;
@@ -101,7 +101,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
     private static final String DIALOG_TITLE = "Knowledge Neighborhood";
     private static final String ALL_SELECTION = "All";
     
-    private final KAMService kamService;
+    private final KamService kamService;
     // used to keep track of currently selected nodes in kam form
     private final Set<String> selectedKamNodeIds = new HashSet<String>();
     // networks that this instance is registered as a listener on
@@ -123,7 +123,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
      */
     public KnowledgeNeighborhoodDialog() {
         super(Cytoscape.getDesktop(), DIALOG_TITLE, false);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
 
         initUI();
 
@@ -204,7 +204,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                 }
             }
 
-            KAMTasks.addEdges(currentNetwork, currentKamId, selectedEdges);
+            KamTasks.addEdges(currentNetwork, currentKamId, selectedEdges);
         } else if (e.getSource().equals(expandBothButton)
                 || e.getSource().equals(expandUpstreamButton)
                 || e.getSource().equals(expandDownstreamButton)
@@ -375,7 +375,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
         // register current network (will be used for add edges command)
         currentNetwork = Cytoscape.getCurrentNetwork();
         // register current kam used by the network
-        currentKamId = KAMSession.getInstance().getKamIdentifier(currentNetwork);
+        currentKamId = KamSession.getInstance().getKamIdentifier(currentNetwork);
         if (currentKamId == null) {
             // if there is no kam associated with the current network, return
             resultsLabel.setText("No KAM associated with current network");
@@ -422,7 +422,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                     try {
                         // No need to hold on the KamHandle
                         // just need to load to work on KamNode
-                        new KAMLoader().load(currentKamId);
+                        new KamLoader().load(currentKamId);
                     } catch (KAMLoadException e) {
                         JOptionPane.showMessageDialog(getContentPane(),
                                 "Error loading \"" + currentKamId.getName()
@@ -438,7 +438,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
                         }
 
                         edges.addAll(kamService.getAdjacentKamEdges(
-                                KAMSession.getInstance().getDialectHandle(currentKamId), 
+                                KamSession.getInstance().getDialectHandle(currentKamId), 
                                 kamNode,
                                 EdgeDirectionType.BOTH, null));
                     }

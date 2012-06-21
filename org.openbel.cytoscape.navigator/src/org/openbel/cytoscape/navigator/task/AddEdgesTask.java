@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
 import org.openbel.cytoscape.navigator.Utility;
@@ -46,7 +46,7 @@ import cytoscape.view.CyNetworkView;
  * 
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#addEdges(KAMNetwork, List)}.
+ * {@link KamTasks#addEdges(KAMNetwork, List)}.
  * </p>
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
@@ -91,7 +91,7 @@ class AddEdgesTask implements Task {
                 break;
             }
 
-            KAMSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
+            KamSession.getInstance().associateNetworkWithKam(cyNetwork, kamId);
             CyEdge cyEdge = NetworkUtility.addEdge(cyNetwork, kamId, edge);
             addedEdges.add(cyEdge);
             

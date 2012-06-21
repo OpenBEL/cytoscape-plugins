@@ -3,8 +3,8 @@ package org.openbel.cytoscape.navigator;
 import java.util.List;
 
 import org.openbel.cytoscape.webservice.Configuration;
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
 
 import org.openbel.framework.ws.model.DialectHandle;
 import org.openbel.framework.ws.model.KAMLoadStatus;
@@ -12,15 +12,15 @@ import org.openbel.framework.ws.model.Kam;
 import org.openbel.framework.ws.model.KamHandle;
 import org.openbel.framework.ws.model.LoadKamResponse;
 
-public class KAMLoader {
+public class KamLoader {
 
-    private final KAMService kamService;
+    private final KamService kamService;
     private final int SLEEP_TIME_MS = 1000;
     // marked as volatile in case halt is called by multiple threads
     private volatile boolean halt = false;
 
-    public KAMLoader() {
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+    public KamLoader() {
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
     }
 
     public void halt() {
@@ -95,7 +95,7 @@ public class KAMLoader {
         }
         // load default dialect handle
         DialectHandle dialectHandle = kamService.getDefaultDialect(kamHandle);
-        KAMSession.getInstance().addKam(kam, kamHandle, dialectHandle);
+        KamSession.getInstance().addKam(kam, kamHandle, dialectHandle);
     }
 
     public static class KAMLoadException extends Exception {

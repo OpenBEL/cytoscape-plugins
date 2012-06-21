@@ -30,13 +30,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
-import org.openbel.cytoscape.navigator.KAMLoader;
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.cytoscape.navigator.KamLoader;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.Utility;
-import org.openbel.cytoscape.navigator.KAMLoader.KAMLoadException;
+import org.openbel.cytoscape.navigator.KamLoader.KAMLoadException;
 
 import org.openbel.framework.ws.model.DialectHandle;
 import org.openbel.framework.ws.model.FunctionType;
@@ -67,7 +67,7 @@ public abstract class AbstractSearchKamTask implements Task {
     private final FunctionType function;
     private final Namespace namespace;
     private final Collection<String> identifiers;
-    private final KAMService kamService;
+    private final KamService kamService;
     private final boolean functionOnly;
 
     private TaskMonitor monitor;
@@ -97,7 +97,7 @@ public abstract class AbstractSearchKamTask implements Task {
         this.namespace = namespace;
         this.identifiers = identifiers;
 
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
         if (function != null && namespace == null) {
             functionOnly = true;
         } else {
@@ -143,14 +143,14 @@ public abstract class AbstractSearchKamTask implements Task {
      */
     @Override
     public void run() {
-        KamHandle kamHandle = KAMSession.getInstance().getKamHandle(kamId);
+        KamHandle kamHandle = KamSession.getInstance().getKamHandle(kamId);
         if (kamHandle == null) {
             monitor.setStatus("Loading \"" + kamId.getName() + "\" KAM.");
 
             monitor.setPercentCompleted(0);
             // FIXME add ablity to cancel KAM Load
             try {
-                kamHandle = new KAMLoader().load(kamId);
+                kamHandle = new KamLoader().load(kamId);
             } catch (KAMLoadException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -223,8 +223,8 @@ public abstract class AbstractSearchKamTask implements Task {
     }
 
     private Callable<List<KamNode>> buildCallable() {
-        KamHandle kamHandle = KAMSession.getInstance().getKamHandle(kamId);
-        DialectHandle dialectHandle = KAMSession.getInstance()
+        KamHandle kamHandle = KamSession.getInstance().getKamHandle(kamId);
+        DialectHandle dialectHandle = KamSession.getInstance()
                 .getDialectHandle(kamId);
 
         if (functionOnly) {
@@ -286,11 +286,11 @@ public abstract class AbstractSearchKamTask implements Task {
         private final KamHandle kamHandle;
         private final DialectHandle dialectHandle;
         private final FunctionType function;
-        private final KAMService kamService;
+        private final KamService kamService;
 
         public SingleFunctionSearch(KamHandle kamHandle,
                 DialectHandle dialectHandle, FunctionType function,
-                KAMService kamService) {
+                KamService kamService) {
             if (kamHandle == null || dialectHandle == null || function == null
                     || kamService == null) {
                 throw new IllegalArgumentException("Null parameter");
@@ -322,12 +322,12 @@ public abstract class AbstractSearchKamTask implements Task {
         private final NodeFilter nodeFilter;
         private final Collection<Namespace> namespaces;
         private final Collection<String> patterns;
-        private final KAMService kamService;
+        private final KamService kamService;
 
         public NamespaceSearch(KamHandle kamHandle,
                 DialectHandle dialectHandle, NodeFilter nodeFilter,
                 Collection<Namespace> namespaces, Collection<String> patterns,
-                KAMService kamService) {
+                KamService kamService) {
             this.kamHandle = kamHandle;
             this.dialectHandle = dialectHandle;
             this.nodeFilter = nodeFilter;

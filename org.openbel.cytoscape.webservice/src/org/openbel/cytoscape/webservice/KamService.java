@@ -41,15 +41,15 @@ import org.openbel.framework.ws.model.SimplePath;
 import org.openbel.framework.ws.model.WebAPI;
 
 /**
- * {@link KAMService} defines an API wrapper around version 1.2.3 of the
+ * {@link KamService} defines an API wrapper around version 1.2.3 of the
  * {@link WebAPI BEL Framework Web API}.
  * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public interface KAMService {
+public interface KamService {
 
     /**
-     * Reloads the {@link ClientConnector} in this {@link KAMService}
+     * Reloads the {@link ClientConnector} in this {@link KamService}
      */
     void reloadClientConnector();
 
@@ -124,7 +124,7 @@ public interface KAMService {
      * @return the {@link LoadKamResponse response} for kam load request
      * @throws IllegalArgumentException
      *             Thrown if the {@code kam} parameter is {@code null}
-     * @see DefaultKAMService#getCatalog()
+     * @see DefaultKamService#getCatalog()
      */
     LoadKamResponse loadKam(Kam kam);
 

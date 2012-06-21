@@ -74,7 +74,7 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
         configure();
         
         // reload client connector in kam service after reconfigure
-        KAMServiceFactory.getInstance().getKAMService().reloadClientConnector();
+        KamServiceFactory.getInstance().getKAMService().reloadClientConnector();
     }
 
     /**

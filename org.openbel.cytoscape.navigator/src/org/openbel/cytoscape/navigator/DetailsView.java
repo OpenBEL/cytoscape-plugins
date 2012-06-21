@@ -36,8 +36,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
 
 import org.openbel.framework.ws.model.Annotation;
 import org.openbel.framework.ws.model.BelStatement;
@@ -59,7 +59,7 @@ import cytoscape.view.cytopanels.CytoPanelImp;
  */
 public class DetailsView {
     private static DetailsView instance;
-    private final KAMService kamService;
+    private final KamService kamService;
     private final CytoPanelImp resultsPanel;
     private final JPanel nodeDetailPanel;
     private final JPanel edgeDetailPanel;
@@ -79,7 +79,7 @@ public class DetailsView {
     private DetailsView() {
         resultsPanel = (CytoPanelImp) Cytoscape.getDesktop()
                 .getCytoPanel(SwingConstants.EAST);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
 
         // build node details panel and add to results panel
         nodeDetailPanel = new JPanel();

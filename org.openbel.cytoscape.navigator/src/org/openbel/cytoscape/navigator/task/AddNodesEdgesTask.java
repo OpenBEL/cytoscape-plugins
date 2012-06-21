@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
 
@@ -48,14 +48,14 @@ import cytoscape.view.CyNetworkView;
  * 
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#addNodesAndExpand(KAMNetwork, List, EdgeDirectionType)}.
+ * {@link KamTasks#addNodesAndExpand(KAMNetwork, List, EdgeDirectionType)}.
  * </p>
  * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
 final class AddNodesEdgesTask extends AddNodesTask {
     private static final String TITLE = "Expanding Edges";
-    private final KAMService kamService;
+    private final KamService kamService;
     private final List<KamNode> kamNodes;
     private final EdgeDirectionType direction;
     private final Set<String> kamNodeIds;
@@ -63,7 +63,7 @@ final class AddNodesEdgesTask extends AddNodesTask {
     AddNodesEdgesTask(CyNetwork cyNetwork, KamIdentifier kamId, List<KamNode> kamNodes,
             EdgeDirectionType direction) {
         super(cyNetwork, kamId, kamNodes);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
         this.direction = direction;
         this.kamNodeIds = new HashSet<String>(kamNodes.size());
@@ -101,7 +101,7 @@ final class AddNodesEdgesTask extends AddNodesTask {
             }
             
             final List<KamEdge> edges = kamService.getAdjacentKamEdges(
-                    KAMSession.getInstance().getDialectHandle(kamId),
+                    KamSession.getInstance().getDialectHandle(kamId),
                     selectedNode, direction,
                     null);
 

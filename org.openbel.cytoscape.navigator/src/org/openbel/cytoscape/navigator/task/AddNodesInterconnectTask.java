@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
 
@@ -47,7 +47,7 @@ import cytoscape.view.CyNetworkView;
  *
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#addNodesAndInterconnect(KAMNetwork, List)}.
+ * {@link KamTasks#addNodesAndInterconnect(KAMNetwork, List)}.
  * </p>
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
@@ -55,13 +55,13 @@ import cytoscape.view.CyNetworkView;
 // TODO this needs to be redone to use interconnect backend
 final class AddNodesInterconnectTask extends AddNodesTask {
     private static final String TITLE = "Interconnecting Nodes";
-    private final KAMService kamService;
+    private final KamService kamService;
     private final List<KamNode> kamNodes;
     private final Set<String> kamNodeIds;
 
     AddNodesInterconnectTask(CyNetwork cyNetwork, KamIdentifier kamId, List<KamNode> kamNodes) {
         super(cyNetwork, kamId, kamNodes);
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
         this.kamNodes = kamNodes;
         this.kamNodeIds = new HashSet<String>(kamNodes.size());
         for (final KamNode kamNode : kamNodes) {
@@ -106,7 +106,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                 // FIXME this should use the backend interconnect method
                 final List<KamEdge> edges = kamService
                         .getAdjacentKamEdges(
-                                KAMSession.getInstance().getDialectHandle(kamId), 
+                                KamSession.getInstance().getDialectHandle(kamId), 
                                 selectedNode, EdgeDirectionType.BOTH, null);
 
                 for (final KamEdge edge : edges) {

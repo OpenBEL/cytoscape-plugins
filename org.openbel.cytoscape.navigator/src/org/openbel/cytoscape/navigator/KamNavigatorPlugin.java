@@ -35,8 +35,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
-import org.openbel.cytoscape.navigator.dialog.SearchKAMDialog;
-import org.openbel.cytoscape.navigator.dialog.SearchKAMListDialog;
+import org.openbel.cytoscape.navigator.dialog.SearchKamDialog;
+import org.openbel.cytoscape.navigator.dialog.SearchKamListDialog;
 
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
@@ -62,7 +62,7 @@ import cytoscape.visual.VisualStyle;
  *
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-public class KAMNavigatorPlugin extends CytoscapePlugin {
+public class KamNavigatorPlugin extends CytoscapePlugin {
     public static final String KAM_PLUGIN_SUBMENU = "KAM Navigator";
     public static final String KAM_NODE_ID_ATTR = "KAM_NODE_ID";
     public static final String KAM_NODE_FUNCTION_ATTR = "KAM_NODE_FUNCTION";
@@ -72,14 +72,14 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
     public static final String KAM_COMPILE_DATE_ATTR = "KAM_COMPILE_DATE";
     public static final String WSDL_URL_ATTR = "WSDL_URL";
     
-    private static final CyLogger log = CyLogger.getLogger(KAMNavigatorPlugin.class);
+    private static final CyLogger log = CyLogger.getLogger(KamNavigatorPlugin.class);
     private static final String KAM_NAVIGATOR_VERSION = "0.9-SNAPSHOT";
     private static final String KAM_STYLE = "KAM Visualization";
 
     /**
      * Default no-arg plugin construtor to initialize this plugin.
      */
-    public KAMNavigatorPlugin() {
+    public KamNavigatorPlugin() {
         // add KAM_NODE_ID as a system node attribute
         Cytoscape.getNodeAttributes().setUserEditable(KAM_NODE_ID_ATTR, false);
         Cytoscape.getNodeAttributes().setUserVisible(KAM_NODE_ID_ATTR, false);
@@ -105,7 +105,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         Cytoscape.getNodeAttributes().setUserVisible(WSDL_URL_ATTR, false);
 
         // hook up propery change listeners
-        final KAMNodeContextListener nctx = new KAMNodeContextListener();
+        final KamNodeContextListener nctx = new KamNodeContextListener();
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_CREATED, nctx);
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
@@ -353,7 +353,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
          */
         @Override
         public void actionPerformed(ActionEvent event) {
-            SearchKAMDialog kcdialog = new SearchKAMDialog();
+            SearchKamDialog kcdialog = new SearchKamDialog();
             kcdialog.setVisible(true);
         }
     }
@@ -367,7 +367,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
         private static final long serialVersionUID = -5051721582642478695L;
 
         public SearchKAMListDialogAction() {
-            super(SearchKAMListDialog.TITLE);
+            super(SearchKamListDialog.TITLE);
         }
 
         /**
@@ -375,7 +375,7 @@ public class KAMNavigatorPlugin extends CytoscapePlugin {
          */
         @Override
         public void actionPerformed(ActionEvent event) {
-            SearchKAMListDialog dialog = new SearchKAMListDialog();
+            SearchKamListDialog dialog = new SearchKamListDialog();
             dialog.setVisible(true);
         }
     }

@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
-import org.openbel.cytoscape.navigator.KAMSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.NetworkUtility;
 
@@ -44,7 +44,7 @@ import cytoscape.task.Task;
  * 
  * <p>
  * This {@link Task task} should be called by
- * {@link KAMTasks#expandNodes(KAMNetwork, Set, EdgeDirectionType)}.
+ * {@link KamTasks#expandNodes(KAMNetwork, Set, EdgeDirectionType)}.
  * </p>
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
@@ -53,14 +53,14 @@ final class ExpandNodesTask extends AddEdgesTask {
 
     private final EdgeDirectionType direction;
     private final Set<CyNode> cynodes;
-    private final KAMService kamService;
+    private final KamService kamService;
 
     ExpandNodesTask(CyNetwork cyNetwork, KamIdentifier kamId, Set<CyNode> cynodes,
             EdgeDirectionType direction) {
         super(cyNetwork, kamId, null);
         this.cynodes = cynodes;
         this.direction = direction;
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
     }
 
     /**
@@ -76,7 +76,7 @@ final class ExpandNodesTask extends AddEdgesTask {
             }
 
             edges.addAll(kamService.getAdjacentKamEdges(
-                    KAMSession.getInstance().getDialectHandle(kamId), 
+                    KamSession.getInstance().getDialectHandle(kamId), 
                     kamNode, direction, null));
         }
         return edges;

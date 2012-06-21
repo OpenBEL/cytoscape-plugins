@@ -70,17 +70,17 @@ import cytoscape.data.webservice.WebServiceClientManager;
 import cytoscape.logger.CyLogger;
 
 /**
- * {@link DefaultKAMService} implements an API wrapper around the {@link WebAPI
+ * {@link DefaultKamService} implements an API wrapper around the {@link WebAPI
  * BEL Framework Web API}. This lightweight class reuses the same webservice
  * stub instance obtained from the {@link WebServiceClientManager cytoscape
  * webservice manager}.
  * 
  * @author Anthony Bargnesi &lt;abargnesi@selventa.com&gt;
  */
-class DefaultKAMService implements KAMService {
+class DefaultKamService implements KamService {
 
     private static final CyLogger log = CyLogger
-            .getLogger(DefaultKAMService.class);
+            .getLogger(DefaultKamService.class);
     private static final ObjectFactory OBJECT_FACTORY = ObjectFactorySingleton
             .getInstance();
 
@@ -92,7 +92,7 @@ class DefaultKAMService implements KAMService {
      * {@link WebServiceClientManager cytoscape webservice manager} and holds
      * the client stub.
      */
-    DefaultKAMService() {
+    DefaultKamService() {
         reloadClientConnector();
     }
     

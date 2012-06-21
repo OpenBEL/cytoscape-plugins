@@ -48,14 +48,14 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.openbel.cytoscape.webservice.Configuration;
-import org.openbel.cytoscape.webservice.KAMService;
-import org.openbel.cytoscape.webservice.KAMServiceFactory;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
 import org.openbel.cytoscape.navigator.EdgeOption;
-import org.openbel.cytoscape.navigator.KAMOption;
+import org.openbel.cytoscape.navigator.KamOption;
 import org.openbel.cytoscape.navigator.KamIdentifier;
 import org.openbel.cytoscape.navigator.Utility;
 import org.openbel.cytoscape.navigator.task.AbstractSearchKamTask;
-import org.openbel.cytoscape.navigator.task.KAMTasks;
+import org.openbel.cytoscape.navigator.task.KamTasks;
 
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.FunctionType;
@@ -72,20 +72,20 @@ import cytoscape.util.CyFileFilter;
 import cytoscape.util.FileUtil;
 
 /**
- * {@link SearchKAMListDialog} represents the UI for the Add KAM Nodes from list
+ * {@link SearchKamListDialog} represents the UI for the Add KAM Nodes from list
  * dialog.
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 // FIXME disable search button until KAMNetwork is selected
-public final class SearchKAMListDialog extends JDialog {
+public final class SearchKamListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
-    private static final CyLogger log = CyLogger.getLogger(SearchKAMListDialog.class);
+    private static final CyLogger log = CyLogger.getLogger(SearchKamListDialog.class);
     public static final String TITLE = "Add KAM Nodes From List";
     private static final String ALL_SELECTION = "ALL";
 
-    private final KAMService kamService;
+    private final KamService kamService;
     private final List<String> identifiers = new ArrayList<String>();
     private final CyFileFilter csvAndTxtFilter;
     
@@ -112,10 +112,10 @@ public final class SearchKAMListDialog extends JDialog {
     private JButton searchButton;
     private JScrollPane tableScrollPane;
 
-    public SearchKAMListDialog() {
+    public SearchKamListDialog() {
         super(Cytoscape.getDesktop(), TITLE, true);
 
-        this.kamService = KAMServiceFactory.getInstance().getKAMService();
+        this.kamService = KamServiceFactory.getInstance().getKAMService();
         initUI();
         
         // FIXME CSV and TXT files are still selectable
@@ -148,13 +148,13 @@ public final class SearchKAMListDialog extends JDialog {
         // resultsPanel.setVisible(false);
 
         List<Kam> kamCatalog = kamService.getCatalog();
-        List<KAMOption> kamOptions = new ArrayList<KAMOption>(kamCatalog.size());
+        List<KamOption> kamOptions = new ArrayList<KamOption>(kamCatalog.size());
         for (Kam kam : kamCatalog) {
-            kamOptions.add(new KAMOption(kam));
+            kamOptions.add(new KamOption(kam));
         }
         Collections.sort(kamOptions);
         kamComboBox.setModel(new DefaultComboBoxModel(kamOptions
-                .toArray(new KAMOption[kamOptions.size()])));
+                .toArray(new KamOption[kamOptions.size()])));
 
         // namespace options
         namespaceComboBox.setModel(new DefaultComboBoxModel(
@@ -202,22 +202,22 @@ public final class SearchKAMListDialog extends JDialog {
         EdgeOption eeo = (EdgeOption) edgeComboBox.getSelectedItem();
         switch (eeo) {
         case ALL_EDGES:
-            KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
+            KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
                     nodes, EdgeDirectionType.BOTH);
             break;
         case DOWNSTREAM:
-            KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
+            KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
                     nodes, EdgeDirectionType.FORWARD);
             break;
         case INTERCONNECT:
-            KAMTasks.addNodesAndInterconnect(lastSearchedNetwork,
+            KamTasks.addNodesAndInterconnect(lastSearchedNetwork,
                     lastSearchedKamId, nodes);
             break;
         case NONE:
-            KAMTasks.addNodes(lastSearchedNetwork, lastSearchedKamId, nodes);
+            KamTasks.addNodes(lastSearchedNetwork, lastSearchedKamId, nodes);
             break;
         case UPSTREAM:
-            KAMTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
+            KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
                     nodes, EdgeDirectionType.REVERSE);
             break;
         }
@@ -275,7 +275,7 @@ public final class SearchKAMListDialog extends JDialog {
         final Namespace namespace = ((NamespaceOption) namespaceComboBox
                 .getSelectedItem()).getDescriptor().getNamespace();
         this.lastSearchedNetwork = Cytoscape.getCurrentNetwork();
-        KAMOption kamOpt = (KAMOption) kamComboBox.getSelectedItem();
+        KamOption kamOpt = (KamOption) kamComboBox.getSelectedItem();
         this.lastSearchedKamId = new KamIdentifier(kamOpt.getKam(), Configuration
                 .getInstance().getWSDLURL());
 
