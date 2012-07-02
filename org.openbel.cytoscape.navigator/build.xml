@@ -80,7 +80,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
             <manifest>
                 <attribute name="Cytoscape-Plugin"
-                           value="org.openbel.cytoscape.navigator.KAMNavigatorPlugin" />
+                           value="org.openbel.cytoscape.navigator.KamNavigatorPlugin" />
             </manifest>
         	
             <!-- include license -->
