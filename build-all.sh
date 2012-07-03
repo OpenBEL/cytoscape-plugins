@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # simple shell script to build (or rebuild) all projects
 
 cd org.openbel.cytoscape.webservice/
