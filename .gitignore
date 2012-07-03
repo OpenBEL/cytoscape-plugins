@@ -14,3 +14,4 @@ org.openbel.cytoscape.webservice/nbproject/
 org.openbel.cytoscape.navigator/nb-build.xml
 org.openbel.cytoscape.navigator/nbproject/
 org.openbel.cytoscape.webservice/nb-build.xml
+*.swp
