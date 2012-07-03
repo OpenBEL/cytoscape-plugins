@@ -13,8 +13,8 @@ Building
 To build this plugin you will need
 
 -   [ANT](http://ant.apache.org/)
--   BELFramework 1.2.2 or greater installed
--   Cytoscape 2.8.x installed
+-   [OpenBEL Framework](https://github.com/OpenBEL/openbel-framework/) 2.0.0 or greater installed
+-   [Cytoscape](http://www.cytoscape.org/) 2.8.x installed
 
 Once installed you will need to configure the *HOME* location of each
 
@@ -39,23 +39,23 @@ Setting up Eclipse
 
 To set up the [Eclipse IDE](http://www.eclipse.org/) for working with this plugin
 
--   Check out the [belframework project](https://belframework-org@github.com/belframework-org/belframework.git)
+-   Check out the project
 
-    `git clone https://belframework-org@github.com/belframework-org/belframework.git`
+    `git clone https://github.com/OpenBEL/cytoscape-plugins.git`
 
 -   In Eclipse go to *File -> New -> Java Project* and uncheck *Use default location*.
 
--   Name your project belframework-webservice-plugin.
+-   Name your project org.openbel.cytoscape.webservice.
 
--   Enter the location of your local belframework-webservice-plugin folder.
+-   Enter the location of your local org.openbel.cytoscape.webservice folder.
 
-    `/path/to/git/clone/belframework/belframework-webservice-plugin`
+    `/path/to/git/clone/cytoscape-plugins/org.openbel.cytoscape.webservice`
 
 -   Hit Ok and a new project will be created.
 
 -   Configure classpath
 
-    -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
+    -   Add `org.openbel.framework.ws.model-2.0.0.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
     -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to the project classpath.
 
 -   (optional) To build with ANT drag the build.xml to the ANT view.

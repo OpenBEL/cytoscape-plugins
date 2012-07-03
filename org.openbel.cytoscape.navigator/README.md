@@ -9,7 +9,7 @@ This project is licensed under the terms of the [LGPL v3](http://www.gnu.org/lic
 
 Dependencies
 ----------
--   BELFramework Webservice Plugin V0.8
+-   BELFramework Webservice Plugin V0.9
 
 Building
 --------
@@ -18,8 +18,8 @@ To build this plugin you will need
 
 -   [ANT](http://ant.apache.org/)
 -   BELFramework Webservice Plugin
--   BELFramework 1.2.2 or greater installed
--   Cytoscape 2.8.x installed
+-   [OpenBEL Framework](https://github.com/OpenBEL/openbel-framework/) 2.0.0 or greater installed
+-   [Cytoscape](http://www.cytoscape.org/) 2.8.x installed
 
 Make sure the latest BEL Framework Web Service Plugin is built and copied to the `lib/` folder.
 
@@ -48,24 +48,24 @@ Setting up Eclipse
 
 To set up the [Eclipse IDE](http://www.eclipse.org/) for working with this plugin
 
--   Check out the [belframework project](https://belframework-org@github.com/belframework-org/belframework.git)
+-   Check out the project
 
-    `git clone https://belframework-org@github.com/belframework-org/belframework.git`
+    `git clone https://github.com/OpenBEL/cytoscape-plugins.git`
 
 -   In Eclipse go to *File -> New -> Java Project* and uncheck *Use default location*.
 
--   Name your project kam-navigator-plugin.
+-   Name your project org.openbel.cytoscape.navigator
 
--   Enter the location of your local kam-navigator-plugin folder.
+-   Enter the location of your local org.openbel.cytoscape.navigator folder.
 
-    `/path/to/git/clone/belframework/kam-navigator-plugin`
+    `/path/to/git/clone/cytoscape-plugins/org.openbel.cytoscape.navigator`
 
 -   Hit Ok and a new project will be created.
 
 -   Configure classpath
 
-    -   Add `lib/belframework_webservice_0.8.jar` to the project classpath.
-    -   Add `BELFrameworkWebAPIClient-1.2.2.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
+    -   Add `org.openbel.cytsocape.webservice-0.9.jar` to the project classpath.
+    -   Add `org.openbel.framework.ws.model-2.0.0.jar` (or later version) from BELFRAMEWORK_HOME/lib/webapiclient to the project classpath.
     -   Add `cytoscape.jar` from CYTOSCAPE_HOME/ to the project classpath.
 
 -   (optional) To build with ANT drag the build.xml to the ANT view.
