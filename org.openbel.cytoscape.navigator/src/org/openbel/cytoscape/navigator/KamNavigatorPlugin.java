@@ -220,7 +220,7 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     
     // TODO better exception handling
     private void loadKAMStyleFromFile() {
-        String name = "/org/openbel/belframework/kam/style.props";
+        String name = "/org/openbel/cytoscape/navigator/style.props";
         // FIXME is there a way to do this statically?
         InputStream in = getClass().getResourceAsStream(name);
         File f = null;
