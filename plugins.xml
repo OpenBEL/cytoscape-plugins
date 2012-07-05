@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+	 This file contain information so that Cytoscape can automatically download
+	 and update the plugins  
+-->
 <project>
 
     <!-- global info regarding the project these plugins come from -->
