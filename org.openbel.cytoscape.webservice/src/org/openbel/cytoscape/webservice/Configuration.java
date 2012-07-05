@@ -42,7 +42,7 @@ public class Configuration {
     private static final String WSDL_KEY = "WSDL_URL";
     private static final String TIMEOUT_KEY = "TIMEOUT";
     private static final String DEFAULT_WSDL_URL =
-            "http://localhost:8080/BELFrameworkWebAPI/belframework.wsdl";
+            "http://localhost:8080/openbel-ws/belframework.wsdl";
     private static final int DEFAULT_TIMEOUT = 120;
     private static Configuration instance;
     private String wsdlURL;
