@@ -75,6 +75,7 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     private static final CyLogger log = CyLogger.getLogger(KamNavigatorPlugin.class);
     private static final String KAM_NAVIGATOR_VERSION = "0.9-SNAPSHOT";
     private static final String KAM_STYLE = "KAM Visualization";
+    private static final String KAM_STYLE_FILE = "/org/openbel/cytoscape/navigator/style.props";
 
     /**
      * Default no-arg plugin construtor to initialize this plugin.
@@ -220,9 +221,8 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     
     // TODO better exception handling
     private void loadKAMStyleFromFile() {
-        String name = "/org/openbel/cytoscape/navigator/style.props";
         // FIXME is there a way to do this statically?
-        InputStream in = getClass().getResourceAsStream(name);
+        InputStream in = getClass().getResourceAsStream(KAM_STYLE_FILE);
         File f = null;
         try {
             f = File.createTempFile("viz", null);
