@@ -59,7 +59,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/OpenBEL/Cytoscape-Plugins/org.openbel.cytoscape.navigator-0.9.jar</url>
+                    <url>http://cloud.github.com/downloads/OpenBEL/cytoscape-plugins/org.openbel.cytoscape.navigator-0.9.jar</url>
 
                     <authorlist>
                         <author>
