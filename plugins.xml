@@ -6,9 +6,9 @@
 <project>
 
     <!-- global info regarding the project these plugins come from -->
-    <name> Selventa - Cytoscape Plugins </name>
-    <description>This is the list of cytoscape plugins provided by Selventa.</description>
-    <url>http://www.selventa.com</url>
+    <name> OpenBEL - Cytoscape Plugins </name>
+    <description>This is the list of cytoscape plugins provided by the OpenBEL foundation.</description>
+    <url>http://www.openbel.org</url>
 
     <themes>
         <theme>
