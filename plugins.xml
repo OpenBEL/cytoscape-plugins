@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	 This file contain information so that Cytoscape can automatically download
-	 and update the plugins  
+	 This file contains information so that Cytoscape can automatically
+	 download and update the plugins  
 -->
 <project>
 
@@ -16,7 +16,7 @@
 
             <name>KAM Navigator</name>
             <description>This theme provides the KAM Navigator and BELFramework Webservice plugins.</description>
-            <themeVersion>0.8</themeVersion>
+            <themeVersion>0.9</themeVersion>
 
             <cytoscapeVersions>
                 <version>2.8</version>
@@ -28,7 +28,7 @@
                     <uniqueID>BELFrameworkWebservice</uniqueID>
                     <name>BELFramework Webservice Plugin</name>
             	    <description>A client connector to the BEL Framework Web Services. This is required to run the KAM Navigator plugin.</description>
-                    <pluginVersion>0.8</pluginVersion>
+                    <pluginVersion>0.9</pluginVersion>
 
                     <cytoscapeVersions>
                         <version>2.8</version>
@@ -36,7 +36,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/OpenBEL/Cytoscape-Plugins/belframework_webservice_0.8.jar</url>
+                    <url>http://cloud.github.com/downloads/OpenBEL/cytoscape-plugins/org.openbel.cytoscape.webservice-0.9.jar</url>
 
                     <authorlist>
                         <author>
@@ -51,7 +51,7 @@
                     <uniqueID>KAMNavigator</uniqueID>
                     <name>KAM Navigator</name>
             	    <description>KAM Navigator plugin for the BEL Framework.</description>
-                    <pluginVersion>0.8</pluginVersion>
+                    <pluginVersion>0.9</pluginVersion>
 
                     <cytoscapeVersions>
                         <version>2.8</version>
@@ -59,7 +59,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/OpenBEL/Cytoscape-Plugins/belframework_kam_navigator_0.8.jar</url>
+                    <url>http://cloud.github.com/downloads/OpenBEL/Cytoscape-Plugins/org.openbel.cytoscape.navigator-0.9.jar</url>
 
                     <authorlist>
                         <author>
