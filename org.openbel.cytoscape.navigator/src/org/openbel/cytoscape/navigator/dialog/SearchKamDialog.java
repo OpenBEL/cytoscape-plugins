@@ -30,6 +30,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -56,6 +57,7 @@ import org.openbel.cytoscape.webservice.KamServiceFactory;
 import org.openbel.cytoscape.navigator.EdgeOption;
 import org.openbel.cytoscape.navigator.KamOption;
 import org.openbel.cytoscape.navigator.KamIdentifier;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.Utility;
 import org.openbel.cytoscape.navigator.task.AbstractSearchKamTask;
 import org.openbel.cytoscape.navigator.task.KamTasks;
@@ -93,6 +95,9 @@ public class SearchKamDialog extends JDialog implements ActionListener {
     private JTextField filterTxt;
     private JComboBox edgeCmb;
     private JLabel resultsCount;
+    
+    // really hacky way to not clear search results after add due to model change
+    private boolean kamModelReload = false;
 
     /**
      * Construct the {@link JDialog dialog} and initialize the UI.
@@ -172,13 +177,7 @@ public class SearchKamDialog extends JDialog implements ActionListener {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         searchPanel.add(networkLbl, gridBagConstraints);
 
-        List<Kam> kamCatalog = kamService.getCatalog();
-        List<KamOption> kamOptions = new ArrayList<KamOption>(kamCatalog.size());
-        for (Kam kam : kamCatalog) {
-            kamOptions.add(new KamOption(kam));
-        }
-        Collections.sort(kamOptions);
-
+        List<KamOption> kamOptions = buildKamOptions();
         kamCmb.addActionListener(this);
         kamCmb.setModel(new DefaultComboBoxModel(kamOptions
                 .toArray(new KamOption[kamOptions.size()])));
@@ -354,6 +353,10 @@ public class SearchKamDialog extends JDialog implements ActionListener {
             if (e.getSource() == functionCmb) {
                 searchBtn.setEnabled(true);
             } else if (e.getSource() == kamCmb) {
+                if (kamModelReload) {
+                    return;
+                }
+                
                 resultsTable.getSelectionModel().clearSelection();
 
                 final ResultsTableModel model = (ResultsTableModel) resultsTable
@@ -423,10 +426,55 @@ public class SearchKamDialog extends JDialog implements ActionListener {
                         KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId, selectedNodes, EdgeDirectionType.REVERSE);
                         break;
                 }
+                
+                // replace kam options (kam must be in the session prior to this)
+                List<KamOption> kamOptions = buildKamOptions();
+                DefaultComboBoxModel kamModel = (DefaultComboBoxModel) kamCmb
+                        .getModel();
+                kamModelReload = true;
+                kamModel.removeAllElements();
+                for (KamOption kamOption : kamOptions) {
+                    kamModel.addElement(kamOption);
+                }
+                if (kamModel.getSize() > 0) {
+                    kamModel.setSelectedItem(kamModel.getElementAt(0));
+                }
+                kamModelReload = false;
             }
         }
     }
 
+    private List<KamOption> buildKamOptions() {
+        List<Kam> kamCatalog = kamService.getCatalog();
+
+        // If there is a kam associated with the current network, it should
+        // be the only kam shown
+        KamIdentifier currentKamId = KamSession.getInstance()
+                .getCurrentNetworkKamIdentifier();
+        // quick and dirty method to filter out kams that don't match
+        // might not be that quick, but is very dirty
+        if (currentKamId != null) {
+            String wsdlUrl = Configuration.getInstance().getWSDLURL();
+
+            for (Iterator<Kam> it = kamCatalog.iterator(); it.hasNext();) {
+                Kam kam = it.next();
+                // XXX creating an object each iteration is probably not the
+                // best thing, but it will work in a pinch
+                KamIdentifier kamId = new KamIdentifier(kam, wsdlUrl);
+                if (!kamId.equals(currentKamId)) {
+                    it.remove();
+                }
+            }
+        }
+
+        List<KamOption> kamOptions = new ArrayList<KamOption>(kamCatalog.size());
+        for (Kam kam : kamCatalog) {
+            kamOptions.add(new KamOption(kam));
+        }
+        Collections.sort(kamOptions);
+        return kamOptions;
+    }
+    
     /**
      * The {@link AbstractTableModel table model} for the
      * {@link KamNode kam node} search results.

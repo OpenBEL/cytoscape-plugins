@@ -31,6 +31,7 @@ import org.openbel.framework.ws.model.KamHandle;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
+import cytoscape.Cytoscape;
 
 /**
  * {@link KamSession} tracks the {@link Set set} of the loaded
@@ -76,6 +77,10 @@ public class KamSession {
     public synchronized DialectHandle getDialectHandle(
             KamIdentifier kamIdentifier) {
         return dialectHandles.get(kamIdentifier);
+    }
+    
+    public KamIdentifier getCurrentNetworkKamIdentifier() {
+        return getKamIdentifier(Cytoscape.getCurrentNetwork());
     }
 
     @SuppressWarnings("unchecked")

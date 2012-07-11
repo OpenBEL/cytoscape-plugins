@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -53,6 +54,7 @@ import org.openbel.cytoscape.webservice.KamServiceFactory;
 import org.openbel.cytoscape.navigator.EdgeOption;
 import org.openbel.cytoscape.navigator.KamOption;
 import org.openbel.cytoscape.navigator.KamIdentifier;
+import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.Utility;
 import org.openbel.cytoscape.navigator.task.AbstractSearchKamTask;
 import org.openbel.cytoscape.navigator.task.KamTasks;
@@ -146,13 +148,8 @@ public final class SearchKamListDialog extends JDialog {
         });
 
         // resultsPanel.setVisible(false);
-
-        List<Kam> kamCatalog = kamService.getCatalog();
-        List<KamOption> kamOptions = new ArrayList<KamOption>(kamCatalog.size());
-        for (Kam kam : kamCatalog) {
-            kamOptions.add(new KamOption(kam));
-        }
-        Collections.sort(kamOptions);
+        
+        List<KamOption> kamOptions = buildKamOptions();
         kamComboBox.setModel(new DefaultComboBoxModel(kamOptions
                 .toArray(new KamOption[kamOptions.size()])));
 
@@ -220,6 +217,18 @@ public final class SearchKamListDialog extends JDialog {
             KamTasks.addNodesAndExpand(lastSearchedNetwork, lastSearchedKamId,
                     nodes, EdgeDirectionType.REVERSE);
             break;
+        }
+        
+        // replace kam options (kam must be in the session prior to this)
+        List<KamOption> kamOptions = buildKamOptions();
+        DefaultComboBoxModel kamModel = (DefaultComboBoxModel) kamComboBox
+                .getModel();
+        kamModel.removeAllElements();
+        for (KamOption kamOption : kamOptions) {
+            kamModel.addElement(kamOption);
+        }
+        if (kamModel.getSize() > 0) {
+            kamModel.setSelectedItem(kamModel.getElementAt(0));
         }
     }
     
@@ -307,6 +316,38 @@ public final class SearchKamListDialog extends JDialog {
         }
         Collections.sort(options);
         return options;
+    }
+    
+
+    private List<KamOption> buildKamOptions() {
+        List<Kam> kamCatalog = kamService.getCatalog();
+
+        // If there is a kam associated with the current network, it should
+        // be the only kam shown
+        KamIdentifier currentKamId = KamSession.getInstance()
+                .getCurrentNetworkKamIdentifier();
+        // quick and dirty method to filter out kams that don't match
+        // might not be that quick, but is very dirty
+        if (currentKamId != null) {
+            String wsdlUrl = Configuration.getInstance().getWSDLURL();
+
+            for (Iterator<Kam> it = kamCatalog.iterator(); it.hasNext();) {
+                Kam kam = it.next();
+                // XXX creating an object each iteration is probably not the
+                // best thing, but it will work in a pinch
+                KamIdentifier kamId = new KamIdentifier(kam, wsdlUrl);
+                if (!kamId.equals(currentKamId)) {
+                    it.remove();
+                }
+            }
+        }
+
+        List<KamOption> kamOptions = new ArrayList<KamOption>(kamCatalog.size());
+        for (Kam kam : kamCatalog) {
+            kamOptions.add(new KamOption(kam));
+        }
+        Collections.sort(kamOptions);
+        return kamOptions;
     }
 
     // taken from netbeans
