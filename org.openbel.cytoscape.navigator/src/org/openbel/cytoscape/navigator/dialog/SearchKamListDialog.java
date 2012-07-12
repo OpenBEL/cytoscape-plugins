@@ -119,7 +119,7 @@ public final class SearchKamListDialog extends JDialog {
         this.kamService = KamServiceFactory.getInstance().getKAMService();
         initUI();
         
-        // FIXME CSV and TXT files are still selectable
+        // TODO other files besides CSV and TXT are still selectable
         csvAndTxtFilter = new CyFileFilter(new String[] { "csv", "txt" },
                 "CSV and TXT files");
     }
