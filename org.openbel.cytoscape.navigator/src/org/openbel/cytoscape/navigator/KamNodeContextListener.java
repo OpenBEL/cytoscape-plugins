@@ -222,10 +222,7 @@ public class KamNodeContextListener implements PropertyChangeListener,
          */
         @Override
         public void actionPerformed(ActionEvent e) {
-            final CyNetwork network = view.getNetwork();
-            
-            
-            KamTasks.expandNodes(network, kamId, cynodes, direction);
+            KamTasks.expandNodes(view.getNetwork(), kamId, cynodes, direction);
         }
     }
 
@@ -256,9 +253,7 @@ public class KamNodeContextListener implements PropertyChangeListener,
          */
         @Override
         public void actionPerformed(ActionEvent e) {
-            final CyNetwork network = view.getNetwork();
-            
-            KamTasks.interconnectNodes(network, kamId, cynodes);
+            KamTasks.interconnectNodes(view.getNetwork(), kamId, cynodes);
         }
     }
 }
