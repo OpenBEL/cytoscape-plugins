@@ -248,16 +248,11 @@ public class DetailsView {
         private final String[] headers = new String[] { "BEL Term" };
         private final List<BelTerm> terms;
 
-        private TermTableModel() {
+        public TermTableModel() {
             this.terms = new ArrayList<BelTerm>();
         }
 
-        private TermTableModel(final List<BelTerm> terms) {
-            this.terms = new ArrayList<BelTerm>();
-            setTerms(terms);
-        }
-
-        private void setTerms(final List<BelTerm> terms) {
+        public void setTerms(final List<BelTerm> terms) {
             this.terms.clear();
             this.terms.addAll(terms);
             fireTableDataChanged();
@@ -319,16 +314,11 @@ public class DetailsView {
         private final String[] headers = new String[] { "Subject", "Relationship", "Object" };
         private final List<BelStatement> statements;
 
-        private StatementTableModel() {
+        public StatementTableModel() {
             this.statements = new ArrayList<BelStatement>();
         }
 
-        private StatementTableModel(final List<BelStatement> statements) {
-            this.statements = new ArrayList<BelStatement>();
-            setStatements(statements);
-        }
-
-        private void setStatements(final List<BelStatement> statements) {
+        public void setStatements(final List<BelStatement> statements) {
             this.statements.clear();
             this.statements.addAll(statements);
 
@@ -416,16 +406,11 @@ public class DetailsView {
         private final String[] headers = new String[] { "Id", "Name", "Publication Date", "Authors" };
         private final List<Citation> citations;
 
-        private CitationTableModel() {
+        public CitationTableModel() {
             this.citations = new ArrayList<Citation>();
         }
 
-        private CitationTableModel(final List<Citation> annotations) {
-            this.citations = new ArrayList<Citation>();
-            setCitations(annotations);
-        }
-
-        private void setCitations(final List<Citation> citations) {
+        public void setCitations(final List<Citation> citations) {
             this.citations.clear();
             this.citations.addAll(citations);
             fireTableDataChanged();
@@ -505,16 +490,11 @@ public class DetailsView {
         private final String[] headers = new String[] { "Name", "Value" };
         private final List<Annotation> annotations;
 
-        private AnnotationTableModel() {
+        public AnnotationTableModel() {
             this.annotations = new ArrayList<Annotation>();
         }
 
-        private AnnotationTableModel(final List<Annotation> annotations) {
-            this.annotations = new ArrayList<Annotation>();
-            setAnnotations(annotations);
-        }
-
-        private void setAnnotations(final List<Annotation> annotations) {
+        public void setAnnotations(final List<Annotation> annotations) {
             this.annotations.clear();
             this.annotations.addAll(annotations);
             fireTableDataChanged();
