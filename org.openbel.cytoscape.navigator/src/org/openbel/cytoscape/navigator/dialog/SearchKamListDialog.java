@@ -592,7 +592,7 @@ public final class SearchKamListDialog extends JDialog {
     }
     
 
-    // FIXME this is taken straight from search KAM Dialog
+    // TODO this is taken straight from search KAM Dialog
     // extract to common location?
     /**
      * The {@link AbstractTableModel table model} for the

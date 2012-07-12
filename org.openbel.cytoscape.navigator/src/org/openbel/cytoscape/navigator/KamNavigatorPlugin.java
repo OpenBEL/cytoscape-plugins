@@ -221,8 +221,9 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     
     // TODO better exception handling
     private void loadKAMStyleFromFile() {
-        // FIXME is there a way to do this statically?
-        InputStream in = getClass().getResourceAsStream(KAM_STYLE_FILE);
+        // XXX is there a way to do this statically? getClass requires the 
+        // current class instance
+        InputStream in = this.getClass().getResourceAsStream(KAM_STYLE_FILE);
         File f = null;
         try {
             f = File.createTempFile("viz", null);

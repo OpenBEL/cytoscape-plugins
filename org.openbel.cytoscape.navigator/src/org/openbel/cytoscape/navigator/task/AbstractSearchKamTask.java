@@ -313,7 +313,7 @@ public abstract class AbstractSearchKamTask implements Task {
         }
     }
 
-    // FIXME we don't need to use patterns, can construct namespace value
+    // TODO we don't need to use patterns, can construct namespace value
     // directly, at least for existing searches
     private class NamespaceSearch implements Callable<List<KamNode>> {
 

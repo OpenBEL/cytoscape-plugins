@@ -103,7 +103,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                     break;
                 }
                 
-                // FIXME this should use the backend interconnect method
+                // TODO this should use the backend interconnect method
                 final List<KamEdge> edges = kamService
                         .getAdjacentKamEdges(
                                 KamSession.getInstance().getDialectHandle(kamId), 

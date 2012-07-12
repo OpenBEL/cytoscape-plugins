@@ -435,13 +435,13 @@ class DefaultKamService implements KamService {
         
         // if reconfigure fails
         if (webAPI == null || !clientConnector.isValid()) {
-            // FIXME move this message dialog out of the Kam service, UI
+            // TODO move this message dialog out of the Kam service, UI
             // has no place here
             JOptionPane.showMessageDialog(Cytoscape.getDesktop(),
                     "Error connecting to the BELFramework Web Services.\n" +
                             "Please check the BELFramework Web Services Configuration.",
                     "Connection Error", JOptionPane.ERROR_MESSAGE);
-            // FIXME make this in a checked(?) exception so that layers using
+            // TODO make this in a checked(?) exception so that layers using
             // the kam service can create their own UI errors
             throw new RuntimeException("Connection error.");
         }

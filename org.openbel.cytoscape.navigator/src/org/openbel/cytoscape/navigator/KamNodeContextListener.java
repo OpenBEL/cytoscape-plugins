@@ -141,7 +141,7 @@ public class KamNodeContextListener implements PropertyChangeListener,
                     kamId, selected, view));
             kamNodeItem.add(interconnect);
         } else {
-            // FIXME no need for this placeholder, just use a disabled menu item
+            // TODO no need for this placeholder, just use a disabled menu item
             // create placeholder disabled item for interconnect to keep menu 
             // size consistent
             final JMenuItem placeholder = new JMenuItem(INTERCONNECT_LABEL);
@@ -222,7 +222,7 @@ public class KamNodeContextListener implements PropertyChangeListener,
          */
         @Override
         public void actionPerformed(ActionEvent e) {
-            // FIXME If a cytoscape session is restored the KAMNetwork
+            // TODO If a cytoscape session is restored the KAMNetwork
             // will not exist. We will have to reconnect to the KAM.
             final CyNetwork network = view.getNetwork();
             
