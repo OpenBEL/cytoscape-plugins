@@ -79,7 +79,6 @@ import cytoscape.util.FileUtil;
  * 
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
-// FIXME disable search button until KAMNetwork is selected
 public final class SearchKamListDialog extends JDialog {
     private static final long serialVersionUID = -2555610304142946995L;
 
