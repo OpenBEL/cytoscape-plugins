@@ -183,9 +183,12 @@ public class DetailsView {
      * @param node the {@link CyNode cytoscape node} that is active
      */
     public void showNodeDetails(final CyNode node) {
+        clearEdgeModels();
+        
         final KamNode kamNode = NetworkUtility.getKAMNode(node);
         if (kamNode == null) {
             // node is not kam backed
+            termTableModel.clear();
             return;
         }
 
@@ -207,9 +210,12 @@ public class DetailsView {
      * @param edge the {@link CyEdge cytoscape edge} that is active
      */
     public void showEdgeDetails(final CyEdge edge) {
+        termTableModel.clear();
+        
         final KamEdge kamEdge = NetworkUtility.getKAMEdge(edge);
         if (kamEdge == null) {
             // edge is not kam backed
+            clearEdgeModels();
             return;
         }
 
@@ -223,6 +229,12 @@ public class DetailsView {
         int edgeTabIdx = resultsPanel.indexOfComponent(edgeDetailPanel);
         resultsPanel.setSelectedIndex(edgeTabIdx);
         edgeDetailPanel.setVisible(true);
+    }
+    
+    private void clearEdgeModels() {
+        stmtTableModel.clear();
+        citTableModel.clear();
+        annTableModel.clear();
     }
 
     /**
@@ -248,6 +260,11 @@ public class DetailsView {
         private void setTerms(final List<BelTerm> terms) {
             this.terms.clear();
             this.terms.addAll(terms);
+            fireTableDataChanged();
+        }
+        
+        public void clear() {
+            this.terms.clear();
             fireTableDataChanged();
         }
 
@@ -319,6 +336,11 @@ public class DetailsView {
             annTableModel.setAnnotations(new ArrayList<Annotation>());
             citTableModel.setCitations(new ArrayList<Citation>());
 
+            fireTableDataChanged();
+        }
+        
+        public void clear() {
+            this.statements.clear();
             fireTableDataChanged();
         }
 
@@ -408,6 +430,11 @@ public class DetailsView {
             this.citations.addAll(citations);
             fireTableDataChanged();
         }
+        
+        public void clear() {
+            this.citations.clear();
+            fireTableDataChanged();
+        }
 
         /**
          * {@inheritDoc}
@@ -490,6 +517,11 @@ public class DetailsView {
         private void setAnnotations(final List<Annotation> annotations) {
             this.annotations.clear();
             this.annotations.addAll(annotations);
+            fireTableDataChanged();
+        }
+        
+        public void clear() {
+            this.annotations.clear();
             fireTableDataChanged();
         }
 
