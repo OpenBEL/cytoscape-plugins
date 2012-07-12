@@ -144,7 +144,8 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
         // add "Send Feedback" action to submenu
         JMenuItem feedbackItem = kiMenu.add(new FeedbackMailToAction());
         // disable if default mail client is not setup
-        feedbackItem.setEnabled(Desktop.getDesktop().isSupported(Desktop.Action.MAIL));
+        feedbackItem.setEnabled(Desktop.isDesktopSupported() ? Desktop
+                .getDesktop().isSupported(Desktop.Action.MAIL) : false);
         
         // set the proper menu state
         updateMenuState();
