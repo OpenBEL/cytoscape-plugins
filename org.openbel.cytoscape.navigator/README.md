@@ -3,10 +3,6 @@ KAM Navigator Plugin
 
 This Cytoscape Plugin allows users to access and query BEL Framework Knowledge Assembly Models (KAMs) using the BEL Framework Web Services API.
 
-License
--------
-This project is licensed under the terms of the [LGPL v3](http://www.gnu.org/licenses/lgpl.txt).
-
 Dependencies
 ----------
 -   BELFramework Webservice Plugin V0.9

@@ -5,3 +5,7 @@ KAM Navigator is a [Cytoscape](http://www.cytoscape.org/) plugin that allows use
 analyze Framework Knowledge Assembly Models (KAMs) using Cytoscape.
 
 Additional information on installing and using the plugin can be found in the [User Manual](https://github.com/OpenBEL/Cytoscape-Plugins/wiki).
+
+License
+-------
+This project is licensed under the terms of the [LGPL v3](http://www.gnu.org/licenses/lgpl.txt).

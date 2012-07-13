@@ -3,10 +3,6 @@ BELFramework Web Service Plugin
 
 This Cytoscape Plugin provides access to the webservice client for the BELFramework.
 
-License
--------
-This project is licensed under the terms of the [LGPL v3](http://www.gnu.org/licenses/lgpl.txt).
-
 Building
 --------
 
