@@ -73,7 +73,7 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     public static final String WSDL_URL_ATTR = "WSDL_URL";
     
     private static final CyLogger log = CyLogger.getLogger(KamNavigatorPlugin.class);
-    private static final String KAM_NAVIGATOR_VERSION = "0.9-SNAPSHOT";
+    private static final String KAM_NAVIGATOR_VERSION = "0.9";
     private static final String KAM_STYLE = "KAM Visualization";
     private static final String KAM_STYLE_FILE = "/org/openbel/cytoscape/navigator/style.props";
 

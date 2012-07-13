@@ -28,7 +28,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <property name="src.path" value="src" />
 	<property name="lib.path" value="../org.openbel.cytoscape.webservice/dist/" />
     <property name="compile.path" value="bin" />
-    <property name="jar.version" value="0.9-SNAPSHOT" />
+    <property name="jar.version" value="0.9" />
     <property name="jar.name" value="org.openbel.cytoscape.navigator-${jar.version}.jar" />
     <property name="src.jar.name"
               value="org.openbel.cytoscape.navigator-source-${jar.version}.jar" />
