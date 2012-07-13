@@ -209,7 +209,6 @@ public class NetworkUtility {
      */
     public static KamEdge getKAMEdge(CyEdge cyedge) {
         if (!isKamBacked(cyedge)) {
-            // FIXME add checks for this new behavior
             return null;
         }
 
