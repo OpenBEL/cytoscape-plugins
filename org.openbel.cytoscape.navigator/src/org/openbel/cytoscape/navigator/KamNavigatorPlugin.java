@@ -34,9 +34,9 @@ import java.net.URISyntaxException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKamDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKamListDialog;
+import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
 
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
@@ -116,7 +116,9 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
                 CytoscapeDesktop.NETWORK_VIEW_CREATED, this);
         Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
-                CytoscapeDesktop.NETWORK_VIEW_DESTROYED, this);
+                Cytoscape.NETWORK_CREATED, this);
+        Cytoscape.getPropertyChangeSupport().addPropertyChangeListener(
+                Cytoscape.NETWORK_DESTROYED, this);
 
         // build menu
         final JMenu pluginMenu = Cytoscape.getDesktop().getCyMenus()
@@ -148,7 +150,7 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
                 .getDesktop().isSupported(Desktop.Action.MAIL) : false);
         
         // set the proper menu state
-        updateMenuState();
+        updateMenuState(false);
         
         // load the default style or styles
         loadKAMStyle();
@@ -166,21 +168,25 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
             // TODO can this been done with a single instance?
             // TODO do we need to remove this on network destruction?
             cyn.addSelectEventListener(new NetworkDetailsListener());
-            
-            // enable search menus items
-            updateMenuState();
-        } else if (CytoscapeDesktop.NETWORK_VIEW_DESTROYED.equals(e.getPropertyName())) {
-            // disable search menu items if no networks left
-            updateMenuState();
+        } else if (Cytoscape.NETWORK_CREATED.equals(e.getPropertyName()) || 
+                Cytoscape.NETWORK_DESTROYED.equals(e.getPropertyName())) {
+            updateMenuState(Cytoscape.NETWORK_DESTROYED.equals(e
+                    .getPropertyName()));
         }
     }
     
-    private static void updateMenuState() {
+    private static void updateMenuState(boolean networkDestroyed) {
         JMenu kiMenu = getKamPluginMenu();
         JMenuItem addNodesItem = kiMenu.getItem(0);
         JMenuItem addListItem = kiMenu.getItem(1);
 
         boolean hasNetworks = !Cytoscape.getNetworkSet().isEmpty();
+        
+        // workaround for networks not being destroyed until AFTER event
+        if (networkDestroyed && Cytoscape.getNetworkSet().size() == 1) {
+            hasNetworks = false; 
+        }
+        
         // disable / enable items that require networks
         addNodesItem.setEnabled(hasNetworks);
         addListItem.setEnabled(hasNetworks);
