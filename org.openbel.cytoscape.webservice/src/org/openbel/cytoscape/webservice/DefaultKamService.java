@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import org.openbel.framework.ws.model.BelStatement;
 import org.openbel.framework.ws.model.BelTerm;
 import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.Edge;
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.EdgeFilter;
 import org.openbel.framework.ws.model.FindKamNodesByNamespaceValuesRequest;
@@ -60,8 +61,13 @@ import org.openbel.framework.ws.model.LoadKamResponse;
 import org.openbel.framework.ws.model.Namespace;
 import org.openbel.framework.ws.model.NamespaceDescriptor;
 import org.openbel.framework.ws.model.NamespaceValue;
+import org.openbel.framework.ws.model.Node;
 import org.openbel.framework.ws.model.NodeFilter;
 import org.openbel.framework.ws.model.ObjectFactory;
+import org.openbel.framework.ws.model.ResolveEdgesRequest;
+import org.openbel.framework.ws.model.ResolveEdgesResponse;
+import org.openbel.framework.ws.model.ResolveNodesRequest;
+import org.openbel.framework.ws.model.ResolveNodesResponse;
 import org.openbel.framework.ws.model.SimplePath;
 import org.openbel.framework.ws.model.WebAPI;
 
@@ -99,6 +105,7 @@ class DefaultKamService implements KamService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void reloadClientConnector() {
         clientConnector = (ClientConnector) WebServiceClientManager
                 .getClient("belframework");
@@ -138,6 +145,7 @@ class DefaultKamService implements KamService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<KamNode> findKamNodesByNamespaceValues(
             final KamHandle kamHandle, final DialectHandle dialectHandle,
             final List<NamespaceValue> namespaceValues,
@@ -422,6 +430,52 @@ class DefaultKamService implements KamService {
         return res.getPaths();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<KamNode> resolveNodes(KamHandle kamHandle, List<Node> nodes,
+            DialectHandle dialectHandle) {
+        if (kamHandle == null)
+            throw new NullPointerException("kamHandle is null");
+        if (nodes == null || nodes.isEmpty())
+            throw new IllegalArgumentException("nodes is invalid");
+        
+        checkValid();
+        
+        ResolveNodesRequest rq = OBJECT_FACTORY.createResolveNodesRequest();
+        rq.setHandle(kamHandle);
+        rq.getNodes().addAll(nodes);
+        if (dialectHandle != null)
+            rq.setDialect(dialectHandle);
+        
+        ResolveNodesResponse rs = webAPI.resolveNodes(rq);
+        return rs.getKamNodes();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<KamEdge> resolveEdges(KamHandle kamHandle, List<Edge> edges,
+            DialectHandle dialectHandle) {
+        if (kamHandle == null)
+            throw new NullPointerException("kamHandle is null");
+        if (edges == null || edges.isEmpty())
+            throw new IllegalArgumentException("edges is invalid");
+        
+        checkValid();
+        
+        ResolveEdgesRequest rq = OBJECT_FACTORY.createResolveEdgesRequest();
+        rq.setHandle(kamHandle);
+        rq.getEdges().addAll(edges);
+        if (dialectHandle != null)
+            rq.setDialect(dialectHandle);
+        
+        ResolveEdgesResponse rs = webAPI.resolveEdges(rq);
+        return rs.getKamEdges();
+    }
+    
     /**
      * Checks for a valid connection and errors out if not.
      *
