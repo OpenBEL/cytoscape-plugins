@@ -1,0 +1,218 @@
+package org.openbel.cytoscape.navigator.task;
+
+import static cytoscape.data.Semantics.INTERACTION;
+import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_LABEL_ATTR;
+import static org.openbel.cytoscape.navigator.NetworkUtility.disassociate;
+import static org.openbel.cytoscape.navigator.NetworkUtility.updateEdge;
+import static org.openbel.cytoscape.navigator.NetworkUtility.updateNode;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
+
+import org.openbel.cytoscape.navigator.KamIdentifier;
+import org.openbel.cytoscape.navigator.KamLoader;
+import org.openbel.cytoscape.navigator.KamLoader.KAMLoadException;
+import org.openbel.cytoscape.navigator.KamSession;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.framework.ws.model.DialectHandle;
+import org.openbel.framework.ws.model.Edge;
+import org.openbel.framework.ws.model.FunctionType;
+import org.openbel.framework.ws.model.KamEdge;
+import org.openbel.framework.ws.model.KamHandle;
+import org.openbel.framework.ws.model.KamNode;
+import org.openbel.framework.ws.model.Node;
+import org.openbel.framework.ws.model.RelationshipType;
+
+import cytoscape.CyEdge;
+import cytoscape.CyNetwork;
+import cytoscape.CyNode;
+import cytoscape.Cytoscape;
+import cytoscape.data.CyAttributes;
+import cytoscape.task.Task;
+import cytoscape.task.TaskMonitor;
+import cytoscape.view.CyNetworkView;
+import cytoscape.visual.VisualStyle;
+
+class AssociateToKamTask implements Task {
+
+    private static final String TITLE = "Associating %s to %s";
+    private final CyNetworkView view;
+    private final CyNetwork network;
+    private final KamIdentifier kamId;
+    private TaskMonitor m;
+    private Thread me;
+
+    AssociateToKamTask(CyNetworkView networkView, KamIdentifier kamId) {
+        if (networkView == null)
+            throw new NullPointerException("networkView is null");
+        if (kamId == null)
+            throw new NullPointerException("kamId is null");
+        this.view = networkView;
+        this.network = networkView.getNetwork();
+        this.kamId = kamId;
+    }
+
+    @Override
+    public String getTitle() {
+        return format(TITLE, network.getTitle(), kamId.getName());
+    }
+
+    @Override
+    public void run() {
+        me = currentThread();
+
+        m.setPercentCompleted(0);
+        m.setStatus("Loading KAM: " + kamId.getName());
+        KamLoader kamLoader = new KamLoader();
+        KamHandle handle;
+        try {
+            handle = kamLoader.load(kamId);
+        } catch (KAMLoadException e) {
+            JOptionPane.showMessageDialog(null,
+                    "Error loading \"" + kamId.getName()
+                            + "\" KAM.\n", "Kam Load Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        m.setPercentCompleted(20);
+
+        KamService svc = KamServiceFactory.getInstance().getKAMService();
+        DialectHandle dialect = KamSession.getInstance().getDialectHandle(kamId);
+        CyAttributes nodeattr = Cytoscape.getNodeAttributes();
+        CyAttributes edgeattr = Cytoscape.getEdgeAttributes();
+
+        m.setStatus("Resolving nodes and edges to KAM: " + kamId.getName());
+
+        // resolve nodes
+        int nodeCount = network.getNodeCount();
+        int[] nodes = network.getNodeIndicesArray();
+        List<Node> wsNodes = new ArrayList<Node>(nodeCount);
+        for (int idx : nodes) {
+            CyNode node = (CyNode) network.getNode(idx);
+            String id = node.getIdentifier();
+            String f = nodeattr.getStringAttribute(id, KAM_NODE_FUNCTION_ATTR);
+            // disassociate if function not set
+            if (f == null) {
+                disassociate(node);
+                continue;
+            }
+
+            // disassociate if function not valid
+            FunctionType fx;
+            try {
+                fx = FunctionType.valueOf(f);
+            } catch (IllegalArgumentException e) {
+                disassociate(node);
+                continue;
+            }
+
+            String l = nodeattr.getStringAttribute(id, KAM_NODE_LABEL_ATTR);
+            Node wsNode = new Node();
+            wsNode.setFunction(fx);
+            wsNode.setLabel(l);
+            wsNodes.add(wsNode);
+        }
+
+        // if nodes did not resolve; return
+        List<KamNode> resolvedNodes = svc.resolveNodes(handle, wsNodes, dialect);
+        if (resolvedNodes == null || resolvedNodes.isEmpty()) {
+            return;
+        }
+
+        m.setPercentCompleted(60);
+
+        // update non-null nodes; index to ease resolve edges
+        int nc = resolvedNodes.size();
+        Map<String, Node> cyNodeResolveMap = new HashMap<String, Node>(nc);
+        Iterator<KamNode> nit = resolvedNodes.iterator();
+        for (int idx : nodes) {
+            CyNode node = (CyNode) network.getNode(idx);
+
+            if (nit.hasNext()) {
+                KamNode resolved = nit.next();
+                if (resolved != null) {
+                    updateNode(node, kamId, resolved);
+                    cyNodeResolveMap.put(node.getIdentifier(), resolved);
+                } else {
+                    disassociate(node);
+                }
+            }
+        }
+
+        // resolve edges
+        int edgeCount = network.getEdgeCount();
+        int[] edges = network.getEdgeIndicesArray();
+        List<Edge> wsEdges = new ArrayList<Edge>(edgeCount);
+        List<CyEdge> cyEdges = new ArrayList<CyEdge>(edgeCount);
+        for (int idx : edges) {
+            CyEdge edge = (CyEdge) network.getEdge(idx);
+            String relationship = edgeattr.getStringAttribute(
+                    edge.getIdentifier(), INTERACTION);
+
+            RelationshipType rel;
+            try {
+                rel = RelationshipType.valueOf(relationship);
+            } catch (IllegalArgumentException e) {
+                // relationship is unknown; disassociate
+                disassociate(edge);
+                continue;
+            }
+            CyNode source = (CyNode) edge.getSource();
+            CyNode target = (CyNode) edge.getTarget();
+            Node sourceNode = cyNodeResolveMap.get(source.getIdentifier());
+            Node targetNode = cyNodeResolveMap.get(target.getIdentifier());
+
+            if (rel != null && sourceNode != null && targetNode != null) {
+                Edge wsEdge = new Edge();
+                wsEdge.setRelationship(rel);
+                wsEdge.setSource(sourceNode);
+                wsEdge.setTarget(targetNode);
+                wsEdges.add(wsEdge);
+                cyEdges.add(edge);
+            } else {
+                disassociate(edge);
+            }
+        }
+
+        if (!wsEdges.isEmpty()) {
+            List<KamEdge> resolvedEdges = svc.resolveEdges(handle, wsEdges, dialect);
+
+            Iterator<KamEdge> eit = resolvedEdges.iterator();
+            for (CyEdge edge : cyEdges) {
+                KamEdge resolved = eit.next();
+                if (resolved != null) {
+                    updateEdge(edge, kamId, resolved);
+                } else {
+                    disassociate(edge);
+                }
+            }
+        }
+
+        VisualStyle style = view.getVisualStyle();
+        view.applyVizmapper(style);
+        view.updateView();
+
+        m.setPercentCompleted(100);
+    }
+
+    @Override
+    public void halt() {
+        // assuming this happens on a separate thread
+        me.interrupt();
+    }
+
+    @Override
+    public void setTaskMonitor(TaskMonitor m)
+            throws IllegalThreadStateException {
+        this.m = m;
+    }
+}

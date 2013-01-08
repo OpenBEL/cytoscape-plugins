@@ -48,17 +48,16 @@ import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.openbel.cytoscape.webservice.Configuration;
-import org.openbel.cytoscape.webservice.KamService;
-import org.openbel.cytoscape.webservice.KamServiceFactory;
 import org.openbel.cytoscape.navigator.EdgeOption;
-import org.openbel.cytoscape.navigator.KamOption;
 import org.openbel.cytoscape.navigator.KamIdentifier;
+import org.openbel.cytoscape.navigator.KamOption;
 import org.openbel.cytoscape.navigator.KamSession;
 import org.openbel.cytoscape.navigator.Utility;
 import org.openbel.cytoscape.navigator.task.AbstractSearchKamTask;
 import org.openbel.cytoscape.navigator.task.KamTasks;
-
+import org.openbel.cytoscape.webservice.Configuration;
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.FunctionType;
 import org.openbel.framework.ws.model.Kam;
@@ -76,7 +75,7 @@ import cytoscape.util.FileUtil;
 /**
  * {@link SearchKamListDialog} represents the UI for the Add KAM Nodes from list
  * dialog.
- * 
+ *
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 public final class SearchKamListDialog extends JDialog {
@@ -89,7 +88,7 @@ public final class SearchKamListDialog extends JDialog {
     private final KamService kamService;
     private final List<String> identifiers = new ArrayList<String>();
     private final CyFileFilter csvAndTxtFilter;
-    
+
     private CyNetwork lastSearchedNetwork = null;
     private KamIdentifier lastSearchedKamId = null;
 
@@ -118,7 +117,7 @@ public final class SearchKamListDialog extends JDialog {
 
         this.kamService = KamServiceFactory.getInstance().getKAMService();
         initUI();
-        
+
         // TODO other files besides CSV and TXT are still selectable
         csvAndTxtFilter = new CyFileFilter(new String[] { "csv", "txt" },
                 "CSV and TXT files");
@@ -135,19 +134,19 @@ public final class SearchKamListDialog extends JDialog {
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                searchButtonActionPerformed(e);
+                searchButtonActionPerformed();
             }
         });
-        
+
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addButtonActionPerformed(e);
+                addButtonActionPerformed();
             }
         });
 
         // resultsPanel.setVisible(false);
-        
+
         List<KamOption> kamOptions = buildKamOptions();
         kamComboBox.setModel(new DefaultComboBoxModel(kamOptions
                 .toArray(new KamOption[kamOptions.size()])));
@@ -184,13 +183,13 @@ public final class SearchKamListDialog extends JDialog {
         // results label
         browseResultsLabel.setText("No file loaded");
         resultsFoundLabel.setText("No search performed");
-        
+
         // disable buttons
         searchButton.setEnabled(false);
         addButton.setEnabled(false);
     }
 
-    private void addButtonActionPerformed(ActionEvent e) {
+    private void addButtonActionPerformed() {
         ResultsTableModel rtm = (ResultsTableModel) resultsTable.getModel();
         final List<KamNode> nodes = rtm.getNodes();
 
@@ -217,7 +216,7 @@ public final class SearchKamListDialog extends JDialog {
                     nodes, EdgeDirectionType.REVERSE);
             break;
         }
-        
+
         // replace kam options (kam must be in the session prior to this)
         List<KamOption> kamOptions = buildKamOptions();
         DefaultComboBoxModel kamModel = (DefaultComboBoxModel) kamComboBox
@@ -230,9 +229,9 @@ public final class SearchKamListDialog extends JDialog {
             kamModel.setSelectedItem(kamModel.getElementAt(0));
         }
     }
-    
-    private void browseButtonActionPerformed(ActionEvent e) {
-        
+
+    private void browseButtonActionPerformed() {
+
         File file = FileUtil.getFile("Select file with identifiers",
                 FileUtil.LOAD, new CyFileFilter[] { csvAndTxtFilter });
         if (file == null) {
@@ -242,7 +241,7 @@ public final class SearchKamListDialog extends JDialog {
 
         // clear previous identifiers whenever selecting a new file
         this.identifiers.clear();
-        
+
         fileTextField.setText(file.getName());
 
         List<String> fileIdentifiers = null;
@@ -257,7 +256,7 @@ public final class SearchKamListDialog extends JDialog {
         }
 
         searchButton.setEnabled(!Utility.isEmpty(identifiers));
-        
+
         int results = 0;
         if (identifiers != null) {
             results = identifiers.size();
@@ -265,11 +264,11 @@ public final class SearchKamListDialog extends JDialog {
         browseResultsLabel.setText(results + " identifiers in file");
     }
 
-    private void cancelButtonActionPerformed(ActionEvent e) {
+    private void cancelButtonActionPerformed() {
         this.dispose();
     }
 
-    protected void searchButtonActionPerformed(ActionEvent e) {
+    protected void searchButtonActionPerformed() {
         final ResultsTableModel model = (ResultsTableModel) resultsTable
                 .getModel();
         model.clear();
@@ -292,7 +291,7 @@ public final class SearchKamListDialog extends JDialog {
             functionType = FunctionType.valueOf((String) functionComboBox
                     .getSelectedItem());
         }
-        
+
         final Task task = new AbstractSearchKamTask(lastSearchedKamId, functionType,
                 namespace, identifiers) {
 
@@ -300,7 +299,7 @@ public final class SearchKamListDialog extends JDialog {
             protected void updateUI(Collection<KamNode> nodes) {
                 model.setData(nodes);
                 addButton.setEnabled(!Utility.isEmpty(nodes));
-            
+
                 resultsFoundLabel.setText(nodes.size() + " found");
                 resultsFoundLabel.setVisible(true);
             }
@@ -316,7 +315,7 @@ public final class SearchKamListDialog extends JDialog {
         Collections.sort(options);
         return options;
     }
-    
+
 
     private List<KamOption> buildKamOptions() {
         List<Kam> kamCatalog = kamService.getCatalog();
@@ -381,8 +380,9 @@ public final class SearchKamListDialog extends JDialog {
 
         browseButton.setText("Browse");
         browseButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
-                browseButtonActionPerformed(evt);
+                browseButtonActionPerformed();
             }
         });
 
@@ -390,8 +390,9 @@ public final class SearchKamListDialog extends JDialog {
 
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
+                cancelButtonActionPerformed();
             }
         });
 
@@ -589,7 +590,7 @@ public final class SearchKamListDialog extends JDialog {
             return this.toString().compareTo(o.toString());
         }
     }
-    
+
 
     // TODO this is taken straight from search KAM Dialog
     // extract to common location?
@@ -618,7 +619,7 @@ public final class SearchKamListDialog extends JDialog {
             nodes.clear();
             fireTableDataChanged();
         }
-        
+
         public List<KamNode> getNodes() {
             return nodes;
         }

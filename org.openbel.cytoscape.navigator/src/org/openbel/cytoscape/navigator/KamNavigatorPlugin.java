@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import org.openbel.cytoscape.navigator.dialog.AssociateToKamDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKamDialog;
 import org.openbel.cytoscape.navigator.dialog.SearchKamListDialog;
 import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
@@ -41,6 +42,7 @@ import org.openbel.cytoscape.webservice.dialog.SettingsDialog;
 import cytoscape.CyNetwork;
 import cytoscape.Cytoscape;
 import cytoscape.CytoscapeVersion;
+import cytoscape.data.CyAttributes;
 import cytoscape.logger.CyLogger;
 import cytoscape.plugin.CytoscapePlugin;
 import cytoscape.util.CytoscapeAction;
@@ -71,39 +73,48 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     public static final String KAM_NAME_ATTR = "KAM_NAME";
     public static final String KAM_COMPILE_DATE_ATTR = "KAM_COMPILE_DATE";
     public static final String WSDL_URL_ATTR = "WSDL_URL";
+    public static final String KAM_MAPPED_ATTR = "KAM_MAPPED";
     
     private static final CyLogger log = CyLogger.getLogger(KamNavigatorPlugin.class);
     private static final String KAM_NAVIGATOR_VERSION = "0.9";
     private static final String KAM_STYLE = "KAM Visualization";
     private static final String KAM_STYLE_FILE = "/org/openbel/cytoscape/navigator/style.props";
 
+    private JMenuItem searchItem;
+    private JMenuItem searchListItem;
+    private JMenuItem associateItem;
+    
     /**
      * Default no-arg plugin construtor to initialize this plugin.
      */
     public KamNavigatorPlugin() {
-        // add KAM_NODE_ID as a system node attribute
-        Cytoscape.getNodeAttributes().setUserEditable(KAM_NODE_ID_ATTR, false);
-        Cytoscape.getNodeAttributes().setUserVisible(KAM_NODE_ID_ATTR, false);
-
-        // add KAM_NODE_FUNCTION as a system node attribute
-        Cytoscape.getNodeAttributes().setUserEditable(KAM_NODE_FUNCTION_ATTR, false);
-        Cytoscape.getNodeAttributes().setUserVisible(KAM_NODE_FUNCTION_ATTR, true);
+        CyAttributes nattr = Cytoscape.getNodeAttributes();
+        CyAttributes eattr = Cytoscape.getEdgeAttributes();
         
-        // add KAM_EDGE_ID as a system edge attribute
-        Cytoscape.getEdgeAttributes().setUserEditable(KAM_EDGE_ID_ATTR, false);
-        Cytoscape.getEdgeAttributes().setUserVisible(KAM_EDGE_ID_ATTR, false);
+        nattr.setUserEditable(KAM_NODE_ID_ATTR, false);
+        nattr.setUserVisible(KAM_NODE_ID_ATTR, false);
+        nattr.setUserEditable(KAM_NODE_FUNCTION_ATTR, false);
+        nattr.setUserVisible(KAM_NODE_FUNCTION_ATTR, true);
+        nattr.setUserEditable(KAM_NAME_ATTR, false);
+        nattr.setUserVisible(KAM_NAME_ATTR, true);
+        nattr.setUserEditable(KAM_COMPILE_DATE_ATTR, false);
+        nattr.setUserVisible(KAM_COMPILE_DATE_ATTR, false);
+        nattr.setUserEditable(WSDL_URL_ATTR, false);
+        nattr.setUserVisible(WSDL_URL_ATTR, false);
+        nattr.setUserEditable(KAM_MAPPED_ATTR, false);
+        nattr.setUserVisible(KAM_MAPPED_ATTR, true);
         
-        // add KAM_NAME as a system node attribute
-        Cytoscape.getNodeAttributes().setUserEditable(KAM_NAME_ATTR, false);
-        Cytoscape.getNodeAttributes().setUserVisible(KAM_NAME_ATTR, true);
+        eattr.setUserEditable(KAM_EDGE_ID_ATTR, false);
+        eattr.setUserVisible(KAM_EDGE_ID_ATTR, false);
+        eattr.setUserEditable(KAM_NAME_ATTR, false);
+        eattr.setUserVisible(KAM_NAME_ATTR, true);
+        eattr.setUserEditable(KAM_COMPILE_DATE_ATTR, false);
+        eattr.setUserVisible(KAM_COMPILE_DATE_ATTR, false);
+        eattr.setUserEditable(WSDL_URL_ATTR, false);
+        eattr.setUserVisible(WSDL_URL_ATTR, false);
+        eattr.setUserEditable(KAM_MAPPED_ATTR, false);
+        eattr.setUserVisible(KAM_MAPPED_ATTR, true);
         
-        // add KAM_COMPILE_DATE as a system node attribute
-        Cytoscape.getNodeAttributes().setUserEditable(KAM_COMPILE_DATE_ATTR, false);
-        Cytoscape.getNodeAttributes().setUserVisible(KAM_COMPILE_DATE_ATTR, false);
-        
-        // add WSDL_URL as a system node attribute
-        Cytoscape.getNodeAttributes().setUserEditable(WSDL_URL_ATTR, false);
-        Cytoscape.getNodeAttributes().setUserVisible(WSDL_URL_ATTR, false);
 
         // hook up propery change listeners
         final KamNodeContextListener nctx = new KamNodeContextListener();
@@ -131,16 +142,10 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
             pluginMenu.add(kiMenu);
         }
 
-        // add "Add Kam Nodes" action to submenu
-        kiMenu.add(new SearchKAMDialogAction());
-
-        // add "Add Kam List" action to submenu
-        kiMenu.add(new SearchKAMListDialogAction());
-
-        // add separator before bel configuration entry
+        searchItem = kiMenu.add(new SearchKAMDialogAction());
+        searchListItem = kiMenu.add(new SearchKAMListDialogAction());
+        associateItem = kiMenu.add(new AssociateToKamDialogAction());
         kiMenu.addSeparator();
-
-        // add to "KAM Navigator" menu if KAM Plugin is available
         kiMenu.add(new SettingsDialogAction());
         
         // add "Send Feedback" action to submenu
@@ -175,21 +180,20 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
         }
     }
     
-    private static void updateMenuState(boolean networkDestroyed) {
-        JMenu kiMenu = getKamPluginMenu();
-        JMenuItem addNodesItem = kiMenu.getItem(0);
-        JMenuItem addListItem = kiMenu.getItem(1);
-
+    private void updateMenuState(boolean networkDestroyed) {
         boolean hasNetworks = !Cytoscape.getNetworkSet().isEmpty();
         
         // workaround for networks not being destroyed until AFTER event
         if (networkDestroyed && Cytoscape.getNetworkSet().size() == 1) {
             hasNetworks = false; 
         }
+
+        CyNetwork current = Cytoscape.getCurrentNetwork();
         
         // disable / enable items that require networks
-        addNodesItem.setEnabled(hasNetworks);
-        addListItem.setEnabled(hasNetworks);
+        searchItem.setEnabled(hasNetworks);
+        searchListItem.setEnabled(hasNetworks);
+        associateItem.setEnabled(hasNetworks && current != null);
     }
 
     private static JMenu getKamPluginMenu() {
@@ -409,6 +413,25 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
         public void actionPerformed(ActionEvent event) {
             SettingsDialog settingsDialog = new SettingsDialog();
             settingsDialog.setVisible(true);
+        }
+    }
+    
+    private static final class AssociateToKamDialogAction extends
+            CytoscapeAction {
+
+        private static final long serialVersionUID = 7620147624359237108L;
+
+        public AssociateToKamDialogAction() {
+            super(AssociateToKamDialog.TITLE);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            AssociateToKamDialog dialog = new AssociateToKamDialog();
+            dialog.setVisible(true);
         }
     }
 }

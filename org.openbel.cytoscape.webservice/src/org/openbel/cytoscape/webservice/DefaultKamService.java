@@ -19,6 +19,7 @@
  */
 package org.openbel.cytoscape.webservice;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -438,8 +439,10 @@ class DefaultKamService implements KamService {
             DialectHandle dialectHandle) {
         if (kamHandle == null)
             throw new NullPointerException("kamHandle is null");
-        if (nodes == null || nodes.isEmpty())
-            throw new IllegalArgumentException("nodes is invalid");
+        if (nodes == null)
+            return null;
+        if (nodes.isEmpty())
+            return new ArrayList<KamNode>();
         
         checkValid();
         
@@ -461,8 +464,10 @@ class DefaultKamService implements KamService {
             DialectHandle dialectHandle) {
         if (kamHandle == null)
             throw new NullPointerException("kamHandle is null");
-        if (edges == null || edges.isEmpty())
-            throw new IllegalArgumentException("edges is invalid");
+        if (edges == null)
+            return null;
+        if (edges.isEmpty())
+            return new ArrayList<KamEdge>();
         
         checkValid();
         

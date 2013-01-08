@@ -234,12 +234,11 @@ public interface KamService {
      * {@link KamNode KAM node} labels will be valid BEL term expressions.
      * 
      * @param kamHandle {@link KamHandle}; may not be {@code null}
-     * @param nodes {@link List} of {@link Node}; may not be {@code null} or
-     * empty
+     * @param nodes {@link List} of {@link Node}
      * @param dialectHandle {@link DialectHandle}
-     * @return resolved {@link List} of {@link KamNode KAM nodes}; cardinality
-     * is equal to {@code edges}, contains {@code null} when an
-     * {@link Node node} cannot be resolved
+     * @return resolved {@link List} of {@link KamNode KAM nodes} or
+     * {@code null} if {@code nodes} is {@code null}
+     * @throws NullPointerException when {@code kamHandle} is {@code null}
      */
     List<KamNode> resolveNodes(KamHandle kamHandle, List<Node> nodes,
             DialectHandle dialectHandle);
@@ -263,9 +262,9 @@ public interface KamService {
      * @param edges {@link List} of {@link Edge}; may not be {@code null} or
      * empty
      * @param dialectHandle {@link DialectHandle}
-     * @return resolved {@link List} of {@link KamEdge KAM edges}; cardinality
-     * is equal to {@code edges}, contains {@code null} when an
-     * {@link Edge edge} cannot be resolved
+     * @return resolved {@link List} of {@link KamEdge KAM edges} or
+     * {@code null} if {@code edges} is {@code null} 
+     * @throws NullPointerException when {@code kamHandle} is {@code null}
      */
     List<KamEdge> resolveEdges(KamHandle kamHandle, List<Edge> edges,
             DialectHandle dialectHandle);

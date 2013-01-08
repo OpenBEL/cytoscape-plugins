@@ -21,6 +21,7 @@ package org.openbel.cytoscape.navigator;
 
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_COMPILE_DATE_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_EDGE_ID_ATTR;
+import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_MAPPED_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NAME_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_ID_ATTR;
@@ -49,7 +50,7 @@ import cytoscape.data.Semantics;
 /**
  * Static utility methods for adding and reading a Cytoscape Network with a
  * Kam context.
- * 
+ *
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 // TODO Finish Javadocs on all methods
@@ -61,9 +62,8 @@ public class NetworkUtility {
     /**
      * Adds a {@link KamNode kam node} to the {@link CyNetwork cytoscape
      * network} and returns the equivalent {@link CyNode cytoscape node}.
-     * 
-     * @param node
-     *            the {@link KamNode kam node} to add
+     *
+     * @param node the {@link KamNode kam node} to add
      * @return the {@link CyNode cytoscape node} created for the specific
      *         {@link KamNode kam node}
      */
@@ -71,29 +71,55 @@ public class NetworkUtility {
             KamNode kamNode) {
         // create cytoscape node and attach KAM attributes
         CyNode cynode = Cytoscape.getCyNode(kamNode.getLabel(), true);
-        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_ID_ATTR,
-                kamNode.getId());
-        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_FUNCTION_ATTR,
-                kamNode.getFunction().name());
-        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NODE_LABEL_ATTR,
-                kamNode.getLabel());
-        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_NAME_ATTR,
-                kamId.getName());
-        nodeAtt.setAttribute(cynode.getIdentifier(), KAM_COMPILE_DATE_ATTR,
+        String id = cynode.getIdentifier();
+
+        nodeAtt.setAttribute(id, KAM_NODE_ID_ATTR, kamNode.getId());
+        nodeAtt.setAttribute(id, KAM_NODE_FUNCTION_ATTR, kamNode.getFunction()
+                .name());
+        nodeAtt.setAttribute(id, KAM_NODE_LABEL_ATTR, kamNode.getLabel());
+        nodeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
+        nodeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR,
                 Long.toString(kamId.getCompiledTime()));
-        nodeAtt.setAttribute(cynode.getIdentifier(), WSDL_URL_ATTR,
-                kamId.getWsdlUrl());
+        nodeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
+        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
 
         cyn.addNode(cynode);
         return cynode;
     }
 
     /**
+     * Updates {@link CyAttributes node attributes} for a {@link CyNode node}
+     * using a {@link KamIdentifier KAM id} and {@link KamNode KAM node}.
+     *
+     * @param cynode {@link CyNode}; may not be {@code null}
+     * @param kamId {@link KamIdentifier}; may not be {@code null}
+     * @param node {@link KamNode}; may not be {@code null}
+     * @throws NullPointerException when {@code cynode}, {@code kamId}, or
+     * {@code node} is {@code null}
+     */
+    public static void updateNode(CyNode cynode, KamIdentifier kamId,
+            KamNode node) {
+        if (cynode == null) throw new NullPointerException();
+        if (kamId == null) throw new NullPointerException();
+        if (node == null) throw new NullPointerException();
+
+        String id = cynode.getIdentifier();
+        nodeAtt.setAttribute(id, KAM_NODE_ID_ATTR, node.getId());
+        nodeAtt.setAttribute(id, KAM_NODE_FUNCTION_ATTR, node.getFunction()
+                .name());
+        nodeAtt.setAttribute(id, KAM_NODE_LABEL_ATTR, node.getLabel());
+        nodeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
+        nodeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR,
+                Long.toString(kamId.getCompiledTime()));
+        nodeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
+        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
+    }
+
+    /**
      * Adds a {@link KamEdge kam edge} to the {@link CyNetwork cytoscape
      * network} and returns the equivalent {@link CyEdge cytoscape edge}.
-     * 
-     * @param edge
-     *            the {@link KamEdge kam edge} to add
+     *
+     * @param edge the {@link KamEdge kam edge} to add
      * @return the {@link CyEdge cytoscape edge} created for the specific
      *         {@link KamEdge kam edge}
      */
@@ -119,22 +145,79 @@ public class NetworkUtility {
         CyEdge cye = Cytoscape.getCyEdge(cynsource, cyntarget,
                 Semantics.INTERACTION, edge.getRelationship().toString(), true,
                 true);
-        edgeAtt.setAttribute(cye.getIdentifier(), KAM_EDGE_ID_ATTR,
-                edge.getId());
-
+        String id = cye.getIdentifier();
+        edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
+        edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
+        String compileTime = Long.toString(kamId.getCompiledTime());
+        edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
+        edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
         cyn.addEdge(cye);
-
         return cye;
+    }
+
+    /**
+     * Updates {@link CyAttributes edges attributes} for a {@link CyEdge edge}
+     * using a {@link KamIdentifier KAM id} and {@link KamEdge KAM edge}.
+     *
+     * @param cyedge {@link CyEdge}; may not be {@code null}
+     * @param kamId {@link KamIdentifier}; may not be {@code null}
+     * @param edge {@link KamEdge}; may not be {@code null}
+     * @throws NullPointerException when {@code cyedge}, {@code kamId}, or
+     * {@code edge} is {@code null}
+     */
+    public static void updateEdge(CyEdge cyedge, KamIdentifier kamId,
+            KamEdge edge) {
+        if (cyedge == null) throw new NullPointerException();
+        if (edge == null) throw new NullPointerException();
+        if (kamId == null) throw new NullPointerException();
+
+//        CyNode cynode = (CyNode) cyedge.getSource();
+//        KamNode kamNode = (KamNode) edge.getSource();
+//        updateNode(cynode, kamId, kamNode);
+//
+//        cynode = (CyNode) cyedge.getTarget();
+//        kamNode = (KamNode) edge.getTarget();
+//        updateNode(cynode, kamId, kamNode);
+
+        String id = cyedge.getIdentifier();
+        edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
+        edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
+        String compileTime = Long.toString(kamId.getCompiledTime());
+        edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
+        edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
+    }
+
+    public static void disassociate(CyNode cynode) {
+        if (cynode == null) throw new NullPointerException();
+
+        String id = cynode.getIdentifier();
+        safeDeleteAttribute(nodeAtt, id, KAM_NODE_ID_ATTR);
+        safeDeleteAttribute(nodeAtt, id, KAM_NAME_ATTR);
+        safeDeleteAttribute(nodeAtt, id, KAM_COMPILE_DATE_ATTR);
+        safeDeleteAttribute(nodeAtt, id, WSDL_URL_ATTR);
+        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, false);
+    }
+
+    public static void disassociate(CyEdge cyedge) {
+        if (cyedge == null) throw new NullPointerException();
+
+        String id = cyedge.getIdentifier();
+        safeDeleteAttribute(edgeAtt, id, KAM_EDGE_ID_ATTR);
+        safeDeleteAttribute(edgeAtt, id, KAM_NAME_ATTR);
+        safeDeleteAttribute(edgeAtt, id, KAM_COMPILE_DATE_ATTR);
+        safeDeleteAttribute(edgeAtt, id, WSDL_URL_ATTR);
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, false);
     }
 
     /**
      * Retrieve all the {@link KamNode kam nodes} for a {@link Collection} of
      * {@link CyNode cytoscape nodes}.
-     * 
-     * @param cynodes
-     *            {@link Collection} of {@link CyNode cytoscape nodes}
+     *
+     * @param cynodes {@link Collection} of {@link CyNode cytoscape nodes}
      * @return {@link List} of {@link KamNode kam nodes}, which will not be
-     *         {@code null} but might be empty
+     * {@code null} but might be empty
      */
     public static Set<KamNode> getKAMNodes(Collection<CyNode> cynodes) {
         final Set<KamNode> kamNodes = new HashSet<KamNode>(cynodes.size());
@@ -151,12 +234,10 @@ public class NetworkUtility {
     /**
      * Retrieve the {@link KamNode kam node} for a specific {@link CyNode
      * cytoscape node}.
-     * 
-     * @param cynode
-     *            the {@link CyNode cytoscape node}
+     *
+     * @param cynode the {@link CyNode cytoscape node}
      * @return the {@link KamNode kam node} equivalent of the specific
-     *         {@link CyNode cytoscape node}, null if the cynode is not kam
-     *         backed
+     * {@link CyNode cytoscape node}, null if the cynode is not kam backed
      */
     public static KamNode getKAMNode(CyNode cynode) {
         // check to see if the cynode is kam backed
@@ -181,10 +262,11 @@ public class NetworkUtility {
     /**
      * Retrieve all {@link CyEdge cytoscape edges} in the {@link CyNetwork
      * cytoscape network} as {@link KamEdge kam edges}.
-     * 
+     *
      * @return the {@link List} of {@link KamEdge kam edges} for all
-     *         {@link CyEdge cytoscape edges} in the {@link CyNetwork cytoscape
-     *         network}, which will not be {@code null} but might be empty
+     * {@link CyEdge cytoscape edges} in the
+     * {@link CyNetwork cytoscape network}, which will not be {@code null} but
+     * might be empty
      */
     public List<KamEdge> getKAMEdges(Collection<CyEdge> cyedges) {
         final List<KamEdge> kamEdges = new ArrayList<KamEdge>(cyedges.size());
@@ -201,11 +283,10 @@ public class NetworkUtility {
     /**
      * Retrieve the {@link KamEdge kam edge} for a specific {@link CyEdge
      * cytoscape edge}.
-     * 
-     * @param cyedge
-     *            the {@link CyEdge cytoscape edge}
+     *
+     * @param cyedge the {@link CyEdge cytoscape edge}
      * @return the {@link KamEdge kam edge} equivalent of the specific
-     *         {@link CyEdge cytoscape edge}
+     * {@link CyEdge cytoscape edge}
      */
     public static KamEdge getKAMEdge(CyEdge cyedge) {
         if (!isKamBacked(cyedge)) {
@@ -279,7 +360,35 @@ public class NetworkUtility {
 
         return ret;
     }
-    
+
+    /**
+     * Deletes an attribute for the object identified by {@link String id} from
+     * the {@link CyAttributes attributes collection}.  The delete is only
+     * attempted if the {@link String attr} exists for {@link String id}.
+     *
+     * <p>
+     * Returns {@code true} if the {@link String attr} existed and was deleted
+     * for {@link String id}, {@code false} if {@link String attr} did not
+     * exist for {@link String id}.
+     *
+     * @param attrs {@link CyAttributes}; may not be {@code null}
+     * @param id {@link String}; may not be {@code null}
+     * @param attr {@link String}; may not be {@code null}
+     * @return {@code true} if the {@link String attr} existed and was deleted
+     * for {@link String id}, {@code false} if {@link String attr} did not
+     * exist for {@link String id}
+     */
+    public static boolean safeDeleteAttribute(CyAttributes attrs, String id,
+            String attr) {
+        if (attrs == null) throw new NullPointerException();
+        if (id == null) throw new NullPointerException();
+        if (attr == null) throw new NullPointerException();
+
+        if (attrs.hasAttribute(id, attr))
+            return attrs.deleteAttribute(id, attr);
+        return false;
+    }
+
     // convience method
     // XXX this could be slow performing
     // might be better to associate a kamid with a network in the session

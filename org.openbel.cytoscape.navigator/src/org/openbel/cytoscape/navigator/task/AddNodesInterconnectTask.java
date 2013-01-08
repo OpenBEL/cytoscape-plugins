@@ -23,12 +23,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openbel.cytoscape.navigator.KamIdentifier;
+import org.openbel.cytoscape.navigator.KamSession;
+import org.openbel.cytoscape.navigator.NetworkUtility;
 import org.openbel.cytoscape.webservice.KamService;
 import org.openbel.cytoscape.webservice.KamServiceFactory;
-import org.openbel.cytoscape.navigator.KamSession;
-import org.openbel.cytoscape.navigator.KamIdentifier;
-import org.openbel.cytoscape.navigator.NetworkUtility;
-
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.KamEdge;
 import org.openbel.framework.ws.model.KamNode;
@@ -85,6 +84,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
      * {@link CyNetwork cytoscape network}, and re-renders the view.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void run() {
         // run AddNodes (super) task
         Set<CyNode> cynodes = super.addNodes();
@@ -92,7 +92,8 @@ final class AddNodesInterconnectTask extends AddNodesTask {
         m.setStatus("Interconnecting network for " + kamNodes.size() + " selected nodes.");
 
         // Add existing KAM nodes to selected
-        kamNodes.addAll(NetworkUtility.getKAMNodes(cyNetwork.nodesList()));
+        List<CyNode> nodes = cyNetwork.nodesList();
+        kamNodes.addAll(NetworkUtility.getKAMNodes(nodes));
 
         // If more than one node selected, link up shared edges
         int numNodes = kamNodes.size();
@@ -102,11 +103,11 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                     // stop if halted
                     break;
                 }
-                
+
                 // TODO this should use the backend interconnect method
                 final List<KamEdge> edges = kamService
                         .getAdjacentKamEdges(
-                                KamSession.getInstance().getDialectHandle(kamId), 
+                                KamSession.getInstance().getDialectHandle(kamId),
                                 selectedNode, EdgeDirectionType.BOTH, null);
 
                 for (final KamEdge edge : edges) {
@@ -121,7 +122,7 @@ final class AddNodesInterconnectTask extends AddNodesTask {
                 }
             }
         }
-        
+
         if (halt) {
             return;
         }

@@ -30,14 +30,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.openbel.cytoscape.navigator.KamIdentifier;
+import org.openbel.cytoscape.navigator.KamLoader;
+import org.openbel.cytoscape.navigator.KamLoader.KAMLoadException;
+import org.openbel.cytoscape.navigator.KamSession;
+import org.openbel.cytoscape.navigator.Utility;
 import org.openbel.cytoscape.webservice.KamService;
 import org.openbel.cytoscape.webservice.KamServiceFactory;
-import org.openbel.cytoscape.navigator.KamLoader;
-import org.openbel.cytoscape.navigator.KamSession;
-import org.openbel.cytoscape.navigator.KamIdentifier;
-import org.openbel.cytoscape.navigator.Utility;
-import org.openbel.cytoscape.navigator.KamLoader.KAMLoadException;
-
 import org.openbel.framework.ws.model.DialectHandle;
 import org.openbel.framework.ws.model.FunctionType;
 import org.openbel.framework.ws.model.FunctionTypeFilterCriteria;
@@ -54,13 +53,13 @@ import cytoscape.task.TaskMonitor;
 /**
  * Abstract {@link Task cytoscape task} to handle searching for {@link KamNode
  * kam nodes} using the Web API.
- * 
+ *
  * Any needed UI updates will have to be implemented by subclasses
- * 
+ *
  * @author James McMahon &lt;jmcmahon@selventa.com&gt;
  */
 public abstract class AbstractSearchKamTask implements Task {
-    
+
     private static final CyLogger log = CyLogger.getLogger(AbstractSearchKamTask.class);
 
     private final KamIdentifier kamId;
@@ -107,7 +106,7 @@ public abstract class AbstractSearchKamTask implements Task {
 
     /**
      * Update any elements of the UI
-     * 
+     *
      * @param nodes
      *            nodes found from search
      */
@@ -158,12 +157,12 @@ public abstract class AbstractSearchKamTask implements Task {
             }
             monitor.setPercentCompleted(100);
         }
-        
+
         monitor.setStatus("Searching for KAM Nodes");
 
         monitor.setPercentCompleted(0);
         List<KamNode> nodes = searchKAMNodes();
-        
+
         // TODO update UI should still be called if the halt command is issued
         // to perform clean up, etc
         if (!halt && nodes != null) {
@@ -171,17 +170,16 @@ public abstract class AbstractSearchKamTask implements Task {
             Collections.sort(nodes, new Comparator<KamNode>() {
                 @Override
                 public int compare(KamNode o1, KamNode o2) {
-                    if (o1 == null ^ o2 == null) {
+                    if (o1 == null ^ o2 == null)
                         return (o1 == null) ? -1 : 1;
-                    }
-                    if (o1 == null && o2 == null) {
+                    if (o1 == null && o2 == null)
                         return 0;
-                    }
-
-                    return o1.getLabel().compareTo(o2.getLabel());
+                    if (o1 != null && o2 != null)
+                        return o1.getLabel().compareTo(o2.getLabel());
+                    return 0;
                 }
             });
-            
+
             updateUI(nodes);
         }
         monitor.setPercentCompleted(100);

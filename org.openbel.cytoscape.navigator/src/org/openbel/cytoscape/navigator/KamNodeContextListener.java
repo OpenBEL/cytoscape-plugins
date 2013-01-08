@@ -36,11 +36,9 @@ import javax.swing.JPopupMenu;
 
 import org.openbel.cytoscape.navigator.dialog.KnowledgeNeighborhoodDialog;
 import org.openbel.cytoscape.navigator.task.KamTasks;
-
 import org.openbel.framework.ws.model.EdgeDirectionType;
 import org.openbel.framework.ws.model.KamNode;
 
-import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.util.CytoscapeAction;
 import cytoscape.view.CyNetworkView;

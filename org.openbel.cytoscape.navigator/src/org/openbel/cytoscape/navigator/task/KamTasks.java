@@ -32,6 +32,7 @@ import org.openbel.framework.ws.model.KamNode;
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.task.Task;
+import cytoscape.view.CyNetworkView;
 
 /**
  * {@link KamTasks} defines a wrapper to call supported, long-running
@@ -45,11 +46,9 @@ public class KamTasks {
     /**
      * Call the {@link AddNodesTask}.
      * 
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param kamNodes the {@link KamNode kam nodes} to add
      * @see AddNodesTask#run()
-     * @param kamNetwork
-     *            the {@link KAMNetwork kam network} to add to
-     * @param kamNodes
-     *            the {@link KamNode kam nodes} to add
      */
     public static void addNodes(CyNetwork cyNetwork, KamIdentifier kamId,
             List<KamNode> kamNodes) {
@@ -59,11 +58,9 @@ public class KamTasks {
     /**
      * Call the {@link AddEdgesTask}.
      * 
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param kamNodes the {@link KamEdge kam edges} to add
      * @see AddEdgesTask#run()
-     * @param kamNetwork
-     *            the {@link KAMNetwork kam network} to add to
-     * @param kamNodes
-     *            the {@link KamEdge kam edges} to add
      */
     public static void addEdges(CyNetwork cyNetwork, KamIdentifier kamId,
             List<KamEdge> kamEdges) {
@@ -73,11 +70,9 @@ public class KamTasks {
     /**
      * Call the {@link AddNodesEdgesTask}.
      * 
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param kamNodes the {@link KamNode kam nodes} to expand
      * @see AddNodesEdgesTask#run()
-     * @param kamNetwork
-     *            the {@link KAMNetwork kam network} to add to
-     * @param kamNodes
-     *            the {@link KamNode kam nodes} to expand
      */
     public static void addNodesAndExpand(CyNetwork cyNetwork,
             KamIdentifier kamId, List<KamNode> kamNodes,
@@ -89,11 +84,9 @@ public class KamTasks {
     /**
      * Call the {@link AddNodesInterconnectTask}.
      * 
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param kamNodes the {@link KamNode kam nodes} to interconnect
      * @see AddNodesInterconnectTask#run()
-     * @param kamNetwork
-     *            the {@link KAMNetwork kam network} to add to
-     * @param kamNodes
-     *            the {@link KamNode kam nodes} to interconnect
      */
     public static void addNodesAndInterconnect(CyNetwork cyNetwork,
             KamIdentifier kamId, List<KamNode> kamNodes) {
@@ -104,12 +97,9 @@ public class KamTasks {
     /**
      * Call the {@link ExpandNodesTask}.
      * 
-     * @param kamNetwork
-     *            the {@link KAMNetwork kam network} to add to
-     * @param cynodes
-     *            the {@link CyNode CyNodes} to expand
-     * @param direction
-     *            the {@link EdgeDirectionType} to expand in
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param cynodes the {@link CyNode CyNodes} to expand
+     * @param direction the {@link EdgeDirectionType} to expand in
      */
     public static void expandNodes(CyNetwork cyNetwork, KamIdentifier kamId,
             Set<CyNode> cynodes, EdgeDirectionType direction) {
@@ -120,15 +110,23 @@ public class KamTasks {
     /**
      * Call the {@link InterconnectNodesTask}.
      * 
-     * 
-     * @param kamNetwork
-     *            the {@link KAMNetwork kam network} to add to
-     * @param cynodes
-     *            the {@link CyNode CyNodes} to interconnect, must be 2 or more
+     * @param kamNetwork the {@link KAMNetwork kam network} to add to
+     * @param cynodes the {@link CyNode CyNodes} to interconnect, must be 2 or
+     * more
      */
     public static void interconnectNodes(CyNetwork cyNetwork,
             KamIdentifier kamId, Set<CyNode> cynodes) {
         Utility.executeTask(new InterconnectNodesTask(cyNetwork, kamId, cynodes));
+    }
+    
+    /**
+     * Calls the {@link AssociateToKamTask}.
+     * 
+     * @param network {@link CyNetworkView}
+     * @param kamId {@link KamIdentifier}
+     */
+    public static void resolve(CyNetworkView network, KamIdentifier kamId) {
+        Utility.executeTask(new AssociateToKamTask(network, kamId));
     }
 
     private KamTasks() {
