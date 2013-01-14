@@ -1,5 +1,7 @@
 package org.openbel.cytoscape.navigator.task;
 
+import static cytoscape.Cytoscape.getVisualMappingManager;
+import static cytoscape.Cytoscape.setCurrentNetworkView;
 import static cytoscape.data.Semantics.INTERACTION;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
@@ -40,11 +42,13 @@ import cytoscape.data.CyAttributes;
 import cytoscape.task.Task;
 import cytoscape.task.TaskMonitor;
 import cytoscape.view.CyNetworkView;
+import cytoscape.visual.CalculatorCatalog;
 import cytoscape.visual.VisualStyle;
 
 class AssociateToKamTask implements Task {
 
     private static final String TITLE = "Associating %s to %s";
+    private static final String STYLE = "KAM Association";
     private final CyNetworkView view;
     private final CyNetwork network;
     private final KamIdentifier kamId;
@@ -197,9 +201,16 @@ class AssociateToKamTask implements Task {
             }
         }
 
-        VisualStyle style = view.getVisualStyle();
-        view.applyVizmapper(style);
-        view.updateView();
+        CalculatorCatalog cat = getVisualMappingManager()
+                .getCalculatorCatalog();
+        VisualStyle vstl = cat.getVisualStyle(STYLE);
+
+        if (vstl != null) {
+            view.setVisualStyle(vstl.getName());
+            getVisualMappingManager().setVisualStyle(vstl);
+            view.redrawGraph(true, true);
+            setCurrentNetworkView(view.getIdentifier());
+        }
 
         m.setPercentCompleted(100);
     }
