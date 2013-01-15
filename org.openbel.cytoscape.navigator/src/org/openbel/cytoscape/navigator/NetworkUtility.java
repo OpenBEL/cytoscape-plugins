@@ -81,7 +81,7 @@ public class NetworkUtility {
         nodeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR,
                 Long.toString(kamId.getCompiledTime()));
         nodeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
-        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
+        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
 
         cyn.addNode(cynode);
         return cynode;
@@ -112,7 +112,7 @@ public class NetworkUtility {
         nodeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR,
                 Long.toString(kamId.getCompiledTime()));
         nodeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
-        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
+        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
     }
 
     /**
@@ -151,7 +151,7 @@ public class NetworkUtility {
         String compileTime = Long.toString(kamId.getCompiledTime());
         edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
         edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
-        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
         cyn.addEdge(cye);
         return cye;
     }
@@ -172,21 +172,13 @@ public class NetworkUtility {
         if (edge == null) throw new NullPointerException();
         if (kamId == null) throw new NullPointerException();
 
-//        CyNode cynode = (CyNode) cyedge.getSource();
-//        KamNode kamNode = (KamNode) edge.getSource();
-//        updateNode(cynode, kamId, kamNode);
-//
-//        cynode = (CyNode) cyedge.getTarget();
-//        kamNode = (KamNode) edge.getTarget();
-//        updateNode(cynode, kamId, kamNode);
-
         String id = cyedge.getIdentifier();
         edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
         edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
         String compileTime = Long.toString(kamId.getCompiledTime());
         edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
         edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
-        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, true);
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
     }
 
     public static void disassociate(CyNode cynode) {
@@ -197,7 +189,7 @@ public class NetworkUtility {
         safeDeleteAttribute(nodeAtt, id, KAM_NAME_ATTR);
         safeDeleteAttribute(nodeAtt, id, KAM_COMPILE_DATE_ATTR);
         safeDeleteAttribute(nodeAtt, id, WSDL_URL_ATTR);
-        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, false);
+        nodeAtt.setAttribute(id, KAM_MAPPED_ATTR, "no");
     }
 
     public static void disassociate(CyEdge cyedge) {
@@ -208,7 +200,7 @@ public class NetworkUtility {
         safeDeleteAttribute(edgeAtt, id, KAM_NAME_ATTR);
         safeDeleteAttribute(edgeAtt, id, KAM_COMPILE_DATE_ATTR);
         safeDeleteAttribute(edgeAtt, id, WSDL_URL_ATTR);
-        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, false);
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "no");
     }
 
     /**
