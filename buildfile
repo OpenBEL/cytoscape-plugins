@@ -52,7 +52,18 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
   define 'org.openbel.cytoscape.webservice' do
     configure(project)
     compile.with CYTOSCAPE, OPENBEL_WS_MODEL
+
+    # accumulate dependent projects + transitives
+    jars = []
+    cp_array = project.compile.classpath.to_a()
+    jars << cp_array.map { |i| i.to_s }
+    jars.flatten!.uniq!
+    jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
+
+    # merge into one jar
     package(:jar, :id => _id(project))
+      .with(:manifest => file(MANIFEST))
+      .merge(jars)
   end
 
   define 'org.openbel.cytoscape.navigator' do
