@@ -59,7 +59,20 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
     configure(project)
     compile.with projects('org.openbel.cytoscape.webservice'), CYTOSCAPE,
                  DING, GINY, EQUATIONS, TASK, OPENBEL_WS_MODEL
-    package(:jar, :id => _id(project))
+
+    # accumulate dependent projects + transitives
+    include_projects = projects('org.openbel.cytoscape.webservice')
+    jars = []
+    include_projects.each { |project|
+      jars << Dir[project.path_to(:target) + '/*.jar']
+      cp_array = project.compile.classpath.to_a()
+      jars << cp_array.map { |i| i.to_s }
+      jars.flatten!.uniq!
+    }
+    jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
+
+    # merge into one jar
+    package(:jar, :id => _id(project)).merge(jars)
   end
 end
 
@@ -88,20 +101,15 @@ task :cytoscape_task do
   if not ENV['CYTOSCAPE_HOME']
     raise "CYTOSCAPE_HOME environment variable must be set."
   end
+  
   cyhome = ENV['CYTOSCAPE_HOME']
   plugins_dir = Pathname.new(cyhome) + 'plugins'
-  the_projects = projects
-  the_projects.shift
-  jars = []
-  the_projects.each { |project|
-    jars << Dir[project.path_to(:target) + '/*.jar']
-    cp_array = project.compile.classpath.to_a()
-    jars << cp_array.map { |i| i.to_s }
-    jars.flatten!.uniq!
-  }
-  jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
-  puts "Copying plugins artifacts and dependencies to: #{plugins_dir}"
-  FileUtils.copy(jars, plugins_dir)
+  puts projects
+  prj = projects('OpenBEL - KAM Navigator Plugin:org.openbel.cytoscape.navigator')[0]
+  plugin_jar = Dir[prj.path_to(:target) + '/*.jar'][0]
+
+  puts "Copying #{plugin_jar} to #{plugins_dir}"
+  FileUtils.copy(plugin_jar, plugins_dir)
   if ENV['JREBEL_HOME']
     jrebel = "-javaagent:#{Pathname.new(ENV['JREBEL_HOME']) + 'jrebel.jar'}"
     puts "Rebel forces enabled.  The force is strong with this one."
