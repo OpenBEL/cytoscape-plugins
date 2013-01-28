@@ -602,7 +602,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             if (e.getSource() == null || e.getSource().getFunction() == null) {
                 return null;
             }
-            return e.getSource().getFunction().name();
+            return e.getSource().getFunction().getDisplayValue();
         }
 
     }
@@ -621,7 +621,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             if (e.getTarget() == null || e.getTarget().getFunction() == null) {
                 return null;
             }
-            return e.getTarget().getFunction().name();
+            return e.getTarget().getFunction().getDisplayValue();
         }
 
     }
@@ -640,7 +640,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
             if (e.getRelationship() == null) {
                 return null;
             }
-            return e.getRelationship().name();
+            return e.getRelationship().getDisplayValue();
         }
     }
 
@@ -708,7 +708,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
             KamEdge edge = entry.getModel().getEdges()
                     .get(entry.getIdentifier());
-            FunctionType function = FunctionType.valueOf(selected);
+            FunctionType function = FunctionType.fromValue(selected);
 
             return function.equals(edge.getSource().getFunction());
         }
@@ -730,7 +730,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
             KamEdge edge = entry.getModel().getEdges()
                     .get(entry.getIdentifier());
-            FunctionType function = FunctionType.valueOf(selected);
+            FunctionType function = FunctionType.fromValue(selected);
 
             return function.equals(edge.getTarget().getFunction());
         }
@@ -751,7 +751,7 @@ public class KnowledgeNeighborhoodDialog extends JDialog implements
 
             KamEdge edge = entry.getModel().getEdges()
                     .get(entry.getIdentifier());
-            RelationshipType relationship = RelationshipType.valueOf(selected);
+            RelationshipType relationship = RelationshipType.fromValue(selected);
 
             return relationship.equals(edge.getRelationship());
         }

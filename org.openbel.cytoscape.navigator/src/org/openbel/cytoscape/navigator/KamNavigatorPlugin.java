@@ -68,7 +68,6 @@ public class KamNavigatorPlugin extends CytoscapePlugin {
     public static final String KAM_PLUGIN_SUBMENU = "KAM Navigator";
     public static final String KAM_NODE_ID_ATTR = "KAM_NODE_ID";
     public static final String KAM_NODE_FUNCTION_ATTR = "KAM_NODE_FUNCTION";
-    public static final String KAM_NODE_LABEL_ATTR = "KAM_NODE_LABEL";
     public static final String KAM_EDGE_ID_ATTR = "KAM_EDGE_ID";
     public static final String KAM_NAME_ATTR = "KAM_NAME";
     public static final String KAM_COMPILE_DATE_ATTR = "KAM_COMPILE_DATE";

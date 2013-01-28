@@ -6,7 +6,6 @@ import static cytoscape.data.Semantics.INTERACTION;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
-import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 import static org.openbel.cytoscape.navigator.NetworkUtility.disassociate;
 import static org.openbel.cytoscape.navigator.NetworkUtility.updateEdge;
 import static org.openbel.cytoscape.navigator.NetworkUtility.updateNode;
@@ -102,8 +101,9 @@ class AssociateToKamTask implements Task {
         List<Node> wsNodes = new ArrayList<Node>(nodeCount);
         for (int idx : nodes) {
             CyNode node = (CyNode) network.getNode(idx);
-            String id = node.getIdentifier();
-            String f = nodeattr.getStringAttribute(id, KAM_NODE_FUNCTION_ATTR);
+            String nodeId = node.getIdentifier();
+            String f = nodeattr.getStringAttribute(nodeId,
+                    KAM_NODE_FUNCTION_ATTR);
             // disassociate if function not set
             if (f == null) {
                 disassociate(node);
@@ -113,16 +113,15 @@ class AssociateToKamTask implements Task {
             // disassociate if function not valid
             FunctionType fx;
             try {
-                fx = FunctionType.valueOf(f);
+                fx = FunctionType.fromValue(f);
             } catch (IllegalArgumentException e) {
                 disassociate(node);
                 continue;
             }
 
-            String l = nodeattr.getStringAttribute(id, KAM_NODE_LABEL_ATTR);
             Node wsNode = new Node();
             wsNode.setFunction(fx);
-            wsNode.setLabel(l);
+            wsNode.setLabel(nodeId);
             wsNodes.add(wsNode);
         }
 
@@ -164,7 +163,7 @@ class AssociateToKamTask implements Task {
 
             RelationshipType rel;
             try {
-                rel = RelationshipType.valueOf(relationship);
+                rel = RelationshipType.fromValue(relationship);
             } catch (IllegalArgumentException e) {
                 // relationship is unknown; disassociate
                 disassociate(edge);

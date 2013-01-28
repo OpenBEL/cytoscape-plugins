@@ -175,7 +175,7 @@ public final class SearchKamListDialog extends JDialog {
         String[] funcStrings = new String[functions.length + 1];
         funcStrings[0] = ALL_SELECTION;
         for (int i = 0; i < functions.length; i++) {
-            funcStrings[i + 1] = functions[i].name();
+            funcStrings[i + 1] = functions[i].getDisplayValue();
         }
         functionComboBox.setModel(new DefaultComboBoxModel(funcStrings));
         functionComboBox.getModel().setSelectedItem(ALL_SELECTION);
@@ -288,7 +288,7 @@ public final class SearchKamListDialog extends JDialog {
 
         FunctionType functionType = null;
         if (!functionComboBox.getSelectedItem().equals(ALL_SELECTION)) {
-            functionType = FunctionType.valueOf((String) functionComboBox
+            functionType = FunctionType.fromValue((String) functionComboBox
                     .getSelectedItem());
         }
 

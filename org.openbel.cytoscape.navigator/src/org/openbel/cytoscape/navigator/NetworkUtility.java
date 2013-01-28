@@ -25,7 +25,6 @@ import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_MAPPED_ATTR
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NAME_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_FUNCTION_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_ID_ATTR;
-import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.KAM_NODE_LABEL_ATTR;
 import static org.openbel.cytoscape.navigator.KamNavigatorPlugin.WSDL_URL_ATTR;
 
 import java.util.ArrayList;
@@ -75,8 +74,7 @@ public class NetworkUtility {
 
         nodeAtt.setAttribute(id, KAM_NODE_ID_ATTR, kamNode.getId());
         nodeAtt.setAttribute(id, KAM_NODE_FUNCTION_ATTR, kamNode.getFunction()
-                .name());
-        nodeAtt.setAttribute(id, KAM_NODE_LABEL_ATTR, kamNode.getLabel());
+                .getDisplayValue());
         nodeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
         nodeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR,
                 Long.toString(kamId.getCompiledTime()));
@@ -106,8 +104,7 @@ public class NetworkUtility {
         String id = cynode.getIdentifier();
         nodeAtt.setAttribute(id, KAM_NODE_ID_ATTR, node.getId());
         nodeAtt.setAttribute(id, KAM_NODE_FUNCTION_ATTR, node.getFunction()
-                .name());
-        nodeAtt.setAttribute(id, KAM_NODE_LABEL_ATTR, node.getLabel());
+                .getDisplayValue());
         nodeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
         nodeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR,
                 Long.toString(kamId.getCompiledTime()));
@@ -143,8 +140,8 @@ public class NetworkUtility {
 
         // create cytoscape edge and attach KAM edge id as hidden attribute
         CyEdge cye = Cytoscape.getCyEdge(cynsource, cyntarget,
-                Semantics.INTERACTION, edge.getRelationship().toString(), true,
-                true);
+                Semantics.INTERACTION,
+                edge.getRelationship().getDisplayValue(), true, true);
         String id = cye.getIdentifier();
         edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
         edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
@@ -173,6 +170,8 @@ public class NetworkUtility {
         if (kamId == null) throw new NullPointerException();
 
         String id = cyedge.getIdentifier();
+        edgeAtt.setAttribute(id, Semantics.INTERACTION, edge.getRelationship()
+                .getDisplayValue());
         edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
         edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
         String compileTime = Long.toString(kamId.getCompiledTime());
@@ -241,13 +240,12 @@ public class NetworkUtility {
         final String kamId = nodeAtt.getStringAttribute(id, KAM_NODE_ID_ATTR);
         final String func = nodeAtt.getStringAttribute(id,
                 KAM_NODE_FUNCTION_ATTR);
-        final String lbl = nodeAtt.getStringAttribute(id, KAM_NODE_LABEL_ATTR);
 
         final KamNode kamNode = new KamNode();
         kamNode.setId(kamId);
-        final FunctionType ftype = FunctionType.valueOf(func);
+        final FunctionType ftype = FunctionType.fromValue(func);
         kamNode.setFunction(ftype);
-        kamNode.setLabel(lbl);
+        kamNode.setLabel(cynode.getIdentifier());
         return kamNode;
     }
 
