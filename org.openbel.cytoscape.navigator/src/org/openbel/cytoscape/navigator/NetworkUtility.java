@@ -33,8 +33,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
+import org.openbel.cytoscape.webservice.KamService;
+import org.openbel.cytoscape.webservice.KamServiceFactory;
+import org.openbel.framework.ws.model.Annotation;
+import org.openbel.framework.ws.model.BelStatement;
 import org.openbel.framework.ws.model.FunctionType;
 import org.openbel.framework.ws.model.KamEdge;
 import org.openbel.framework.ws.model.KamNode;
@@ -138,38 +144,31 @@ public class NetworkUtility {
             cyntarget = addNode(cyn, kamId, tgtkn);
         }
 
-        // create cytoscape edge and attach KAM edge id as hidden attribute
-        CyEdge cye = Cytoscape.getCyEdge(cynsource, cyntarget,
+        CyEdge cyEdge = Cytoscape.getCyEdge(cynsource, cyntarget,
                 Semantics.INTERACTION,
                 edge.getRelationship().getDisplayValue(), true, true);
-        String id = cye.getIdentifier();
-        edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
-        edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
-        String compileTime = Long.toString(kamId.getCompiledTime());
-        edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
-        edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
-        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
-        cyn.addEdge(cye);
-        return cye;
+        _getAttributes(kamId, cyEdge, edge);
+        cyn.addEdge(cyEdge);
+        return cyEdge;
     }
 
     /**
      * Updates {@link CyAttributes edges attributes} for a {@link CyEdge edge}
      * using a {@link KamIdentifier KAM id} and {@link KamEdge KAM edge}.
      *
-     * @param cyedge {@link CyEdge}; may not be {@code null}
+     * @param cyEdge {@link CyEdge}; may not be {@code null}
      * @param kamId {@link KamIdentifier}; may not be {@code null}
      * @param edge {@link KamEdge}; may not be {@code null}
      * @throws NullPointerException when {@code cyedge}, {@code kamId}, or
      * {@code edge} is {@code null}
      */
-    public static void updateEdge(CyEdge cyedge, KamIdentifier kamId,
+    public static void updateEdge(CyEdge cyEdge, KamIdentifier kamId,
             KamEdge edge) {
-        if (cyedge == null) throw new NullPointerException();
+        if (cyEdge == null) throw new NullPointerException();
         if (edge == null) throw new NullPointerException();
         if (kamId == null) throw new NullPointerException();
 
-        String id = cyedge.getIdentifier();
+        String id = cyEdge.getIdentifier();
         edgeAtt.setAttribute(id, Semantics.INTERACTION, edge.getRelationship()
                 .getDisplayValue());
         edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
@@ -178,6 +177,8 @@ public class NetworkUtility {
         edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
         edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
         edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
+        
+        _getAttributes(kamId, cyEdge, edge);
     }
 
     public static void disassociate(CyNode cynode) {
@@ -200,6 +201,8 @@ public class NetworkUtility {
         safeDeleteAttribute(edgeAtt, id, KAM_COMPILE_DATE_ATTR);
         safeDeleteAttribute(edgeAtt, id, WSDL_URL_ATTR);
         edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "no");
+        
+        _removeAttributes(cyedge);
     }
 
     /**
@@ -403,5 +406,64 @@ public class NetworkUtility {
         }
 
         return null;
+    }
+    
+    /**
+     * XXX Temporary - add annotation attributes when associating (add/update)
+     */
+    private static void _getAttributes(KamIdentifier kamId, CyEdge cyEdge,
+            KamEdge edge) {
+        // create cytoscape edge and attach KAM edge id as hidden attribute
+        String id = cyEdge.getIdentifier();
+        edgeAtt.setAttribute(id, KAM_EDGE_ID_ATTR, edge.getId());
+        edgeAtt.setAttribute(id, KAM_NAME_ATTR, kamId.getName());
+        String compileTime = Long.toString(kamId.getCompiledTime());
+        edgeAtt.setAttribute(id, KAM_COMPILE_DATE_ATTR, compileTime);
+        edgeAtt.setAttribute(id, WSDL_URL_ATTR, kamId.getWsdlUrl());
+        edgeAtt.setAttribute(id, KAM_MAPPED_ATTR, "yes");
+        
+        Map<String, Set<String>> amap = new HashMap<String, Set<String>>();
+        KamService svc = KamServiceFactory.getInstance().getKAMService();
+        List<BelStatement> stmts = svc.getSupportingEvidence(edge);
+        for (BelStatement s : stmts) {
+            List<Annotation> anns = s.getAnnotations();
+            for (Annotation a : anns) {
+                String type = a.getAnnotationType().getName();
+                
+                Set<String> values = amap.get(type);
+                if (values == null) {
+                    values = new TreeSet<String>();
+                    amap.put(type, values);
+                }
+                values.add(a.getValue());
+            }
+        }
+        
+        String prefix = "KAM_ANNOTATION_";
+        for (Entry<String, Set<String>> e : amap.entrySet()) {
+            String attrName = prefix + e.getKey();
+            
+            // if exists, remove previous annotation attr
+            if (edgeAtt.hasAttribute(id, attrName))
+                edgeAtt.deleteAttribute(id, attrName);
+            
+            // set list attr for annotations
+            Set<String> values = e.getValue();
+            List<String> l = new ArrayList<String>(values);
+            edgeAtt.setListAttribute(id, attrName, l);
+            edgeAtt.setUserVisible(attrName, true);
+            edgeAtt.setUserVisible(attrName, true);
+        }
+    }
+    
+    /**
+     * XXX Temporary - remove annotation attributes when disassociating
+     */
+    private static void _removeAttributes(CyEdge cyEdge) {
+        String id = cyEdge.getIdentifier();
+        for (String attrName : edgeAtt.getAttributeNames()) {
+            if (attrName != null && attrName.startsWith("KAM_ANNOTATION_"))
+                edgeAtt.deleteAttribute(id, attrName);
+        }
     }
 }
