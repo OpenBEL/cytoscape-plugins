@@ -61,9 +61,9 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
     jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
 
     # merge into one jar
-    package(:jar, :id => _id(project)) \
-      .with(:manifest => file(MANIFEST)) \
-      .merge(jars)
+    package(:jar, :id => _id(project)).
+      with(:manifest => file(MANIFEST)).
+      merge(jars)
   end
 
   define 'org.openbel.cytoscape.navigator' do
@@ -83,9 +83,9 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
     jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
 
     # merge into one jar
-    package(:jar, :id => _id(project)) \
-      .with(:manifest => file(MANIFEST)) \
-      .merge(jars)
+    package(:jar, :id => _id(project)).
+      with(:manifest => file(MANIFEST)).
+      merge(jars)
   end
 end
 
