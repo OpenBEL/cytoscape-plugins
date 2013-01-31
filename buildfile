@@ -117,12 +117,14 @@ task :cytoscape_task do
   
   cyhome = ENV['CYTOSCAPE_HOME']
   plugins_dir = Pathname.new(cyhome) + 'plugins'
-  puts projects
-  prj = projects('OpenBEL - KAM Navigator Plugin:org.openbel.cytoscape.navigator')[0]
-  plugin_jar = Dir[prj.path_to(:target) + '/*.jar'][0]
 
-  puts "Copying #{plugin_jar} to #{plugins_dir}"
-  FileUtils.copy(plugin_jar, plugins_dir)
+  # copy webservice and navigator jar artifacts; ignore first meta project
+  projects.slice(1, projects.length).each { |project|
+    plugin_jar = Dir[project.path_to(:target) + '/*.jar'][0]
+    puts "Copying #{plugin_jar} to #{plugins_dir}"
+    FileUtils.copy(plugin_jar, plugins_dir)
+  }
+
   if ENV['JREBEL_HOME']
     jrebel = "-javaagent:#{Pathname.new(ENV['JREBEL_HOME']) + 'jrebel.jar'}"
     puts "Rebel forces enabled.  The force is strong with this one."
