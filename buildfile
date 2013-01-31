@@ -11,7 +11,7 @@ repositories.remote << 'http://code.cytoscape.org/nexus/content/repositories/pub
 
 # build settings
 OPENBEL_KAM_NAVIGATOR_PLUGIN = 'OpenBEL - KAM Navigator Plugin'
-VERSION = '0.9'
+PLUGIN_VERSION = '0.9'
 settings = Buildr.settings.build
 settings['junit'] = '4.11'
 
@@ -44,7 +44,7 @@ layout[:source, :test, :resources] = 'test'
 desc OPENBEL_KAM_NAVIGATOR_PLUGIN
 define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
   project.group = 'org.openbel'
-  project.version = VERSION
+  project.version = PLUGIN_VERSION
   default_compile_opts compile
   eclipse.options.short_names = true
   eclipse.natures 'org.eclipse.jdt.core.javanature'
@@ -99,7 +99,7 @@ end
 
 # Default project configuration.
 def configure(project)
-  project.version = VERSION
+  project.version = PLUGIN_VERSION
 end
 
 def _id(project)
