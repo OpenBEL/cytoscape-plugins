@@ -1,0 +1,11 @@
+Manifest-Version: 1.0                                                                                                                                                                                                                                                    
+Bundle-SymbolicName: org.openbel.cytoscape.navigator.api
+Bundle-Name: org.openbel.cytoscape.navigator.api
+Bundle-Description: Plugin API - Navigator for BEL Framework networks
+Bundle-Version: 1.0
+Bundle-ManifestVersion: 2
+Export-Package: org.openbel.cytoscape.navigator.api;version=1.0
+Import-Package: javax.swing,org.cytoscape.application;version="[3.0,4)
+ ",org.cytoscape.application.swing;version="[3.0,4)",org.cytoscape.ser
+ vice.util;version="[3.0,4)",org.osgi.framework;version="[1.5,2)"
+

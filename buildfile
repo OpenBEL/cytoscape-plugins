@@ -1,7 +1,4 @@
-# OpenBEL KAM Navigator Plugin for Cytoscape
 # vim: filetype=ruby:ts=2:sw=2 :
-#
-# set repositories
 require 'fileutils'
 require 'pathname'
 require 'set'
@@ -10,28 +7,33 @@ repositories.remote << 'http://repo1.maven.org/maven2'
 repositories.remote << 'http://code.cytoscape.org/nexus/content/repositories/public'
 
 # build settings
-OPENBEL_KAM_NAVIGATOR_PLUGIN = 'OpenBEL - KAM Navigator Plugin'
-PLUGIN_VERSION = '0.9'
+OPENBEL_KAM_NAVIGATOR_PLUGIN = 'OpenBEL - Cytoscape Navigator'
+PLUGIN_VERSION = '1.0'
 settings = Buildr.settings.build
 settings['junit'] = '4.11'
 
 # aliases
 task :c  => [:clean]
 task :p  => [:package]
-task :cy  => [:cytoscape]
 task :cp => [:clean, :package]
-task :cpy => [:cp, :cy]
 
 # common files
 MANIFEST = 'resources/META-INF/MANIFEST.MF'
 
+# dependency versions
+CY_API_VERSION = '3.0.0'
+OSGI_VERSION = '4.2.0'
+
 # dependencies
-CYTOSCAPE = 'cytoscape:application:jar:2.8.3'
-DING = 'cytoscape.corelibs:ding:jar:2.8.3'
-TASK = 'cytoscape.corelibs:task:jar:2.8.3'
+CY_APPLICATION_API = 'org.cytoscape:application-api:jar:' + CY_API_VERSION
+CY_MODEL_API = 'org.cytoscape:model-api:jar:' + CY_API_VERSION
+CY_SESSION_API = 'org.cytoscape:session-api:jar:' + CY_API_VERSION
+CY_WORK_API = 'org.cytoscape:work-api:jar:' + CY_API_VERSION
+CY_SERVICE_API = 'org.cytoscape:service-api:jar:' + CY_API_VERSION
+CY_SWING_APPLICATION_API = 'org.cytoscape:swing-application-api:jar:' +
+                           CY_API_VERSION
+OSGI_CORE = 'org.osgi:org.osgi.core:jar:' + OSGI_VERSION
 OPENBEL_WS_MODEL = 'org.openbel:org.openbel.framework.ws.model:jar:3.0.0'
-GINY = 'cytoscape.corelibs:giny:jar:2.8.3'
-EQUATIONS = 'cytoscape.corelibs:equations:jar:2.8.3'
 
 # establish flat layout
 layout = Layout.new
@@ -49,50 +51,26 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
   eclipse.options.short_names = true
   eclipse.natures 'org.eclipse.jdt.core.javanature'
 
-  define 'org.openbel.cytoscape.webservice' do
+  define 'org.openbel.cytoscape.navigator.api' do
     configure(project)
-    compile.with CYTOSCAPE, OPENBEL_WS_MODEL
-
-    # accumulate dependent projects + transitives
-    jars = []
-    cp_array = project.compile.classpath.to_a()
-    jars << cp_array.map { |i| i.to_s }
-    jars.flatten!.uniq!
-    jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
-
-    # merge into one jar
-    package(:jar, :id => _id(project)).
-      with(:manifest => file(MANIFEST)).
-      merge(jars)
+    compile.with CY_APPLICATION_API, CY_WORK_API, CY_SESSION_API,
+                 CY_SERVICE_API, CY_MODEL_API
+    package(:jar, :id => _id(project)).with(:manifest => file(MANIFEST))
   end
 
-  define 'org.openbel.cytoscape.navigator' do
+  define 'org.openbel.cytoscape.navigator.impl' do
     configure(project)
-    compile.with projects('org.openbel.cytoscape.webservice'), CYTOSCAPE,
-                 DING, GINY, EQUATIONS, TASK, OPENBEL_WS_MODEL
-
-    # accumulate dependent projects + transitives
-    include_projects = projects('org.openbel.cytoscape.webservice')
-    jars = []
-    include_projects.each { |project|
-      jars << Dir[project.path_to(:target) + '/*.jar']
-      cp_array = project.compile.classpath.to_a()
-      jars << cp_array.map { |i| i.to_s }
-      jars.flatten!.uniq!
-    }
-    jars.delete_if { |i| i.include? 'application-2.8.3.jar' }
-
-    # merge into one jar
-    package(:jar, :id => _id(project)).
-      with(:manifest => file(MANIFEST)).
-      merge(jars)
+    compile.with projects('org.openbel.cytoscape.navigator.api'),
+                 OSGI_CORE, CY_APPLICATION_API, CY_SESSION_API, CY_WORK_API,
+                 CY_SERVICE_API, CY_MODEL_API
+    package(:jar, :id => _id(project)).with(:manifest => file(MANIFEST))
   end
 end
 
-# Configures default compilation options (1.6 and all lint checks).
+# Configures default compilation options (1.7 and all lint checks).
 def default_compile_opts(compile)
-  compile.options.source = '1.6'
-  compile.options.target = '1.6'
+  compile.options.source = '1.7'
+  compile.options.target = '1.7'
   compile.options.lint = 'all'
   compile.options.other = %w{-encoding utf-8}
 end
@@ -105,48 +83,4 @@ end
 def _id(project)
   return project.name.gsub(OPENBEL_KAM_NAVIGATOR_PLUGIN + ':', '')
 end
-
-# extension - run cytoscape task
-task :cytoscape_task do
-  if not ENV['JAVA_HOME']
-    raise "JAVA_HOME environment variable must be set."
-  end
-  if not ENV['CYTOSCAPE_HOME']
-    raise "CYTOSCAPE_HOME environment variable must be set."
-  end
-  
-  cyhome = ENV['CYTOSCAPE_HOME']
-  plugins_dir = Pathname.new(cyhome) + 'plugins'
-
-  # copy webservice and navigator jar artifacts; ignore first meta project
-  projects.slice(1, projects.length).each { |project|
-    plugin_jar = Dir[project.path_to(:target) + '/*.jar'][0]
-    puts "Copying #{plugin_jar} to #{plugins_dir}"
-    FileUtils.copy(plugin_jar, plugins_dir)
-  }
-
-  if ENV['JREBEL_HOME']
-    jrebel = "-javaagent:#{Pathname.new(ENV['JREBEL_HOME']) + 'jrebel.jar'}"
-    puts "Rebel forces enabled.  The force is strong with this one."
-  else
-    jrebel = ""
-    puts "Rebel forces disabled.  Recharge batteries and try again."
-  end
-  puts "Launching Cytoscape using CYTOSCAPE_HOME: #{cyhome}"
-  cy_command = %Q(java
-    -Dswing.aatext=true
-    -Dawt.useSystemAAFontSettings=lcd
-    -Xss10M
-    -Xmx1550M
-    -ea
-    -Xdebug
-    -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-    -XX:-HeapDumpOnOutOfMemoryError
-    #{jrebel}
-    -jar "#{Pathname.new(cyhome) + 'cytoscape.jar'}"
-    -p "#{Pathname.new(cyhome) + 'plugins'}")
-  cy_command.delete!("\n")
-  system(cy_command)
-end
-task :cytoscape => [ :cytoscape_task ]
 
