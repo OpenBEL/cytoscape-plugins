@@ -21,7 +21,19 @@ package org.openbel.cytoscape.webservice;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
@@ -43,6 +55,8 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
     private static final long serialVersionUID = -6685554742203767122L;
     private static final String CLIENT = "belframework";
     private static final String DISPLAY_NAME = "BEL Framework Web Services Connection";
+    private static final String SSL_SOCKET_FACTORY_KEY =
+            "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory";
     private static final String REQUEST_TIMEOUT_KEY =
             "com.sun.xml.internal.ws.request.timeout";
     private static final Configuration cfg = Configuration.getInstance();
@@ -72,7 +86,7 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
      */
     public synchronized void reconfigure() {
         configure();
-        
+
         // reload client connector in kam service after reconfigure
         KamServiceFactory.getInstance().getKAMService().reloadClientConnector();
     }
@@ -90,13 +104,27 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
         }
 
         try {
+            // created trusted SSL socket factory
+            SSLSocketFactory ssl = trustedSSL();
+
             // setup stub and configure timeout
+            HttpsURLConnection.setDefaultSSLSocketFactory(ssl);
             WebAPI stub = new WebAPIService(wsdlURL, new QName(
                     "http://belframework.org/ws/schemas", "WebAPIService"))
                     .getWebAPISoap11();
+
+            Map<String, Object> ctx = ((BindingProvider) stub).getRequestContext();
+
+            // set timeout
+            ctx.put(REQUEST_TIMEOUT_KEY, cfg.getTimeout() * 1000);
+
+            // set SSL socket factory
+            ctx.put(SSL_SOCKET_FACTORY_KEY, ssl);
+
+            // set endpoint location
+            ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, wsdlURL.toString());
+
             setClientStub(stub);
-            ((BindingProvider) stub).getRequestContext().put(
-                    REQUEST_TIMEOUT_KEY, cfg.getTimeout() * 1000);
             valid = true;
         } catch (Throwable e) {
             valid = false;
@@ -124,5 +152,47 @@ public class ClientConnector extends WebServiceClientImpl<WebAPI> {
     public void executeService(CyWebServiceEvent wse)
             throws CyWebServiceException {
         throw new UnsupportedOperationException("executeService not supported.");
+    }
+
+    /**
+     * Returns an {@link SSLSocketFactory} that trusts all certificates.  This
+     * allows cytoscape to communicate to TLS-enabled servers without having
+     * a local certificate.
+     *
+     * @return {@link SSLSocketFactory}
+     */
+    private SSLSocketFactory trustedSSL() {
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+            @Override
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain,
+                    String authType) throws CertificateException {}
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain,
+                    String authType) throws CertificateException {}
+        }};
+        SSLContext sc;
+        try {
+            sc = SSLContext.getInstance("SSL");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        HostnameVerifier hv = new HostnameVerifier() {
+            @Override
+            public boolean verify(String arg0, SSLSession arg1) {
+                return true;
+            }
+        };
+        try {
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        } catch (KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
+
+        HttpsURLConnection.setDefaultHostnameVerifier(hv);
+        return sc.getSocketFactory();
     }
 }
