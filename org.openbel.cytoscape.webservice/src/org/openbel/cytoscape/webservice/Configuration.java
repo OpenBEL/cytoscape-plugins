@@ -28,9 +28,8 @@ import java.util.Properties;
 import cytoscape.CytoscapeInit;
 
 /**
- * {@link Configuration} defines a singleton that holds the state properties
- * of the webservice client plugin.  This class is also responsible for reading
- * and writing the state to a properties file.
+ * {@link Configuration} handles configuring access to the Web API.
+ * Configuration is read/saved to cytoscape property files.
  *
  * @see Configuration#restoreState()
  * @see Configuration#saveState()
