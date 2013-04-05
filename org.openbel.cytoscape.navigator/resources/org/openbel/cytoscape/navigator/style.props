@@ -1476,7 +1476,7 @@ nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-cl
 nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.controllerType=4
 nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.abundance=100,200,255
 nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.biologicalProcess=255,100,255
-nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.catalyticActivity=255,100,255
+nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.catalyticActivity=100,100,255
 nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.cellSecretion=200,200,255
 nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.cellSurfaceExpression=200,200,255
 nodeFillColorCalculator.KAM\ Visualization\ Data-Node\ Color-Discrete\ Mapper-clone-1364826646819.mapping.map.chaperoneActivity=100,100,255
