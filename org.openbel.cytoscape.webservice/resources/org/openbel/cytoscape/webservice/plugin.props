@@ -17,7 +17,7 @@
 
 pluginName=BELFrameworkWebservice
 pluginDescription=A client connector to the BEL Framework Web Services. This is required to run the KAM Navigator plugin.
-pluginVersion=0.9
+pluginVersion=#{OPENBEL_PLUGINS_VERSION}
 cytoscapeVersion=2.7,2.8
 pluginCategory=Communication/Scripting
 projectURL=http://www.openbel.org

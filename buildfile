@@ -11,7 +11,7 @@ repositories.remote << 'http://code.cytoscape.org/nexus/content/repositories/pub
 
 # build settings
 OPENBEL_KAM_NAVIGATOR_PLUGIN = 'OpenBEL - KAM Navigator Plugin'
-PLUGIN_VERSION = '0.9'
+PLUGIN_VERSION = '0.10'
 settings = Buildr.settings.build
 settings['junit'] = '4.11'
 
@@ -53,6 +53,8 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
     configure(project)
     compile.with CYTOSCAPE, OPENBEL_WS_MODEL
     jars = project_dependency_paths(project)
+    resources.filter.
+      using(:ruby, 'OPENBEL_PLUGINS_VERSION' => PLUGIN_VERSION)
     package(:jar, :id => _id(project)).
       with(:manifest => file(MANIFEST)).
       merge(jars)
@@ -63,8 +65,9 @@ define OPENBEL_KAM_NAVIGATOR_PLUGIN, :layout => layout do
     webservice_project = project('org.openbel.cytoscape.webservice')
     compile.with webservice_project, CYTOSCAPE, DING, GINY, EQUATIONS, TASK,
                  OPENBEL_WS_MODEL
-
     jars = project_dependency_paths(webservice_project)
+    resources.filter.
+      using(:ruby, 'OPENBEL_PLUGINS_VERSION' => PLUGIN_VERSION)
     package(:jar, :id => _id(project)).
       with(:manifest => file(MANIFEST)).
       merge(jars)
