@@ -99,6 +99,7 @@ class AssociateToKamTask implements Task {
         int nodeCount = network.getNodeCount();
         int[] nodes = network.getNodeIndicesArray();
         List<Node> wsNodes = new ArrayList<Node>(nodeCount);
+        List<CyNode> cyNodes = new ArrayList<>(nodes.length);
         for (int idx : nodes) {
             CyNode node = (CyNode) network.getNode(idx);
             String nodeId = node.getIdentifier();
@@ -119,6 +120,10 @@ class AssociateToKamTask implements Task {
                 continue;
             }
 
+            // track queryable cytoscape node
+            cyNodes.add(node);
+
+            // build up WebAPI Node objects for query
             Node wsNode = new Node();
             wsNode.setFunction(fx);
             wsNode.setLabel(nodeId);
@@ -133,22 +138,25 @@ class AssociateToKamTask implements Task {
 
         m.setPercentCompleted(60);
 
+        // hard assertion; resolveNodes web operation should be congruent
+        if (cyNodes.size() != resolvedNodes.size())
+            throw new AssertionError("len(cyNodes) != len(resolvedNodes)");
+
         // update non-null nodes; index to ease resolve edges
         int nc = resolvedNodes.size();
         Map<String, Node> cyNodeResolveMap = new HashMap<String, Node>(nc);
-        Iterator<KamNode> nit = resolvedNodes.iterator();
-        for (int idx : nodes) {
-            CyNode node = (CyNode) network.getNode(idx);
+        for (int i = 0; i < nc; i++) {
+            CyNode node = cyNodes.get(i);
+            if (node == null) continue;
 
-            if (nit.hasNext()) {
-                KamNode resolved = nit.next();
-                if (resolved != null) {
-                    updateNode(node, kamId, resolved);
-                    cyNodeResolveMap.put(node.getIdentifier(), resolved);
-                } else {
-                    disassociate(node);
-                }
+            KamNode resolved = resolvedNodes.get(i);
+            if (resolved == null) {
+                disassociate(node);
+                continue;
             }
+
+            updateNode(node, kamId, resolved);
+            cyNodeResolveMap.put(node.getIdentifier(), resolved);
         }
 
         // resolve edges
