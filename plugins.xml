@@ -36,7 +36,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/OpenBEL/cytoscape-plugins/org.openbel.cytoscape.webservice-0.9.jar</url>
+                    <url>https://cloud.github.com/downloads/OpenBEL/cytoscape-plugins/org.openbel.cytoscape.webservice-0.9.jar</url>
 
                     <authorlist>
                         <author>
@@ -67,7 +67,7 @@
 
                     <filetype>jar</filetype>
                     <category>Analysis</category>
-                    <url>http://cloud.github.com/downloads/OpenBEL/cytoscape-plugins/org.openbel.cytoscape.navigator-0.9.jar</url>
+                    <url>https://cloud.github.com/downloads/OpenBEL/cytoscape-plugins/org.openbel.cytoscape.navigator-0.9.jar</url>
 
                     <authorlist>
                         <author>
